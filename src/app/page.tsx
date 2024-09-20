@@ -4,10 +4,12 @@ import { useState } from "react";
 import SearchForm from "@/components/SearchForm";
 import ProductList from "@/components/ProductList";
 import { Product } from "@/lib/types";
+import { Loader2 } from "lucide-react";
 
 export default function Home() {
   const [products, setProducts] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSearch = async (productName: string) => {
     const urls = [
@@ -17,6 +19,7 @@ export default function Home() {
       `https://www.fravega.com/l/?keyword=${productName}`,
     ];
     console.log("Searching for:", productName);
+    setIsLoading(true);
     try {
       const results = await Promise.all(
         urls.map(async (url) => {
@@ -34,6 +37,8 @@ export default function Home() {
       setFilteredProducts(combinedResults);
     } catch (error) {
       console.error("Error fetching products:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -43,8 +48,13 @@ export default function Home() {
         Comparador de Productos Electrónicos
       </h1>
       <SearchForm onSearch={handleSearch} />
-
-      <ProductList products={filteredProducts} />
+      {isLoading ? (
+        <div className="flex justify-center items-center h-64">
+          <Loader2 className="h-8 w-8 animate-spin" />
+        </div>
+      ) : (
+        <ProductList products={filteredProducts} />
+      )}
     </main>
   );
 }

@@ -31,7 +31,7 @@ export default function ProductList({ products }: Readonly<ProductListProps>) {
               </p>
               <p className="text-sm text-gray-500">($ {product.price} x 1)</p>
             </div>
-            <div className="rounded-full bg-slate-500 p-2">{product.from}</div>
+            <div className="rounded-full bg-pink-500 text-white p-2">{product.from}</div>
           </Card>
         </Link>
       ))}

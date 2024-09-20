@@ -1,46 +1,47 @@
 import axios from "axios";
 import { load } from "cheerio";
-
-interface Product {
-  name: string;
-  price: string;
-  specs: string;
-  category: string;
-}
+import { Product } from "./types";
 
 type Scraper = (url: string) => Promise<Product[]>;
 
 const scrapers: Record<string, Scraper> = {
   naldo: async (url) => {
     const response = await axios.get(url);
-    console.log({ response });
+
     const $ = load(response.data);
     const products: Product[] = [];
 
     // Adaptar los selectores a la estructura HTML de VTEX
-    $(".vtex-product-summary-2-x-container").each((index, element) => {
+    $(
+      ".vtex-product-summary-2-x-container.vtex-product-summary-2-x-container--product-card.vtex-product-summary-2-x-containerNormal.vtex-product-summary-2-x-containerNormal--product-card"
+    ).each((index, element) => {
       const name = $(element)
-        .find(".vtex-store-components-3-x-productNameContainer")
+        .find(".vtex-product-summary-2-x-productBrand")
         .text()
         .trim();
       const price = $(element)
-        .find(".vtex-product-price-1-x-sellingPrice")
+        .find(
+          ".vtex-flex-layout-0-x-flexColChild.vtex-flex-layout-0-x-flexColChild--product-price-container-2"
+        )
         .text()
         .trim();
-      const specs = $(element)
-        .find(".vtex-product-specs-1-x-specs")
-        .text()
-        .trim();
-      const category = $(element)
-        .find(".vtex-store-components-3-x-categoryName")
-        .text()
-        .trim();
-      products.push({ name, price, specs, category });
+      const image =
+        $(element)
+          .find(
+            ".vtex-product-summary-2-x-imageNormal.vtex-product-summary-2-x-image.vtex-product-summary-2-x-image--product-card"
+          )
+          .attr("src") ?? "https://placehold.co/300x200";
+      products.push({
+        name,
+        price: price.split("-")[0].trim(),
+        from: "naldo",
+        image,
+      });
     });
     console.log({ products });
     return products;
   },
-  centrohogar: async (url) => {
+  cetrogar: async (url) => {
     const response = await axios.get(url);
     const $ = load(response.data);
     const products: Product[] = [];
@@ -48,8 +49,13 @@ const scrapers: Record<string, Scraper> = {
     $(".product-item").each((index, element) => {
       const name = $(element).find(".product-item-name").text();
       const price = $(element).find(".price").text();
-      const specs = $(element).find(".product-item-description").text();
-      products.push({ name, price, specs, category: "unknown" });
+
+      products.push({
+        name,
+        price,
+        from: "cetrogar",
+        image: "https://placehold.co/300x200",
+      });
     });
 
     return products;
@@ -62,8 +68,14 @@ const scrapers: Record<string, Scraper> = {
     $(".product-box").each((index, element) => {
       const name = $(element).find(".product-title").text();
       const price = $(element).find(".price-fraction").text();
-      const specs = $(element).find(".product-features").text();
-      products.push({ name, price, specs, category: "unknown" });
+
+      products.push({
+        name,
+        price,
+
+        from: "musimundo",
+        image: "https://placehold.co/300x200",
+      });
     });
 
     return products;
@@ -76,8 +88,13 @@ const scrapers: Record<string, Scraper> = {
     $(".product-card").each((index, element) => {
       const name = $(element).find(".product-card__title").text();
       const price = $(element).find(".product-card__price").text();
-      const specs = $(element).find(".product-card__description").text();
-      products.push({ name, price, specs, category: "unknown" });
+
+      products.push({
+        name,
+        price,
+        from: "fravega",
+        image: "https://placehold.co/300x200",
+      });
     });
 
     return products;
@@ -86,28 +103,8 @@ const scrapers: Record<string, Scraper> = {
     console.warn(
       `No specific scraper found for ${url}. Using default scraper.`
     );
-    const response = await axios.get(url);
-    const $ = load(response.data);
-    const products: Product[] = [];
 
-    $("div, article").each((index, element) => {
-      const name = $(element).find("h2, h3, .title").first().text();
-      const price = $(element).find('.price, [class*="price"]').first().text();
-      const specs = $(element)
-        .find('p, .description, [class*="description"]')
-        .first()
-        .text();
-      if (name && price) {
-        products.push({
-          name,
-          price,
-          specs: specs || "No specifications available",
-          category: "unknown",
-        });
-      }
-    });
-
-    return products;
+    return [];
   },
 };
 

@@ -1,7 +1,9 @@
 import { useState } from "react";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 interface SearchFormProps {
-  onSearch: (url: string) => void;
+  onSearch: (productName: string) => void;
 }
 
 export default function SearchForm({ onSearch }: Readonly<SearchFormProps>) {
@@ -13,21 +15,18 @@ export default function SearchForm({ onSearch }: Readonly<SearchFormProps>) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="mb-4">
-      <input
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <Input
         type="text"
         value={productName}
         onChange={(e) => setProductName(e.target.value)}
         placeholder="Ingrese el nombre del producto"
         required
-        className="w-full p-2 border border-gray-300 rounded"
+        className="w-full"
       />
-      <button
-        type="submit"
-        className="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-      >
+      <Button type="submit" className="w-full">
         Buscar
-      </button>
+      </Button>
     </form>
   );
 }

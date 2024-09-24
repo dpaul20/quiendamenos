@@ -1,7 +1,7 @@
 import puppeteer from "puppeteer";
 import { Product } from "./types";
 import axios from "axios";
-import { encodeQuery } from "./helpers";
+import { encodeQuery, encodeUrl } from "./helpers";
 
 type Scraper = (url: string) => Promise<Product[]>;
 
@@ -46,30 +46,41 @@ const scrapers: Record<string, Scraper> = {
   cetrogar: async (query) => {
     const browser = await puppeteer.launch();
     const page = await browser.newPage();
-    const url = `https://www.cetrogar.com.ar/catalogsearch/result/?q=${query}`;
+    const url = `https://www.cetrogar.com.ar/catalogsearch/result/?q=${encodeUrl(
+      query
+    )}`;
     await page.goto(url, { waitUntil: "networkidle2" });
 
     const products: Product[] = await page.evaluate(() => {
-      const items = document.querySelectorAll(".product-item");
+      const items = document.querySelectorAll(".item.product.product-item");
       return Array.from(items).map((item) => {
-        const name =
-          item.querySelector(".product-item-name")?.textContent?.trim() ??
-          "No name available";
-        const priceText =
-          item.querySelector(".price")?.textContent?.trim() ??
-          "No price available";
+        const name = item
+          .querySelector(".product.name.product-item-name")
+          ?.textContent?.trim();
 
-        // Convertir el precio a un número
-        const price = parseFloat(
-          priceText.replace(/[^0-9,-]+/g, "").replace(",", "")
-        );
-        console.log("price", price);
+        const price = item
+          .querySelector(".price")
+          ?.textContent?.trim()
+          .replace(/[^0-9,-]+/g, "")
+          .replace(",", "");
+
+        // Obtener la URL de la imagen desde el atributo style
+        const imageStyle = item
+          .querySelector(".product-image-photo")
+          ?.getAttribute("style");
+        const imageUrlMatch = imageStyle?.match(/url\(['"]?(.*?)['"]?\)/);
+        const imageUrl = imageUrlMatch
+          ? imageUrlMatch[1]
+          : "https://placehold.co/300x200";
+
+        const url = item.querySelector("a")?.getAttribute("href");
+
         return {
           name,
           price,
           from: "cetrogar",
-          image: "https://placehold.co/300x200",
-          url: "https://www.cetrogar.com.ar",
+          image: imageUrl,
+          url,
           brand: "unknown",
         };
       });

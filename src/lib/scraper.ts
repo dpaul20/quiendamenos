@@ -1,17 +1,19 @@
 import puppeteer from "puppeteer";
-import { Product } from "./types";
+import { Product } from "../types/product";
 import axios from "axios";
-import { encodeQuery, encodeUrl } from "./helpers";
+import { capitalize } from "./capitalize";
+import { encodeQuery } from "./vtex-helpers";
+import { vtexProduct } from "@/types/vtex-product";
 
 type Scraper = (url: string) => Promise<Product[]>;
 
-const formatProduct = (product: any): Product => {
+const formatProduct = (product: vtexProduct): Product => {
   return {
     name: product.productName,
-    price: parseFloat(product.priceRange.sellingPrice.lowPrice),
+    price: Number(product.priceRange.sellingPrice.lowPrice),
     url: `https://www.naldo.com.ar${product.link}`,
     image: product.items[0].images[0].imageUrl,
-    brand: product.brand.toLowerCase(),
+    brand: capitalize(product.brand),
     from: "naldo",
   };
 };
@@ -30,7 +32,7 @@ const scrapers: Record<string, Scraper> = {
       const { data } = await axios.get(url);
       // console.log('productSuggestions', data?.data?.productSuggestions?.products)
       const products = data?.data?.productSuggestions?.products?.map(
-        (product: any) => formatProduct(product)
+        (product: vtexProduct) => formatProduct(product)
       );
 
       if (!products) {
@@ -46,9 +48,7 @@ const scrapers: Record<string, Scraper> = {
   cetrogar: async (query) => {
     const browser = await puppeteer.launch();
     const page = await browser.newPage();
-    const url = `https://www.cetrogar.com.ar/catalogsearch/result/?q=${encodeUrl(
-      query
-    )}`;
+    const url = `https://www.cetrogar.com.ar/catalogsearch/result/?q=${query}`;
     await page.goto(url, { waitUntil: "networkidle2" });
 
     const products: Product[] = await page.evaluate(() => {
@@ -104,7 +104,7 @@ const scrapers: Record<string, Scraper> = {
           from: "musimundo",
           image: product.UrlImagen,
           url: product.Link,
-          brand: product.Marca.toLowerCase(),
+          brand: capitalize(product.Marca),
         };
       });
 

@@ -15,7 +15,7 @@ export default function SearchForm({ onSearch }: Readonly<SearchFormProps>) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} className="flex flex-row gap-2">
       <Input
         type="text"
         value={productName}
@@ -24,7 +24,7 @@ export default function SearchForm({ onSearch }: Readonly<SearchFormProps>) {
         required
         className="w-full"
       />
-      <Button type="submit" className="w-full">
+      <Button type="submit" className="w-full w-1/5">
         Buscar
       </Button>
     </form>

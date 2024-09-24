@@ -8,6 +8,9 @@ interface ProductListProps {
 }
 
 export default function ProductList({ products }: Readonly<ProductListProps>) {
+  if (products.length === 0) {
+    return null
+  }
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 py-4">
       {products.map((product, index) => (

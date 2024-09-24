@@ -1,64 +1,51 @@
 import puppeteer from "puppeteer";
 import { Product } from "./types";
+import axios from "axios";
+import { encodeQuery } from "./helpers";
 
 type Scraper = (url: string) => Promise<Product[]>;
 
+const formatProduct = (product: any): Product => {
+  return {
+    name: product.productName,
+    price: product.priceRange.sellingPrice.lowPrice,
+    url: `https://www.naldo.com.ar${product.link}`,
+    image: product.items[0].images[0].imageUrl,
+    from: "naldo",
+  };
+};
+
+const buildUrl = (query: string) => {
+  const baseUrl = "https://www.naldo.com.ar/_v/segment/graphql/v1";
+
+  return `${baseUrl}?${encodeQuery(query)}`;
+};
+
 const scrapers: Record<string, Scraper> = {
-  naldo: async (url) => {
+  naldo: async (query: string) => {
+    const url = buildUrl(query);
+
     try {
-      const browser = await puppeteer.launch({
-        headless: true,
-      });
-      const page = await browser.newPage();
+      const { data } = await axios.get(url);
+      // console.log('productSuggestions', data?.data?.productSuggestions?.products)
+      const products = data?.data?.productSuggestions?.products?.map(
+        (product: any) => formatProduct(product)
+      );
 
-      await page.goto(url, { waitUntil: "networkidle2" });
+      if (!products) {
+        return [];
+      }
 
-      const products: Product[] = await page.evaluate(() => {
-        const items = document.querySelectorAll(
-          ".vtex-product-summary-2-x-container.vtex-product-summary-2-x-container--product-card.vtex-product-summary-2-x-containerNormal.vtex-product-summary-2-x-containerNormal--product-card"
-        );
-        return Array.from(items).map((item) => {
-          const name =
-            item
-              .querySelector(".vtex-product-summary-2-x-productBrand")
-              ?.textContent?.trim() || "No name available";
-          const price =
-            item
-              .querySelector(
-                ".vtex-flex-layout-0-x-flexColChild.vtex-flex-layout-0-x-flexColChild--product-price-container-2"
-              )
-              ?.textContent?.trim() || "No price available";
-          const image =
-            item
-              .querySelector(
-                ".vtex-product-summary-2-x-imageNormal.vtex-product-summary-2-x-image.vtex-product-summary-2-x-image--product-card"
-              )
-              ?.getAttribute("src") || "https://placehold.co/300x200";
-
-          const url = item.querySelector("a")?.getAttribute("href");
-          return {
-            name: name.toLowerCase(),
-            price: price
-              // .split("-")[0]
-              // .trim()
-              .replace(/[^0-9,.-]+/g, ""),
-            from: "naldo",
-            image,
-            url: `https://www.naldo.com.ar${url}`,
-          };
-        });
-      });
-
-      await browser.close();
       return products;
     } catch (error) {
-      console.error("Error scraping Naldo:", error);
+      console.error("Error fetching products from Naldo:", error);
       return [];
     }
   },
-  cetrogar: async (url) => {
+  cetrogar: async (query) => {
     const browser = await puppeteer.launch();
     const page = await browser.newPage();
+    const url = `https://www.cetrogar.com.ar/catalogsearch/result/?q=${query}`;
     await page.goto(url, { waitUntil: "networkidle2" });
 
     const products: Product[] = await page.evaluate(() => {
@@ -81,11 +68,13 @@ const scrapers: Record<string, Scraper> = {
     });
 
     await browser.close();
+
     return products;
   },
-  musimundo: async (url) => {
+  musimundo: async (query) => {
     const browser = await puppeteer.launch();
     const page = await browser.newPage();
+    const url = `https://www.musimundo.com/mi-musimundo/search?text=${query}`;
     await page.goto(url, { waitUntil: "networkidle2" });
 
     const products: Product[] = await page.evaluate(() => {
@@ -108,11 +97,13 @@ const scrapers: Record<string, Scraper> = {
     });
 
     await browser.close();
+
     return products;
   },
-  fravega: async (url) => {
+  fravega: async (query) => {
     const browser = await puppeteer.launch();
     const page = await browser.newPage();
+    const url = `https://www.fravega.com/l/?keyword=${query}`;
     await page.goto(url, { waitUntil: "networkidle2" });
 
     const products: Product[] = await page.evaluate(() => {
@@ -135,6 +126,7 @@ const scrapers: Record<string, Scraper> = {
     });
 
     await browser.close();
+
     return products;
   },
   default: async (url) => {
@@ -145,11 +137,23 @@ const scrapers: Record<string, Scraper> = {
   },
 };
 
-export async function scrapeWebsite(url: string): Promise<Product[]> {
+export async function scrapeWebsite(query: string): Promise<Product[]> {
   try {
-    const domain = new URL(url).hostname.replace("www.", "").split(".")[0];
-    const scraper = scrapers[domain] || scrapers.default;
-    return await scraper(url);
+    const urls = [
+      `https://www.naldo.com.ar`,
+      `https://www.musimundo.com/mi-musimundo/search?text=${query}`,
+      `https://www.cetrogar.com.ar/catalogsearch/result/?q=${query}`,
+      `https://www.fravega.com/l/?keyword=${query}`,
+    ];
+
+    const promises = urls.map((url) => {
+      const store = url.split(".")[1];
+      const scraper = scrapers[store] || scrapers.default;
+      return scraper(query);
+    });
+
+    const results = await Promise.all(promises);
+    return results.flat();
   } catch (error) {
     console.error("Error scraping website:", error);
     return [];

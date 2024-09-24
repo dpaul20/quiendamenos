@@ -12,29 +12,25 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSearch = async (productName: string) => {
-    const urls = [
-      `https://www.naldo.com.ar/lavavajillas?_q=${productName}&map=ft`,
-      `https://www.musimundo.com/mi-musimundo/search?text=${productName}`,
-      `https://www.cetrogar.com.ar/catalogsearch/result/?q=${productName}`,
-      `https://www.fravega.com/l/?keyword=${productName}`,
-    ];
-    console.log("Searching for:", productName);
     setIsLoading(true);
     try {
-      const results = await Promise.all(
-        urls.map(async (url) => {
-          const response = await fetch("/api/scrape", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ url }),
-          });
-          return response.json();
-        })
-      );
+      console.log("Searching for:", productName);
+      const response = await fetch("/api/scrape", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ query: productName }),
+      });
 
-      const combinedResults = results.flat();
-      setProducts(combinedResults);
-      setFilteredProducts(combinedResults);
+      if (!response.ok) {
+        throw new Error("Failed to fetch products");
+      }
+
+      const results = await response.json();
+      // Ordenar los productos por menor precio
+      const sortedResults = results.sort((a: Product, b: Product) => a.price - b.price);
+      console.log("sortedResults:", sortedResults);
+      setProducts(sortedResults);
+      setFilteredProducts(sortedResults);
     } catch (error) {
       console.error("Error fetching products:", error);
     } finally {

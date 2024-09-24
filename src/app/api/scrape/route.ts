@@ -5,22 +5,24 @@ import { addToQueue } from "@/lib/queue";
 
 export async function POST(request: Request) {
   try {
-    const { url } = await request.json();
+    const { query } = await request.json();
 
     // Verificar caché
-    const cachedData = getCachedData(url);
+    const cachedData = getCachedData(query);
+
     if (cachedData) {
       return NextResponse.json(cachedData);
     }
 
     // Realizar scraping directamente
-    const result = await scrapeWebsite(url);
+
+    const result = await scrapeWebsite(query);
 
     // Almacenar en caché
-    setCachedData(url, result);
+    setCachedData(query, result);
 
     // Agregar a la cola para futuras actualizaciones
-    addToQueue(url);
+    addToQueue(query);
 
     return NextResponse.json(result);
   } catch (error) {

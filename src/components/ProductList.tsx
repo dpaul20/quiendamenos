@@ -2,6 +2,7 @@ import { Product } from "@/types/product";
 import Image from "next/image";
 import { Card } from "@/components/ui/card";
 import Link from "next/link";
+import { capitalize } from "@/lib/capitalize";
 
 interface ProductListProps {
   products: Product[];
@@ -30,7 +31,7 @@ export default function ProductList({ products }: Readonly<ProductListProps>) {
           <div className="flex-1">
             <Link href={product.url} target="_blank">
               <h3 className="text-sm font-semibold text-gray-800 mb-2 capitalize">
-                {product.name}
+                {capitalize(product.name)}
               </h3>
             </Link>
 

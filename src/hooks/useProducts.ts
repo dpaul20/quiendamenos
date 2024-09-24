@@ -7,7 +7,7 @@ export const useProducts = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [selectedBrand, setSelectedBrand] = useState<string>("");
+  const [selectedBrand, setSelectedBrand] = useState<string>("Todas las marcas");
 
   const handleSearch = async (productName: string) => {
     setIsLoading(true);

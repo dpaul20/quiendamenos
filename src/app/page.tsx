@@ -6,6 +6,7 @@ import BrandFilter from "@/components/BrandFilter";
 import { Loader2 } from "lucide-react";
 import { capitalize } from "@/lib/capitalize";
 import { useProducts } from "@/hooks/useProducts";
+import Disclaimer from "@/components/Disclaimer";
 
 export default function Home() {
   const {
@@ -23,6 +24,7 @@ export default function Home() {
 
   return (
     <main className="container mx-auto px-4">
+      <Disclaimer />
       <h1 className="text-3xl font-bold mb-4">
         Comparador de Productos Electrónicos
       </h1>

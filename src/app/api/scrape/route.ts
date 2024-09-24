@@ -1,31 +1,25 @@
-import { NextResponse } from "next/server";
-import { scrapeWebsite } from "@/lib/scraper";
-import { getCachedData, setCachedData } from "@/lib/cache";
 import { addToQueue } from "@/lib/queue";
+import { getCachedData, setCachedData } from "@/lib/cache";
+import { scrapeWebsite } from "@/lib/scraper";
+import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
   try {
     const { query } = await request.json();
-
-    const isDev = process.env.NODE_ENV === "development";
-
-    // Verificar caché
-    if (!isDev) {
-      const cachedData = await getCachedData(query);
-      if (cachedData) {
-        return NextResponse.json(cachedData);
-      }
+    if (!isValidQuery(query)) {
+      return NextResponse.json(
+        { error: "Invalid query parameter" },
+        { status: 400 }
+      );
     }
 
-    // Realizar scraping directamente
-    const result = await scrapeWebsite(query);
+    const isDev = process.env.NODE_ENV === "development";
+    const cachedData = await getCachedDataIfNeeded(query, isDev);
+    if (cachedData) {
+      return NextResponse.json(cachedData);
+    }
 
-    // Almacenar en caché
-    await setCachedData(query, result);
-
-    // Agregar a la cola para futuras actualizaciones
-    addToQueue(query);
-
+    const result = await scrapeAndCache(query, isDev);
     return NextResponse.json(result);
   } catch (error) {
     console.error("Error in scrape route:", error);
@@ -34,4 +28,28 @@ export async function POST(request: Request) {
       { status: 500 }
     );
   }
+}
+
+function isValidQuery(query: any): boolean {
+  // Implementar validación de query
+  return typeof query === "string" && query.trim().length > 0;
+}
+
+async function getCachedDataIfNeeded(query: string, isDev: boolean) {
+  if (!isDev) {
+    const cachedData = await getCachedData(query);
+    if (cachedData) {
+      return cachedData;
+    }
+  }
+  return null;
+}
+
+async function scrapeAndCache(query: string, isDev: boolean) {
+  const result = await scrapeWebsite(query);
+  await setCachedData(query, result);
+  if (!isDev) {
+    addToQueue(query);
+  }
+  return result;
 }

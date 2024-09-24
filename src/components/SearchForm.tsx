@@ -24,7 +24,7 @@ export default function SearchForm({ onSearch }: Readonly<SearchFormProps>) {
         required
         className="w-full"
       />
-      <Button type="submit" className="w-full w-1/5">
+      <Button type="submit" className="w-1/5">
         Buscar
       </Button>
     </form>

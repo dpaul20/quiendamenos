@@ -12,6 +12,35 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
   const [selectedBrand, setSelectedBrand] = useState<string>("");
 
+  const knownBrands = [
+    "Whirlpool",
+    "Samsung",
+    "LG",
+    "Sony",
+    "Panasonic",
+    "Philips",
+    "Bosch",
+    "Electrolux",
+    "Mabe",
+    "General Electric",
+    "Peabody",
+    "Atma",
+    "Smart-Tek",
+    "Kanji",
+    "Midea",
+    "Overtech",
+    "Telefunnken",
+    "Hitachi",
+    "Noblex",
+    "Midea",
+    "Blaupunkt",
+    "Drean",
+    "Inox",
+    "Standby",
+    "Ariston",
+    "Vondom",
+  ];
+
   const handleSearch = async (productName: string) => {
     setIsLoading(true);
     try {
@@ -32,8 +61,24 @@ export default function Home() {
         ...product,
         price: Number(product.price),
       }));
+
+      // Actualizar las marcas "unknown" utilizando las marcas conocidas
+      const updatedProducts = productsWithNumericPrices.map(
+        (product: Product) => {
+          if (product.brand.toLowerCase() === "unknown") {
+            const foundBrand = knownBrands.find((brand) =>
+              product.name.toLowerCase().includes(brand.toLowerCase())
+            );
+            if (foundBrand) {
+              return { ...product, brand: foundBrand };
+            }
+          }
+          return product;
+        }
+      );
+
       // Ordenar los productos por menor precio
-      const sortedResults = productsWithNumericPrices.sort(
+      const sortedResults = updatedProducts.sort(
         (a: Product, b: Product) => a.price - b.price
       );
 

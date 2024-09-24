@@ -11,7 +11,7 @@ const formatProduct = (product: any): Product => {
     price: parseFloat(product.priceRange.sellingPrice.lowPrice),
     url: `https://www.naldo.com.ar${product.link}`,
     image: product.items[0].images[0].imageUrl,
-    brand: product.brand,
+    brand: product.brand.toLowerCase(),
     from: "naldo",
   };
 };
@@ -81,7 +81,7 @@ const scrapers: Record<string, Scraper> = {
           from: "cetrogar",
           image: imageUrl,
           url,
-          brand: "unknown",
+          brand: "Unknown",
         };
       });
     });
@@ -104,7 +104,7 @@ const scrapers: Record<string, Scraper> = {
           from: "musimundo",
           image: product.UrlImagen,
           url: product.Link,
-          brand: product.Marca,
+          brand: product.Marca.toLowerCase(),
         };
       });
 
@@ -121,22 +121,31 @@ const scrapers: Record<string, Scraper> = {
     await page.goto(url, { waitUntil: "networkidle2" });
 
     const products: Product[] = await page.evaluate(() => {
-      const items = document.querySelectorAll(".product-card");
+      const items = document.querySelectorAll(
+        "article[data-test-id='result-item']"
+      );
       return Array.from(items).map((item) => {
-        const name =
-          item.querySelector(".product-card__title")?.textContent?.trim() ||
-          "No name available";
-        const price = item
-          .querySelector(".product-card__price")
+        const name = item
+          .querySelector("a > div > div > span")
           ?.textContent?.trim();
+
+        const priceText = item
+          .querySelector("div[data-test-id='product-price'] > span")
+          ?.textContent?.trim()
+          .replace(/[^0-9,-]+/g, "");
+        const price = parseFloat(priceText);
+        const imageUrl = item.querySelector("figure img")?.getAttribute("src");
+        const productUrl = item
+          .querySelector("a[rel='bookmark']")
+          ?.getAttribute("href");
 
         return {
           name,
           price,
           from: "fravega",
-          image: "https://placehold.co/300x200",
-          url: "https://www.fravega.com",
-          brand: "unknown",
+          image: imageUrl,
+          url: `https://www.fravega.com${productUrl}`,
+          brand: "Unknown",
         };
       });
     });
@@ -157,7 +166,7 @@ export async function scrapeWebsite(query: string): Promise<Product[]> {
   try {
     const urls = [
       `https://www.naldo.com.ar`,
-      `https://www.musimundo.com/mi-musimundo/search?text=${query}`,
+      `https://www.musimundo.com`,
       `https://www.cetrogar.com.ar/catalogsearch/result/?q=${query}`,
       `https://www.fravega.com/l/?keyword=${query}`,
     ];

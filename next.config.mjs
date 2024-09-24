@@ -21,6 +21,10 @@ const nextConfig = {
         protocol: "https",
         hostname: "medias.musimundo.com",
       },
+      {
+        protocol: "https",
+        hostname: "images.fravega.com",
+      },
     ],
   },
 };

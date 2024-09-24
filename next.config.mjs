@@ -17,6 +17,10 @@ const nextConfig = {
         protocol: "https",
         hostname: "www.cetrogar.com.ar",
       },
+      {
+        protocol: "https",
+        hostname: "medias.musimundo.com",
+      },
     ],
   },
 };

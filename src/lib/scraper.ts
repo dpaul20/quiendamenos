@@ -91,35 +91,28 @@ const scrapers: Record<string, Scraper> = {
     return products;
   },
   musimundo: async (query) => {
-    const browser = await puppeteer.launch();
-    const page = await browser.newPage();
-    const url = `https://www.musimundo.com/mi-musimundo/search?text=${query}`;
-    await page.goto(url, { waitUntil: "networkidle2" });
+    try {
+      const url = `https://u.braindw.com/els/musimundoapi?ft=${query}&qt=100&sc=emsa&refreshmetadata=true&exclusive=0&aggregations=true`;
 
-    const products: Product[] = await page.evaluate(() => {
-      const items = document.querySelectorAll(".product-box");
-      return Array.from(items).map((item) => {
-        const name =
-          item.querySelector(".product-title")?.textContent?.trim() ||
-          "No name available";
-        const price =
-          item.querySelector(".price-fraction")?.textContent?.trim() ||
-          "No price available";
+      const { data } = await axios.get(url);
 
+      const products: Product[] = data?.hits?.hits?.map((hit: any) => {
+        const product = hit._source;
         return {
-          name,
-          price,
+          name: product.Descripcion,
+          price: parseFloat(product.Precio.replace(/[^0-9,-]+/g, "")),
           from: "musimundo",
-          image: "https://placehold.co/300x200",
-          url: "https://www.musimundo.com",
-          brand: "unknown",
+          image: product.UrlImagen,
+          url: product.Link,
+          brand: product.Marca,
         };
       });
-    });
 
-    await browser.close();
-
-    return products;
+      return products;
+    } catch (error) {
+      console.error("Error fetching products from Musimundo:", error);
+      return [];
+    }
   },
   fravega: async (query) => {
     const browser = await puppeteer.launch();

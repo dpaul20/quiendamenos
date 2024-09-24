@@ -7,19 +7,21 @@ export async function POST(request: Request) {
   try {
     const { query } = await request.json();
 
-    // Verificar caché
-    const cachedData = getCachedData(query);
+    const isDev = process.env.NODE_ENV === "development";
 
-    if (cachedData) {
-      return NextResponse.json(cachedData);
+    // Verificar caché
+    if (!isDev) {
+      const cachedData = await getCachedData(query);
+      if (cachedData) {
+        return NextResponse.json(cachedData);
+      }
     }
 
     // Realizar scraping directamente
-
     const result = await scrapeWebsite(query);
 
     // Almacenar en caché
-    setCachedData(query, result);
+    await setCachedData(query, result);
 
     // Agregar a la cola para futuras actualizaciones
     addToQueue(query);

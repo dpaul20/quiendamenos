@@ -8,9 +8,10 @@ type Scraper = (url: string) => Promise<Product[]>;
 const formatProduct = (product: any): Product => {
   return {
     name: product.productName,
-    price: product.priceRange.sellingPrice.lowPrice,
+    price: parseFloat(product.priceRange.sellingPrice.lowPrice),
     url: `https://www.naldo.com.ar${product.link}`,
     image: product.items[0].images[0].imageUrl,
+    brand: product.brand,
     from: "naldo",
   };
 };
@@ -52,17 +53,24 @@ const scrapers: Record<string, Scraper> = {
       const items = document.querySelectorAll(".product-item");
       return Array.from(items).map((item) => {
         const name =
-          item.querySelector(".product-item-name")?.textContent?.trim() ||
+          item.querySelector(".product-item-name")?.textContent?.trim() ??
           "No name available";
-        const price =
-          item.querySelector(".price")?.textContent?.trim() ||
+        const priceText =
+          item.querySelector(".price")?.textContent?.trim() ??
           "No price available";
+
+        // Convertir el precio a un número
+        const price = parseFloat(
+          priceText.replace(/[^0-9,-]+/g, "").replace(",", "")
+        );
+        console.log("price", price);
         return {
           name,
           price,
           from: "cetrogar",
           image: "https://placehold.co/300x200",
           url: "https://www.cetrogar.com.ar",
+          brand: "unknown",
         };
       });
     });
@@ -86,12 +94,14 @@ const scrapers: Record<string, Scraper> = {
         const price =
           item.querySelector(".price-fraction")?.textContent?.trim() ||
           "No price available";
+
         return {
           name,
           price,
           from: "musimundo",
           image: "https://placehold.co/300x200",
           url: "https://www.musimundo.com",
+          brand: "unknown",
         };
       });
     });
@@ -112,15 +122,17 @@ const scrapers: Record<string, Scraper> = {
         const name =
           item.querySelector(".product-card__title")?.textContent?.trim() ||
           "No name available";
-        const price =
-          item.querySelector(".product-card__price")?.textContent?.trim() ||
-          "No price available";
+        const price = item
+          .querySelector(".product-card__price")
+          ?.textContent?.trim();
+
         return {
           name,
           price,
           from: "fravega",
           image: "https://placehold.co/300x200",
           url: "https://www.fravega.com",
+          brand: "unknown",
         };
       });
     });

@@ -1,4 +1,3 @@
-// src/lib/cache.ts
 import redis from "./redis";
 
 export async function getCachedData(key: string) {

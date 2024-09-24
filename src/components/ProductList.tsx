@@ -9,7 +9,7 @@ interface ProductListProps {
 
 export default function ProductList({ products }: Readonly<ProductListProps>) {
   if (products.length === 0) {
-    return null
+    return null;
   }
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 py-4">
@@ -30,11 +30,16 @@ export default function ProductList({ products }: Readonly<ProductListProps>) {
                 {product.name}
               </h3>
               <p className="text-2xl font-bold text-blue-600">
-                ${product.price}
+                {product.price.toLocaleString("es-AR", {
+                  style: "currency",
+                  currency: "ARS",
+                })}
               </p>
-              <p className="text-sm text-gray-500">($ {product.price} x 1)</p>
+              <p className="text-sm text-gray-500">{product.brand}</p>
             </div>
-            <div className="rounded-full bg-pink-500 text-white p-2">{product.from}</div>
+            <div className="rounded-full bg-pink-500 text-white p-2">
+              {product.from}
+            </div>
           </Card>
         </Link>
       ))}

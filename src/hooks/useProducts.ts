@@ -7,7 +7,7 @@ export const useProducts = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [selectedBrand, setSelectedBrand] = useState<string>("Todas las marcas");
+  const [selectedBrand, setSelectedBrand] = useState<string>("");
 
   const handleSearch = async (productName: string) => {
     setIsLoading(true);
@@ -34,6 +34,7 @@ export const useProducts = () => {
 
       setProducts(sortedResults);
       setFilteredProducts(sortedResults);
+      setSelectedBrand("Todas las marcas");
     } catch (error) {
       console.error("Error fetching products:", error);
     } finally {

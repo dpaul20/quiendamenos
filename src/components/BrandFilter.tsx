@@ -2,7 +2,6 @@
 
 import * as React from "react";
 import { CaretSortIcon, CheckIcon } from "@radix-ui/react-icons";
-
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
@@ -81,7 +80,9 @@ const BrandFilter: React.FC<BrandFilterProps> = ({
                     value={brand}
                     onSelect={(currentValue) => {
                       onBrandChange(
-                        currentValue === selectedBrand ? "" : currentValue
+                        currentValue === selectedBrand
+                          ? "Todas las marcas"
+                          : currentValue
                       );
                       setOpen(false);
                     }}

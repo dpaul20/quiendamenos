@@ -1,6 +1,6 @@
-import { chromium } from "playwright";
-import { Product } from "../types/product";
 import axios from "axios";
+import { load } from "cheerio";
+import { Product } from "../types/product";
 import { capitalize } from "./capitalize";
 import { encodeQuery } from "./vtex-helpers";
 import { vtexProduct } from "@/types/vtex-product";
@@ -45,50 +45,48 @@ const scrapers: Record<string, Scraper> = {
     }
   },
   cetrogar: async (query) => {
-    const browser = await chromium.launch({
-      args: ["--no-sandbox", "--disable-setuid-sandbox"],
-    });
-    const page = await browser.newPage();
     const url = `https://www.cetrogar.com.ar/catalogsearch/result/?q=${query}`;
-    await page.goto(url, { waitUntil: "networkidle" });
+    try {
+      const { data } = await axios.get(url);
+      const $ = load(data);
 
-    const products: Product[] = await page.evaluate(() => {
-      const items = document.querySelectorAll(".item.product.product-item");
-      return Array.from(items).map((item) => {
-        const name = item
-          .querySelector(".product.name.product-item-name")
-          ?.textContent?.trim();
+      const products: Product[] = $(".item.product.product-item")
+        .map((_, item) => {
+          const name = $(item)
+            .find(".product.name.product-item-name")
+            .text()
+            .trim();
+          const price = $(item)
+            .find("span[data-price-type='finalPrice']")
+            .text()
+            .trim()
+            .replace(/[^\d,.-]/g, "") // Elimina cualquier carácter que no sea dígito, coma, punto o guion
+            .replace(/\./g, "") // Elimina los puntos (separadores de miles)
+            .replace(",", "."); // Reemplaza la coma (separador decimal) por un punto
 
-        const price = item
-          .querySelector(".price")
-          ?.textContent?.trim()
-          .replace(/[^0-9,-]+/g, "")
-          .replace(",", "");
+          const imageStyle = $(item).find(".product-image-photo").attr("style");
+          const imageUrlMatch = imageStyle?.match(/url\(['"]?(.*?)['"]?\)/);
+          const imageUrl = imageUrlMatch
+            ? imageUrlMatch[1]
+            : "https://placehold.co/300x200";
+          const url = $(item).find("a").attr("href");
 
-        const imageStyle = item
-          .querySelector(".product-image-photo")
-          ?.getAttribute("style");
-        const imageUrlMatch = imageStyle?.match(/url\(['"]?(.*?)['"]?\)/);
-        const imageUrl = imageUrlMatch
-          ? imageUrlMatch[1]
-          : "https://placehold.co/300x200";
+          return {
+            name,
+            price: Number(price),
+            from: "cetrogar",
+            image: imageUrl,
+            url,
+            brand: "Unknown",
+          };
+        })
+        .get();
 
-        const url = item.querySelector("a")?.getAttribute("href");
-
-        return {
-          name,
-          price: Number(price),
-          from: "cetrogar",
-          image: imageUrl,
-          url,
-          brand: "Unknown",
-        };
-      });
-    });
-
-    await browser.close();
-
-    return products;
+      return products;
+    } catch (error) {
+      console.error("Error fetching products from Cetrogar:", error);
+      return [];
+    }
   },
   musimundo: async (query) => {
     try {
@@ -117,48 +115,40 @@ const scrapers: Record<string, Scraper> = {
     }
   },
   fravega: async (query) => {
-    const browser = await chromium.launch({
-      args: ["--no-sandbox", "--disable-setuid-sandbox"],
-    });
-    const page = await browser.newPage();
     const url = `https://www.fravega.com/l/?keyword=${query}`;
-    await page.goto(url, { waitUntil: "networkidle" });
+    try {
+      const { data } = await axios.get(url);
+      const $ = load(data);
 
-    const products: Product[] = await page.evaluate(() => {
-      const items = document.querySelectorAll(
-        "article[data-test-id='result-item']"
-      );
-      return Array.from(items).map((item) => {
-        const name = item
-          .querySelector("a > div > div > span")
-          ?.textContent?.trim();
+      const products: Product[] = $("article[data-test-id='result-item']")
+        .map((_, item) => {
+          const name = $(item).find("a > div > div > span").text().trim();
+          const priceText = $(item)
+            .find("div[data-test-id='product-price'] > span")
+            .text()
+            .trim()
+            .replace(/[^0-9,-]+/g, "");
+          const imageUrl =
+            $(item).find("figure img").attr("src") ||
+            "https://placehold.co/300x200";
+          const productUrl = $(item).find("a[rel='bookmark']").attr("href");
 
-        const priceText = item
-          .querySelector("div[data-test-id='product-price'] > span")
-          ?.textContent?.trim()
-          .replace(/[^0-9,-]+/g, "");
+          return {
+            name,
+            price: Number(priceText),
+            from: "fravega",
+            image: imageUrl,
+            url: `https://www.fravega.com${productUrl}`,
+            brand: "Unknown",
+          };
+        })
+        .get();
 
-        const imageUrl =
-          item.querySelector("figure img")?.getAttribute("src") ||
-          "https://placehold.co/300x200";
-        const productUrl = item
-          .querySelector("a[rel='bookmark']")
-          ?.getAttribute("href");
-
-        return {
-          name,
-          price: Number(priceText),
-          from: "fravega",
-          image: imageUrl,
-          url: `https://www.fravega.com${productUrl}`,
-          brand: "Unknown",
-        };
-      });
-    });
-
-    await browser.close();
-
-    return products;
+      return products;
+    } catch (error) {
+      console.error("Error fetching products from Fravega:", error);
+      return [];
+    }
   },
   default: async (url) => {
     console.warn(

@@ -1,10 +1,7 @@
 import Queue from "bull";
 import { scrapeWebsite } from "./scraper";
 
-const redisUrl = process.env.REDIS_URL;
-if (!redisUrl) {
-  throw new Error("REDIS_URL environment variable is not defined");
-}
+const redisUrl = process.env.REDIS_URL ?? "127.0.0.1"
 
 const scrapingQueue = new Queue("scraping", redisUrl);
 

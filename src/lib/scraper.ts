@@ -1,4 +1,4 @@
-import puppeteer, { executablePath } from "puppeteer";
+import { chromium } from "playwright";
 import { Product } from "../types/product";
 import axios from "axios";
 import { capitalize } from "./capitalize";
@@ -21,7 +21,6 @@ const formatProduct = (product: vtexProduct): Product => {
 
 const buildUrl = (query: string) => {
   const baseUrl = "https://www.naldo.com.ar/_v/segment/graphql/v1";
-
   return `${baseUrl}?${encodeQuery(query)}`;
 };
 
@@ -31,7 +30,6 @@ const scrapers: Record<string, Scraper> = {
 
     try {
       const { data } = await axios.get(url);
-      // console.log('productSuggestions', data?.data?.productSuggestions?.products)
       const products = data?.data?.productSuggestions?.products?.map(
         (product: vtexProduct) => formatProduct(product)
       );
@@ -47,13 +45,12 @@ const scrapers: Record<string, Scraper> = {
     }
   },
   cetrogar: async (query) => {
-    const browser = await puppeteer.launch({
-      executablePath: executablePath(),
+    const browser = await chromium.launch({
       args: ["--no-sandbox", "--disable-setuid-sandbox"],
     });
     const page = await browser.newPage();
     const url = `https://www.cetrogar.com.ar/catalogsearch/result/?q=${query}`;
-    await page.goto(url, { waitUntil: "networkidle2" });
+    await page.goto(url, { waitUntil: "networkidle" });
 
     const products: Product[] = await page.evaluate(() => {
       const items = document.querySelectorAll(".item.product.product-item");
@@ -68,7 +65,6 @@ const scrapers: Record<string, Scraper> = {
           .replace(/[^0-9,-]+/g, "")
           .replace(",", "");
 
-        // Obtener la URL de la imagen desde el atributo style
         const imageStyle = item
           .querySelector(".product-image-photo")
           ?.getAttribute("style");
@@ -121,13 +117,12 @@ const scrapers: Record<string, Scraper> = {
     }
   },
   fravega: async (query) => {
-    const browser = await puppeteer.launch({
-      executablePath: executablePath(),
+    const browser = await chromium.launch({
       args: ["--no-sandbox", "--disable-setuid-sandbox"],
     });
     const page = await browser.newPage();
     const url = `https://www.fravega.com/l/?keyword=${query}`;
-    await page.goto(url, { waitUntil: "networkidle2" });
+    await page.goto(url, { waitUntil: "networkidle" });
 
     const products: Product[] = await page.evaluate(() => {
       const items = document.querySelectorAll(

@@ -13,13 +13,13 @@ export async function POST(request: Request) {
       );
     }
 
-    const isDev = process.env.NODE_ENV === "development";
-    const cachedData = await getCachedDataIfNeeded(query, isDev);
-    if (cachedData) {
+    const cachedData = await getCachedDataIfNeeded(query);
+
+    if (cachedData && cachedData.length > 0) {
       return NextResponse.json(cachedData);
     }
 
-    const result = await scrapeAndCache(query, isDev);
+    const result = await scrapeAndCache(query);
     return NextResponse.json(result);
   } catch (error) {
     console.error("Error in scrape route:", error);
@@ -35,23 +35,22 @@ function isValidQuery(query: unknown): boolean {
   return typeof query === "string" && query.trim().length > 0;
 }
 
-async function getCachedDataIfNeeded(query: string, isDev: boolean) {
-  if (!isDev) {
-    const cachedData = await getCachedData(query);
-    if (cachedData) {
-      return cachedData;
-    }
+async function getCachedDataIfNeeded(query: string) {
+  const cachedData = await getCachedData(query);
+  if (cachedData && cachedData.length > 0) {
+    return cachedData;
   }
+
   return null;
 }
 
-async function scrapeAndCache(query: string, isDev: boolean) {
+async function scrapeAndCache(query: string) {
   try {
     const result = await scrapeWebsite(query);
     await setCachedData(query, result);
-    if (!isDev) {
-      addToQueue(query);
-    }
+
+    addToQueue(query);
+
     return result;
   } catch (error) {
     console.error("Error scraping website:", error);

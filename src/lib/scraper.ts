@@ -1,4 +1,4 @@
-import puppeteer from "puppeteer";
+import puppeteer, { executablePath } from "puppeteer";
 import { Product } from "../types/product";
 import axios from "axios";
 import { capitalize } from "./capitalize";
@@ -47,7 +47,10 @@ const scrapers: Record<string, Scraper> = {
     }
   },
   cetrogar: async (query) => {
-    const browser = await puppeteer.launch();
+    const browser = await puppeteer.launch({
+      executablePath: executablePath(),
+      args: ["--no-sandbox", "--disable-setuid-sandbox"],
+    });
     const page = await browser.newPage();
     const url = `https://www.cetrogar.com.ar/catalogsearch/result/?q=${query}`;
     await page.goto(url, { waitUntil: "networkidle2" });
@@ -118,7 +121,10 @@ const scrapers: Record<string, Scraper> = {
     }
   },
   fravega: async (query) => {
-    const browser = await puppeteer.launch();
+    const browser = await puppeteer.launch({
+      executablePath: executablePath(),
+      args: ["--no-sandbox", "--disable-setuid-sandbox"],
+    });
     const page = await browser.newPage();
     const url = `https://www.fravega.com/l/?keyword=${query}`;
     await page.goto(url, { waitUntil: "networkidle2" });
@@ -136,8 +142,10 @@ const scrapers: Record<string, Scraper> = {
           .querySelector("div[data-test-id='product-price'] > span")
           ?.textContent?.trim()
           .replace(/[^0-9,-]+/g, "");
-        
-        const imageUrl = item.querySelector("figure img")?.getAttribute("src") || "https://placehold.co/300x200";
+
+        const imageUrl =
+          item.querySelector("figure img")?.getAttribute("src") ||
+          "https://placehold.co/300x200";
         const productUrl = item
           .querySelector("a[rel='bookmark']")
           ?.getAttribute("href");

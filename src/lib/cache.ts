@@ -13,7 +13,7 @@ export async function getCachedData(key: string) {
   }
 }
 
-export async function setCachedData(key: string, data: any) {
+export async function setCachedData(key: string, data: unknown) {
   try {
     if (process.env.NODE_ENV === "development") {
       return; // No usar caché en modo desarrollo

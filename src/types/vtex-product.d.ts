@@ -1,4 +1,4 @@
-export type vtexProduct = {
+export interface vtexProduct {
   advertisement: string | null;
   cacheId: string;
   productId: string;
@@ -36,7 +36,7 @@ export type vtexProduct = {
     }[];
     __typename: string;
   }[];
-  skuSpecifications: any[];
+  skuSpecifications: unknown[];
   productClusters: {
     id: string;
     name: string;
@@ -58,7 +58,7 @@ export type vtexProduct = {
     nameComplete: string;
     complementName: string;
     ean: string;
-    variations: any[];
+    variations: unknown[];
     referenceId: {
       Key: string;
       Value: string;
@@ -80,8 +80,8 @@ export type vtexProduct = {
       sellerName: string;
       sellerDefault: boolean;
       commertialOffer: {
-        discountHighlights: any[];
-        teasers: any[];
+        discountHighlights: unknown[];
+        teasers: unknown[];
         Price: number;
         ListPrice: number;
         Tax: number;
@@ -106,7 +106,7 @@ export type vtexProduct = {
     }[];
     __typename: string;
   }[];
-  selectedProperties: any;
-  rule: any;
+  selectedProperties: unknown;
+  rule: unknown;
   __typename: string;
 };

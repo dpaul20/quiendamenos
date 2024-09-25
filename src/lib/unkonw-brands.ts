@@ -6,7 +6,7 @@ export const updateUnknownBrands = (products: Product[]): Product[] => {
   return products.map((product) => {
     if (product.brand.toLowerCase() === "unknown") {
       const foundBrand = knownBrands.find((brand: string) =>
-        product.name.toLowerCase().includes(brand.toLowerCase())
+        product?.name?.toLowerCase().includes(brand.toLowerCase())
       );
       if (foundBrand) {
         return { ...product, brand: foundBrand };

@@ -4,6 +4,7 @@ import axios from "axios";
 import { capitalize } from "./capitalize";
 import { encodeQuery } from "./vtex-helpers";
 import { vtexProduct } from "@/types/vtex-product";
+import { MusimundoProductSource } from "@/types/musimundo";
 
 type Scraper = (url: string) => Promise<Product[]>;
 
@@ -77,7 +78,7 @@ const scrapers: Record<string, Scraper> = {
 
         return {
           name,
-          price,
+          price: Number(price),
           from: "cetrogar",
           image: imageUrl,
           url,
@@ -96,17 +97,19 @@ const scrapers: Record<string, Scraper> = {
 
       const { data } = await axios.get(url);
 
-      const products: Product[] = data?.hits?.hits?.map((hit: any) => {
-        const product = hit._source;
-        return {
-          name: product.Descripcion,
-          price: parseFloat(product.Precio.replace(/[^0-9,-]+/g, "")),
-          from: "musimundo",
-          image: product.UrlImagen,
-          url: product.Link,
-          brand: capitalize(product.Marca),
-        };
-      });
+      const products: Product[] = data?.hits?.hits?.map(
+        (hit: { _source: MusimundoProductSource }) => {
+          const product = hit._source;
+          return {
+            name: product.Descripcion,
+            price: parseFloat(product.Precio.replace(/[^0-9,-]+/g, "")),
+            from: "musimundo",
+            image: product.UrlImagen,
+            url: product.Link,
+            brand: capitalize(product.Marca),
+          };
+        }
+      );
 
       return products;
     } catch (error) {
@@ -133,15 +136,15 @@ const scrapers: Record<string, Scraper> = {
           .querySelector("div[data-test-id='product-price'] > span")
           ?.textContent?.trim()
           .replace(/[^0-9,-]+/g, "");
-        const price = parseFloat(priceText);
-        const imageUrl = item.querySelector("figure img")?.getAttribute("src");
+        
+        const imageUrl = item.querySelector("figure img")?.getAttribute("src") || "https://placehold.co/300x200";
         const productUrl = item
           .querySelector("a[rel='bookmark']")
           ?.getAttribute("href");
 
         return {
           name,
-          price,
+          price: Number(priceText),
           from: "fravega",
           image: imageUrl,
           url: `https://www.fravega.com${productUrl}`,

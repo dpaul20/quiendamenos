@@ -1,9 +1,9 @@
 export interface Product {
   from: string;
-  name: string;
-  price: number;
+  name: string | undefined;
+  price: number | undefined;
   image: string;
-  url: string;
+  url: string | null | undefined
   brand: string;
   installment?: string;
 }

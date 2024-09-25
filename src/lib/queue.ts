@@ -1,7 +1,12 @@
-import Queue from 'bull';
-import { scrapeWebsite } from './scraper';
+import Queue from "bull";
+import { scrapeWebsite } from "./scraper";
 
-const scrapingQueue = new Queue('scraping', process.env.REDIS_URL);
+const redisUrl = process.env.REDIS_URL;
+if (!redisUrl) {
+  throw new Error("REDIS_URL environment variable is not defined");
+}
+
+const scrapingQueue = new Queue("scraping", redisUrl);
 
 export function addToQueue(query: string) {
   scrapingQueue.add({ query });

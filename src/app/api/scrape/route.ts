@@ -30,7 +30,7 @@ export async function POST(request: Request) {
   }
 }
 
-function isValidQuery(query: any): boolean {
+function isValidQuery(query: unknown): boolean {
   // Implementar validación de query
   return typeof query === "string" && query.trim().length > 0;
 }
@@ -46,10 +46,16 @@ async function getCachedDataIfNeeded(query: string, isDev: boolean) {
 }
 
 async function scrapeAndCache(query: string, isDev: boolean) {
-  const result = await scrapeWebsite(query);
-  await setCachedData(query, result);
-  if (!isDev) {
-    addToQueue(query);
+  try {
+    const result = await scrapeWebsite(query);
+    await setCachedData(query, result);
+    if (!isDev) {
+      addToQueue(query);
+    }
+    return result;
+  } catch (error) {
+    console.error("Error scraping website:", error);
+    // No cachear el error
+    throw error;
   }
-  return result;
 }

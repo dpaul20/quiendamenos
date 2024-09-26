@@ -1,12 +1,16 @@
+'use client'
 import { Product } from "@/types/product";
 import Image from "next/image";
 import { Card } from "@/components/ui/card";
 import Link from "next/link";
 import { capitalize } from "@/lib/capitalize";
+import { imageLoader } from "@/lib/image-loader";
 
 interface ProductListProps {
   products: Product[];
 }
+
+
 
 export default function ProductList({ products }: Readonly<ProductListProps>) {
   if (products.length === 0) {
@@ -31,6 +35,7 @@ export default function ProductList({ products }: Readonly<ProductListProps>) {
             </Link>
             <div className="w-full flex flex-row justify-center gap-1">
               <Image
+                loader={imageLoader}
                 src={product.image}
                 alt={product.name ?? "Product image"}
                 width={100}

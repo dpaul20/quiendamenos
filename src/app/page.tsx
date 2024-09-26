@@ -1,26 +1,74 @@
 "use client";
 
-import SearchForm from "@/components/SearchForm";
-import ProductList from "@/components/ProductList";
-import BrandFilter from "@/components/BrandFilter";
-import { Loader2, MoveRight, RocketIcon } from "lucide-react";
-import { capitalize } from "@/lib/capitalize";
-import { useProducts } from "@/hooks/useProducts";
-import Disclaimer from "@/components/Disclaimer";
-import Image from "next/image";
-import Link from "next/link";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Badge } from "@/components/ui/badge";
+import SearchForm from "../components/SearchForm";
+import ProductList from "../components/ProductList";
+import BrandFilter from "../components/BrandFilter";
+import { Loader2 } from "lucide-react";
+import { capitalize } from "../lib/capitalize";
+import Disclaimer from "../components/Disclaimer";
+import Header from "../components/Header";
+import FooterAlert from "../components/FooterAlert";
+import { Badge } from "../components/ui/badge";
+import { useEffect, useState } from "react";
+import { Product } from "@/types/product";
+import { updateUnknownBrands } from "@/lib/unkonw-brands";
+import { sortProductsByPrice } from "@/lib/sorts";
 
 export default function Home() {
-  const {
-    products,
-    filteredProducts,
-    isLoading,
-    selectedBrand,
-    handleSearch,
-    handleBrandChange,
-  } = useProducts();
+  const [products, setProducts] = useState<Product[]>([]);
+  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [selectedBrand, setSelectedBrand] = useState<string>("");
+
+  const handleSearch = async (productName: string) => {
+    setIsLoading(true);
+    setProducts([]);
+    setFilteredProducts([]);
+    try {
+      console.log("Searching for:", productName);
+      const response = await fetch("/api/scrape", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ query: productName }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch products");
+      }
+
+      const results = await response.json();
+      const productsWithNumericPrices = results.map((product: Product) => ({
+        ...product,
+        price: Number(product.price),
+      }));
+
+      const updatedProducts = updateUnknownBrands(productsWithNumericPrices);
+      const sortedProducts = sortProductsByPrice(updatedProducts);
+
+      setProducts(sortedProducts);
+      setFilteredProducts(sortedProducts);
+      setSelectedBrand("Todas las marcas");
+    } catch (error) {
+      console.error("Error fetching products:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleBrandChange = (brand: string) => {
+    setSelectedBrand(brand);
+  };
+
+  useEffect(() => {
+    if (selectedBrand && selectedBrand !== "Todas las marcas") {
+      const filtered = products.filter(
+        (product) => product.brand.toLowerCase() === selectedBrand.toLowerCase()
+      );
+      setFilteredProducts(filtered);
+    } else {
+      setFilteredProducts(products);
+    }
+  }, [selectedBrand, products]);
 
   const brands = Array.from(
     new Set(products.map((product) => capitalize(product.brand)))
@@ -29,38 +77,7 @@ export default function Home() {
   return (
     <main className="container mx-auto space-y-4 px-4 my-3 lg:p-0">
       <Disclaimer />
-      <div className="flex flex-col lg:flex-row justify-center lg:justify-between items-center gap-4">
-        <div className="flex flex-col lg:flex-row justify-center items-center gap-2">
-          <Image src="/logo.png" alt="Logo" width={64} height={64} />
-          <h1 className="text-2xl lg:text-4xl font-bold text-center text-green-600">
-            ¿Quién da menos...?
-          </h1>
-        </div>
-
-        <div className="flex flex-col lg:flex-row justify-between items-center gap-2">
-          <Alert className="flex flex-row items-center gap-2 px-2 py-1 lg:px-4 lg:py-3">
-            <AlertDescription className="text-xs text-center">
-              ¿Conseguiste el mejor precio?
-            </AlertDescription>
-            <div className="hidden lg:block h-4 w-4">
-              <MoveRight className="h-full w-full top-1/2 right-2" />
-            </div>
-          </Alert>
-          <Link
-            href="https://cafecito.app/quien-da-menos"
-            rel="noopener"
-            target="_blank"
-          >
-            <Image
-              src="https://cdn.cafecito.app/imgs/buttons/button_4.png"
-              width={192}
-              height={40}
-              alt="Invitame un café en cafecito.app"
-              className="h-9 lg:h-auto max-h-10 max-w-48"
-            />
-          </Link>
-        </div>
-      </div>
+      <Header />
 
       <SearchForm onSearch={handleSearch} />
 
@@ -83,30 +100,7 @@ export default function Home() {
           <Loader2 className="h-8 w-8 animate-spin" />
         </div>
       )}
-      <Alert className="max-w-lg bg-green-200 text-center mx-auto">
-        <RocketIcon className="h-4 w-4" />
-        <AlertTitle>En &quot;¿Quién da menos?&quot;,</AlertTitle>
-        <AlertDescription>
-          creemos en la transparencia y en la posibilidad de ofrecer a los
-          consumidores las mejores opciones de compra.
-        </AlertDescription>
-        <AlertDescription>
-          Invitamos a todas las empresas y tiendas a compartir sus APIs con
-          nosotros para participar en una plataforma donde la competencia se
-          basa en la calidad y los precios más competitivos.
-        </AlertDescription>
-        <br />
-        <AlertDescription>
-          Con mucho esfuerzo y dedicación,{" "}
-          <Link
-            href="https://deivygutierrez.com"
-            target="_blank"
-            className="font-bold underline text-green-900"
-          >
-            Deivy Gutierrez
-          </Link>
-        </AlertDescription>
-      </Alert>
+      <FooterAlert />
     </main>
   );
 }

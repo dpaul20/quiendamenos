@@ -9,7 +9,7 @@ import { StoreNamesEnum } from "@/enums/stores.enum";
 
 type Scraper = (url: string) => Promise<Product[]>;
 
-const formatProduct = (product: vtexProduct): Product => {
+const formatProductNaldo = (product: vtexProduct): Product => {
   return {
     name: product.productName,
     price: Number(product.priceRange.sellingPrice.lowPrice),
@@ -17,6 +17,17 @@ const formatProduct = (product: vtexProduct): Product => {
     image: product.items[0].images[0].imageUrl,
     brand: capitalize(product.brand),
     from: StoreNamesEnum.NALDO,
+  };
+};
+
+const formatProductCarrefour = (product: vtexProduct): Product => {
+  return {
+    name: product.productName,
+    price: Number(product.priceRange.sellingPrice.lowPrice),
+    url: `https://www.carrefour.com.ar${product.link}`,
+    image: product.items[0].images[0].imageUrl,
+    brand: capitalize(product.brand),
+    from: StoreNamesEnum.CARREFOUR,
   };
 };
 
@@ -32,7 +43,7 @@ const scrapers: Record<string, Scraper> = {
     try {
       const { data } = await axios.get(url);
       const products = data?.data?.productSuggestions?.products?.map(
-        (product: vtexProduct) => formatProduct(product)
+        (product: vtexProduct) => formatProductNaldo(product)
       );
 
       if (!products) {
@@ -42,6 +53,25 @@ const scrapers: Record<string, Scraper> = {
       return products;
     } catch (error) {
       console.error("Error fetching products from Naldo:", error);
+      return [];
+    }
+  },
+  carrefour: async (query: string) => {
+    const url = buildUrl(query);
+
+    try {
+      const { data } = await axios.get(url);
+      const products = data?.data?.productSuggestions?.products?.map(
+        (product: vtexProduct) => formatProductCarrefour(product)
+      );
+
+      if (!products) {
+        return [];
+      }
+
+      return products;
+    } catch (error) {
+      console.error("Error fetching products from Carrefour:", error);
       return [];
     }
   },
@@ -166,6 +196,7 @@ export async function scrapeWebsite(query: string): Promise<Product[]> {
       `https://www.musimundo.com`,
       `https://www.cetrogar.com.ar/catalogsearch/result/?q=${query}`,
       `https://www.fravega.com/l/?keyword=${query}`,
+      `https://www.carrefour.com.ar`,
     ];
 
     const promises = urls.map((url) => {

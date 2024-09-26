@@ -8,6 +8,7 @@ import cetrogar from "../../public/stores/cetrogar.webp";
 import fravega from "../../public/stores/fravega.webp";
 import musimundo from "../../public/stores/musimundo.webp";
 import naldo from "../../public/stores/naldo.webp";
+import carrefour from "../../public/stores/carrefour.webp";
 import { StoreNamesEnum } from "@/enums/stores.enum";
 
 const storeLogos: Record<StoreNamesEnum, StaticImageData> = {
@@ -15,6 +16,7 @@ const storeLogos: Record<StoreNamesEnum, StaticImageData> = {
   Fravega: fravega,
   Musimundo: musimundo,
   Naldo: naldo,
+  Carrefour: carrefour,
 };
 interface ProductListProps {
   products: Product[];

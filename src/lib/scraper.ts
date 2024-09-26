@@ -1,10 +1,11 @@
 import axios from "axios";
 import { load } from "cheerio";
-import { Product } from "../types/product";
 import { capitalize } from "./capitalize";
 import { encodeQuery } from "./vtex-helpers";
 import { vtexProduct } from "@/types/vtex-product";
 import { MusimundoProductSource } from "@/types/musimundo";
+import { Product } from "@/types/product";
+import { StoreNamesEnum } from "@/enums/stores.enum";
 
 type Scraper = (url: string) => Promise<Product[]>;
 
@@ -15,7 +16,7 @@ const formatProduct = (product: vtexProduct): Product => {
     url: `https://www.naldo.com.ar${product.link}`,
     image: product.items[0].images[0].imageUrl,
     brand: capitalize(product.brand),
-    from: "naldo",
+    from: StoreNamesEnum.NALDO,
   };
 };
 
@@ -74,7 +75,7 @@ const scrapers: Record<string, Scraper> = {
           return {
             name,
             price: Number(price),
-            from: "cetrogar",
+            from: StoreNamesEnum.CETROGAR,
             image: imageUrl,
             url,
             brand: "Unknown",
@@ -100,7 +101,7 @@ const scrapers: Record<string, Scraper> = {
           return {
             name: product.Descripcion,
             price: parseFloat(product.Precio.replace(/[^0-9,-]+/g, "")),
-            from: "musimundo",
+            from: StoreNamesEnum.MUSIMUNDO,
             image: product.UrlImagen,
             url: product.Link,
             brand: capitalize(product.Marca),
@@ -129,14 +130,14 @@ const scrapers: Record<string, Scraper> = {
             .trim()
             .replace(/[^0-9,-]+/g, "");
           const imageUrl =
-            $(item).find("figure img").attr("src") ||
+            $(item).find("figure img").attr("src") ??
             "https://placehold.co/300x200";
           const productUrl = $(item).find("a[rel='bookmark']").attr("href");
 
           return {
             name,
             price: Number(priceText),
-            from: "fravega",
+            from: StoreNamesEnum.FRAVEGA,
             image: imageUrl,
             url: `https://www.fravega.com${productUrl}`,
             brand: "Unknown",

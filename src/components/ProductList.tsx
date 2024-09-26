@@ -1,16 +1,25 @@
-'use client'
+"use client";
 import { Product } from "@/types/product";
-import Image from "next/image";
+import Image, { StaticImageData } from "next/image";
 import { Card } from "@/components/ui/card";
 import Link from "next/link";
 import { capitalize } from "@/lib/capitalize";
 import { imageLoader } from "@/lib/image-loader";
+import cetrogar from "../../public/stores/cetrogar.webp";
+import fravega from "../../public/stores/fravega.webp";
+import musimundo from "../../public/stores/musimundo.webp";
+import naldo from "../../public/stores/naldo.webp";
+import { StoreNamesEnum } from "@/enums/stores.enum";
 
+const storeLogos: Record<StoreNamesEnum, StaticImageData> = {
+  Cetrogar: cetrogar,
+  Fravega: fravega,
+  Musimundo: musimundo,
+  Naldo: naldo,
+};
 interface ProductListProps {
   products: Product[];
 }
-
-
 
 export default function ProductList({ products }: Readonly<ProductListProps>) {
   if (products.length === 0) {
@@ -54,8 +63,15 @@ export default function ProductList({ products }: Readonly<ProductListProps>) {
                     {product.brand}
                   </p>
                 </div>
-                <div className="text-xs lg:text-lg rounded-full bg-orange-100 text-orange-600 px-2 py-1 text-center">
+                {/* <div className="text-xs lg:text-lg rounded-full bg-orange-100 text-orange-600 px-2 py-1 text-center">
                   {product.from}
+                </div> */}
+                <div className="max-w-max max-h-6 bg-green-600 px-2 py-1 rounded-full mx-auto">
+                  <Image
+                    src={storeLogos[product.from]}
+                    alt={product.from}
+                    className="object-contain h-full w-full"
+                  />
                 </div>
               </div>
             </div>

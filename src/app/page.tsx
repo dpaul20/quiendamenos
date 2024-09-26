@@ -10,6 +10,7 @@ import Disclaimer from "@/components/Disclaimer";
 import Image from "next/image";
 import Link from "next/link";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
 
 export default function Home() {
   const {
@@ -23,7 +24,7 @@ export default function Home() {
 
   const brands = Array.from(
     new Set(products.map((product) => capitalize(product.brand)))
-  );
+  ).sort((a, b) => a.localeCompare(b));
 
   return (
     <main className="container mx-auto space-y-4 px-4 my-3 lg:p-0">
@@ -70,6 +71,10 @@ export default function Home() {
             selectedBrand={selectedBrand}
             onBrandChange={handleBrandChange}
           />
+          <Badge variant="secondary">
+            Productos ordenados por menor precio
+          </Badge>
+
           <ProductList products={filteredProducts} />
         </>
       )}

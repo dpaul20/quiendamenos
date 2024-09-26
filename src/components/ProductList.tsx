@@ -38,8 +38,8 @@ export default function ProductList({ products }: Readonly<ProductListProps>) {
             className="flex flex-col items-center p-2 lg:p-4 rounded-xl shadow-md border-green-200 hover:shadow-lg transition-shadow duration-300 gap-1"
           >
             <Link href={product.url} target="_blank">
-              <h3 className="text-xs lg:text-base font-semibold text-gray-800 capitalize text-center">
-                {capitalize(product.name)}
+              <h3 className="text-xs lg:text-base font-semibold text-gray-800 text-center uppercase">
+                {product.name}
               </h3>
             </Link>
             <div className="w-full flex flex-row justify-center gap-1">
@@ -63,9 +63,6 @@ export default function ProductList({ products }: Readonly<ProductListProps>) {
                     {product.brand}
                   </p>
                 </div>
-                {/* <div className="text-xs lg:text-lg rounded-full bg-orange-100 text-orange-600 px-2 py-1 text-center">
-                  {product.from}
-                </div> */}
                 <div className="max-w-max max-h-6 bg-green-600 px-2 py-1 rounded-full mx-auto">
                   <Image
                     src={storeLogos[product.from]}

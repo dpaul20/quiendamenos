@@ -49,7 +49,7 @@ export const useProducts = () => {
   useEffect(() => {
     if (selectedBrand && selectedBrand !== "Todas las marcas") {
       const filtered = products.filter(
-        (product) => product.brand === selectedBrand
+        (product) => product.brand.toLowerCase() === selectedBrand.toLowerCase()
       );
       setFilteredProducts(filtered);
     } else {

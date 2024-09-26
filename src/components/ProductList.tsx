@@ -58,7 +58,7 @@ export default function ProductList({ products }: Readonly<ProductListProps>) {
                       currency: "ARS",
                     })}
                   </p>
-                  <p className="text-xs lg:text-sm text-gray-500 text-center">
+                  <p className="text-xs lg:text-sm text-gray-500 text-center uppercase">
                     {product.brand}
                   </p>
                 </div>

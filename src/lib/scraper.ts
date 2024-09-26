@@ -113,6 +113,10 @@ const scrapers: Record<string, Scraper> = {
         })
         .get();
 
+      if (!products) {
+        return [];
+      }
+
       return products;
     } catch (error) {
       console.error("Error fetching products from Cetrogar:", error);
@@ -138,6 +142,10 @@ const scrapers: Record<string, Scraper> = {
           };
         }
       );
+
+      if (!products) {
+        return [];
+      }
 
       return products;
     } catch (error) {
@@ -175,6 +183,9 @@ const scrapers: Record<string, Scraper> = {
         })
         .get();
 
+      if (!products) {
+        return [];
+      }
       return products;
     } catch (error) {
       console.error("Error fetching products from Fravega:", error);

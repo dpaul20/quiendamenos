@@ -25,6 +25,10 @@ const nextConfig = {
         protocol: "https",
         hostname: "images.fravega.com",
       },
+      {
+        protocol: "https",
+        hostname: "cdn.cafecito.app",
+      },
     ],
   },
 };

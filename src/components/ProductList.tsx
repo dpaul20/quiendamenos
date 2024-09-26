@@ -22,9 +22,14 @@ export default function ProductList({ products }: Readonly<ProductListProps>) {
         return (
           <Card
             key={index}
-            className="flex items-center p-4 bg-white rounded-xl shadow-md"
+            className="flex flex-col items-center p-2 lg:p-4 bg-white rounded-xl shadow-md border-green-200 hover:shadow-lg transition-shadow duration-300 gap-1"
           >
-            <div className="w-1/3 mr-4">
+            <Link href={product.url} target="_blank">
+              <h3 className="text-xs lg:text-sm font-semibold text-gray-800 capitalize text-center">
+                {capitalize(product.name)}
+              </h3>
+            </Link>
+            <div className="w-full flex flex-row justify-center gap-1">
               <Image
                 src={product.image}
                 alt={product.name ?? "Product image"}
@@ -32,24 +37,22 @@ export default function ProductList({ products }: Readonly<ProductListProps>) {
                 height={100}
                 className="object-contain"
               />
-            </div>
-            <div className="flex-1">
-              <Link href={product.url} target="_blank">
-                <h3 className="text-sm font-semibold text-gray-800 mb-2 capitalize">
-                  {capitalize(product.name)}
-                </h3>
-              </Link>
-
-              <p className="text-2xl font-bold text-blue-600">
-                {product.price.toLocaleString("es-AR", {
-                  style: "currency",
-                  currency: "ARS",
-                })}
-              </p>
-              <p className="text-sm text-gray-500">{product.brand}</p>
-            </div>
-            <div className="rounded-full bg-pink-500 text-white p-2">
-              {product.from}
+              <div className="flex flex-col justify-center gap-1">
+                <div className="flex flex-col justify-center items-center gap-1">
+                  <p className="text-sm lg:text-2xl font-bold text-green-600">
+                    {product.price.toLocaleString("es-AR", {
+                      style: "currency",
+                      currency: "ARS",
+                    })}
+                  </p>
+                  <p className="text-xs lg:text-sm text-gray-500 text-center">
+                    {product.brand}
+                  </p>
+                </div>
+                <div className="text-xs rounded-full bg-orange-100 text-orange-600 px-2 py-1 text-center">
+                  {product.from}
+                </div>
+              </div>
             </div>
           </Card>
         );

@@ -42,7 +42,7 @@ const BrandFilter: React.FC<BrandFilterProps> = ({
             variant="outline"
             role="combobox"
             aria-expanded={open}
-            className="w-[200px] justify-between"
+            className="w-[200px] justify-between border-green-300 focus:ring-green-500 focus:border-green-500"
           >
             {selectedBrand
               ? validBrands.find((brand) => brand === selectedBrand) ??

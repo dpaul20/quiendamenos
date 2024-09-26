@@ -22,9 +22,12 @@ export default function SearchForm({ onSearch }: Readonly<SearchFormProps>) {
         onChange={(e) => setProductName(e.target.value)}
         placeholder="Ingrese el nombre del producto"
         required
-        className="w-full"
+        className="w-full border-green-300 focus:ring-green-500 focus:border-green-500"
       />
-      <Button type="submit" className="w-1/5">
+      <Button
+        type="submit"
+        className="w-1/5 bg-green-500 hover:bg-green-600 text-white"
+      >
         Buscar
       </Button>
     </form>

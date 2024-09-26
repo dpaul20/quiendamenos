@@ -3,7 +3,6 @@ import { Product } from "@/types/product";
 import Image, { StaticImageData } from "next/image";
 import { Card } from "@/components/ui/card";
 import Link from "next/link";
-import { capitalize } from "@/lib/capitalize";
 import { imageLoader } from "@/lib/image-loader";
 import cetrogar from "../../public/stores/cetrogar.webp";
 import fravega from "../../public/stores/fravega.webp";

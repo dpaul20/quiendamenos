@@ -62,11 +62,7 @@ export default function Home() {
       </div>
 
       <SearchForm onSearch={handleSearch} />
-      {isLoading && (
-        <div className="flex justify-center items-center h-64">
-          <Loader2 className="h-8 w-8 animate-spin" />
-        </div>
-      )}
+
       {filteredProducts.length > 0 && (
         <>
           <BrandFilter
@@ -76,6 +72,11 @@ export default function Home() {
           />
           <ProductList products={filteredProducts} />
         </>
+      )}
+      {isLoading && (
+        <div className="flex justify-center items-center h-64">
+          <Loader2 className="h-8 w-8 animate-spin" />
+        </div>
       )}
       <Alert className="max-w-lg bg-green-200 text-center mx-auto">
         <RocketIcon className="h-4 w-4" />

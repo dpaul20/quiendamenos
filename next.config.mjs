@@ -19,7 +19,7 @@ const nextConfig = {
       },
       {
         protocol: "https",
-        hostname: "medias.musimundo.com",
+        hostname: "**.musimundo.com",
       },
       {
         protocol: "https",

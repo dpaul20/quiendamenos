@@ -59,6 +59,8 @@ export const knownBrands = [
   "X-VIEW",
 ];
 
+export const ALL = "TODAS";
+
 export const BASE_URLS = {
   naldo: "https://www.naldo.com.ar",
   cetrogar: "https://www.cetrogar.com.ar",
@@ -73,6 +75,10 @@ export const STORES_MAP = {
   musimundo: "Musimundo",
   fravega: "Frávega",
   carrefour: "Carrefour",
+  megatone: "Megatone",
+  masOnline: "Mas Online",
+  rex: "Rex",
+  mercadoLibre: "Mercado Libre",
 };
 
 export const STORES = [

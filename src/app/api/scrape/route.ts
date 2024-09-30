@@ -3,9 +3,18 @@ import { getCachedData, setCachedData } from "@/lib/cache";
 import { scrapeWebsite } from "@/lib/scraper";
 import { NextResponse } from "next/server";
 
-export async function POST(request: Request) {
+export async function GET(request: Request) {
   try {
-    const { query } = await request.json();
+    const { searchParams } = new URL(request.url);
+    const query = searchParams.get("query");
+
+    if (!query) {
+      return NextResponse.json(
+        { error: "Missing query parameter" },
+        { status: 400 }
+      );
+    }
+
     if (!isValidQuery(query)) {
       return NextResponse.json(
         { error: "Invalid query parameter" },

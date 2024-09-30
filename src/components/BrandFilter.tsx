@@ -1,8 +1,8 @@
 "use client";
-
-import * as React from "react";
-import { CaretSortIcon, CheckIcon } from "@radix-ui/react-icons";
+import React from "react";
 import { cn } from "@/lib/utils";
+import { useProductsStore } from "@/store/products.store";
+import { CaretSortIcon, CheckIcon } from "@radix-ui/react-icons";
 import { Button } from "@/components/ui/button";
 import {
   Command,
@@ -17,92 +17,62 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { Skeleton } from "./ui/skeleton";
 
-interface BrandFilterProps {
-  brands: string[];
-  selectedBrand: string;
-  onBrandChange: (brand: string) => void;
-}
-
-const BrandFilter: React.FC<BrandFilterProps> = ({
-  brands,
-  selectedBrand,
-  onBrandChange,
-}) => {
+export default function BrandFilter() {
   const [open, setOpen] = React.useState(false);
 
-  // Filtrar marcas vacías
-  const validBrands = brands.filter((brand) => brand.trim() !== "");
+  const { brands, selectedBrand, isLoading } = useProductsStore();
+  const { setSelectedBrand } = useProductsStore();
+
+  if (brands.length === 0) return null;
+
+  if (isLoading) return <Skeleton className="w-[200px] h-9" />;
 
   return (
-    <div className="my-4 w-1/3">
-      <Popover open={open} onOpenChange={setOpen}>
-        <PopoverTrigger asChild>
-          <Button
-            variant="outline"
-            role="combobox"
-            aria-expanded={open}
-            className="w-[200px] justify-between border-green-300 focus:ring-green-500 focus:border-green-500"
-          >
-            {selectedBrand
-              ? validBrands.find((brand) => brand === selectedBrand) ??
-                "Todas las marcas"
-              : "Todas las marcas"}
-            <CaretSortIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-[200px] p-0">
-          <Command>
-            <CommandInput placeholder="Buscar marca..." className="h-9" />
-            <CommandList>
-              <CommandEmpty>No se encontró la marca.</CommandEmpty>
-              <CommandGroup>
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button
+          variant="outline"
+          role="combobox"
+          aria-expanded={open}
+          className="w-[200px] justify-between"
+        >
+          {selectedBrand || "Marca"}
+          <CaretSortIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-[200px] p-0">
+        <Command>
+          <CommandInput placeholder="Buscar marca..." className="h-9" />
+          <CommandList>
+            <CommandEmpty>No hay marcas.</CommandEmpty>
+            <CommandGroup>
+              {brands.map((brand) => (
                 <CommandItem
-                  value="Todas las marcas"
-                  onSelect={() => {
-                    onBrandChange("Todas las marcas");
+                  key={brand}
+                  value={brand}
+                  onSelect={(selectedBrand) => {
+                    setSelectedBrand(
+                      selectedBrand === brand ? selectedBrand : ""
+                    );
+
                     setOpen(false);
                   }}
                 >
-                  Todas las marcas
+                  {brand}
                   <CheckIcon
                     className={cn(
                       "ml-auto h-4 w-4",
-                      selectedBrand === "Todas las marcas"
-                        ? "opacity-100"
-                        : "opacity-0"
+                      selectedBrand === brand ? "opacity-100" : "opacity-0"
                     )}
                   />
                 </CommandItem>
-                {validBrands.map((brand) => (
-                  <CommandItem
-                    key={brand}
-                    value={brand}
-                    onSelect={(currentValue) => {
-                      onBrandChange(
-                        currentValue === selectedBrand
-                          ? "Todas las marcas"
-                          : currentValue
-                      );
-                      setOpen(false);
-                    }}
-                  >
-                    {brand}
-                    <CheckIcon
-                      className={cn(
-                        "ml-auto h-4 w-4",
-                        selectedBrand === brand ? "opacity-100" : "opacity-0"
-                      )}
-                    />
-                  </CommandItem>
-                ))}
-              </CommandGroup>
-            </CommandList>
-          </Command>
-        </PopoverContent>
-      </Popover>
-    </div>
+              ))}
+            </CommandGroup>
+          </CommandList>
+        </Command>
+      </PopoverContent>
+    </Popover>
   );
-};
-
-export default BrandFilter;
+}

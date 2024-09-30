@@ -17,9 +17,15 @@ export function encodeQueryParams(params: Record<string, string>) {
 
 export function getVariablesWithQuery(q: string) {
   return {
-    productOriginVtex: true,
+    productOriginVtex: false,
     simulationBehavior: "default",
     hideUnavailableItems: true,
+    advertisementOptions: {
+      showSponsored: true,
+      sponsoredCount: 2,
+      repeatSponsoredProducts: false,
+      advertisementPlacement: "autocomplete",
+    },
     fullText: q,
     count: 10,
     shippingOptions: [],

@@ -31,15 +31,19 @@ const formatProductCarrefour = (product: vtexProduct): Product => {
   };
 };
 
-const buildUrl = (query: string) => {
+const buildUrlNaldo = (query: string) => {
   const baseUrl = "https://www.naldo.com.ar/_v/segment/graphql/v1";
+  return `${baseUrl}?${encodeQuery(query)}`;
+};
+
+const buildUrlCarrefour = (query: string) => {
+  const baseUrl = "https://www.carrefour.com.ar/_v/segment/graphql/v1";
   return `${baseUrl}?${encodeQuery(query)}`;
 };
 
 const scrapers: Record<string, Scraper> = {
   naldo: async (query: string) => {
-    const url = buildUrl(query);
-
+    const url = buildUrlNaldo(query);
     try {
       const { data } = await axios.get(url);
       const products = data?.data?.productSuggestions?.products?.map(
@@ -57,7 +61,7 @@ const scrapers: Record<string, Scraper> = {
     }
   },
   carrefour: async (query: string) => {
-    const url = buildUrl(query);
+    const url = buildUrlCarrefour(query);
 
     try {
       const { data } = await axios.get(url);

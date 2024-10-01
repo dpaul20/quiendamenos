@@ -30,7 +30,12 @@ export const useProductsStore = create<State>((set) => ({
     const products = await getProduct(productName);
     const productsUpdated = updateUnknownBrands(products);
     // Ordenar los productos por menor precio
-    productsUpdated.sort((a: Product, b: Product) => a.price - b.price);
+    productsUpdated.sort((a: Product, b: Product) => {
+      const priceA = a.price ?? Number.MAX_VALUE; // Use a very high value if price is undefined
+      const priceB = b.price ?? Number.MAX_VALUE;
+      return priceA - priceB;
+    });
+
     const brands = productsUpdated.map((product: Product) =>
       product.brand.toUpperCase()
     );

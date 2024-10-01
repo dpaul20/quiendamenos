@@ -24,7 +24,7 @@ export default function Cafecito() {
           width={192}
           height={40}
           alt="Invitame un café en cafecito.app"
-          className="h-9 lg:h-auto max-h-10 max-w-48"
+          className="h-9 lg:h-auto max-h-full max-w-48"
         />
       </Link>
     </div>

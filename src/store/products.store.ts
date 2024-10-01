@@ -29,6 +29,8 @@ export const useProductsStore = create<State>((set) => ({
   getProducts: async (productName: string) => {
     const products = await getProduct(productName);
     const productsUpdated = updateUnknownBrands(products);
+    // Ordenar los productos por menor precio
+    productsUpdated.sort((a: Product, b: Product) => a.price - b.price);
     const brands = productsUpdated.map((product: Product) =>
       product.brand.toUpperCase()
     );

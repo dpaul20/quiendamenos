@@ -22,9 +22,10 @@ export default function Disclaimer() {
           <AlertDescription className="mt-2 text-xs lg:text-base text-justify text-orange-600">
             Este proyecto tiene como finalidad permitir a los usuarios comprar
             libremente y de manera unificada el producto que buscan al menor
-            precio posible, recopilando información de diversas tiendas mediante
-            web scraping. La web app proporcionará una experiencia fluida para
-            comparar productos en tiempo real y optimizar la decisión de compra.
+            precio posible, recopilando información de diversas tiendas de
+            tecnología y artículos para el hogar, mediante web scraping. Nuestro
+            objetivo es proporcionar una experiencia fluida para comparar
+            productos en tiempo real y optimizar la decisión de compra.
           </AlertDescription>
         </div>
 

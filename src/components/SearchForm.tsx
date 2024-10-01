@@ -19,17 +19,17 @@ export default function SearchForm() {
   return (
     <form
       onSubmit={handleSubmit}
-      className="flex flex-row gap-2 w-full max-w-3xl mx-auto"
+      className="w-full flex flex-row gap-2 max-w-3xl mx-auto"
     >
       <Input
         type="text"
         placeholder="Ingrese el nombre del producto"
         required
-        className="w-full border-green-300 focus:ring-green-500 focus:border-green-500 rounded-full"
+        className="w-grow rounded-md"
       />
       <Button
         type="submit"
-        className="w-1/5 text-white rounded-full"
+        className="w-1/5 rounded-md"
         disabled={isLoading}
       >
         {isLoading ? (

@@ -1,12 +1,12 @@
 import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
-import { RocketIcon } from "lucide-react";
 import Link from "next/link";
 
 export default function FooterAlert() {
   return (
-    <Alert className="max-w-lg bg-green-200 text-center mx-auto">
-      <RocketIcon className="h-4 w-4" />
-      <AlertTitle>En &quot;¿Quién da menos?&quot;,</AlertTitle>
+    <Alert variant={"default"} className="max-w-lg text-center mx-auto bg-primary text-primary-foreground">
+      <AlertTitle>
+        En <strong>&quot;¿Quién da menos?&quot;</strong> ,
+      </AlertTitle>
       <AlertDescription>
         creemos en la transparencia y en la posibilidad de ofrecer a los
         consumidores las mejores opciones de compra.
@@ -22,7 +22,7 @@ export default function FooterAlert() {
         <Link
           href="https://deivygutierrez.com"
           target="_blank"
-          className="font-bold underline text-green-900"
+          className="font-bold underline"
         >
           Deivy Gutierrez
         </Link>

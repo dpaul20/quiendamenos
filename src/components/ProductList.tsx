@@ -50,10 +50,8 @@ export default function ProductList() {
   if (isLoading)
     return (
       <div className="flex flex-col items-center justify-center h-64">
-        <Loader2 className="h-8 w-8 animate-spin text-green-600 dark:text-green-400" />
-        <p className="mt-4 text-lg text-green-600 dark:text-green-600 animate-pulse">
-          {loadingMessage}
-        </p>
+        <Loader2 className="h-8 w-8 animate-spin" />
+        <p className="mt-4 text-lg animate-pulse">{loadingMessage}</p>
       </div>
     );
 
@@ -74,10 +72,10 @@ export default function ProductList() {
           return (
             <Card
               key={index}
-              className="flex flex-col items-center p-2 lg:p-4 rounded-xl shadow-md border-green-200 hover:shadow-lg transition-shadow duration-300 gap-1"
+              className="flex flex-col items-center p-2 lg:p-4 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300 gap-1"
             >
               <Link href={product.url} target="_blank">
-                <h3 className="text-xs lg:text-base font-semibold text-gray-800 text-center uppercase">
+                <h3 className="text-xs lg:text-base font-semibold tracking-tight text-center uppercase">
                   {product.name}
                 </h3>
               </Link>
@@ -98,11 +96,11 @@ export default function ProductList() {
                         currency: "ARS",
                       })}
                     </p>
-                    <p className="text-xs lg:text-sm text-gray-500 text-center uppercase">
+                    <span className="text-xs lg:text-sm text-center uppercase text-muted-foreground">
                       {product.brand}
-                    </p>
+                    </span>
                   </div>
-                  <div className="max-w-max max-h-6 bg-green-600 px-2 py-1 rounded-full mx-auto">
+                  <div className="max-w-max max-h-6 px-2 py-1 rounded-md mx-auto bg-primary text-primary-foreground">
                     <Image
                       src={storeLogos[product.from]}
                       alt={product.from}

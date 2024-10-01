@@ -57,9 +57,16 @@ export const knownBrands = [
   "VONNE",
   "PIONEER",
   "X-VIEW",
+  "WINCO",
+  "YELMO",
+  "AIWA",
+  "CARRIER",
+  "RCA",
+  "ELECTRA",
+  "SURREY",
 ];
 
-export const ALL = "TODAS";
+export const ALL = "TODAS LAS MARCAS";
 
 export const BASE_URLS = {
   naldo: "https://www.naldo.com.ar",

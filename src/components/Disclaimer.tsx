@@ -3,10 +3,10 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
-import { useProductsStore } from "@/store/products.store";
+import { useState } from "react";
 
 export default function Disclaimer() {
-  const { showDisclaimer, setDisclaimer } = useProductsStore();
+  const [showDisclaimer, setShowDisclaimer] = useState(true);
 
   return (
     showDisclaimer && (
@@ -19,7 +19,7 @@ export default function Disclaimer() {
           <AlertTitle className="text-lg font-semibold text-orange-700">
             Aviso importante
           </AlertTitle>
-          <AlertDescription className="mt-2 text-xs lg:text-base text-justify text-orange-600">
+          <AlertDescription className="mt-2 text-xs lg:text-base text-left text-orange-600">
             Este proyecto tiene como finalidad permitir a los usuarios comprar
             libremente y de manera unificada el producto que buscan al menor
             precio posible, recopilando información de diversas tiendas de
@@ -34,7 +34,7 @@ export default function Disclaimer() {
             variant="ghost"
             size="icon"
             className="p-1 h-6 w-6 hover:bg-orange-200 text-orange-500"
-            onClick={() => setDisclaimer(!showDisclaimer)}
+            onClick={() => setShowDisclaimer(false)}
           >
             <X className="h-full w-full hover:text-orange-700" />
             <span className="sr-only">Cerrar</span>

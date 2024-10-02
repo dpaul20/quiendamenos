@@ -12,7 +12,6 @@ import { StoreNamesEnum } from "@/enums/stores.enum";
 import { useProductsStore } from "@/store/products.store";
 import { ALL } from "@/lib/constants";
 import { Badge } from "./ui/badge";
-import { Loader2 } from "lucide-react";
 import { loadingMessages } from "@/lib/loading-messages ";
 import { useEffect, useState } from "react";
 
@@ -50,7 +49,13 @@ export default function ProductList() {
   if (isLoading)
     return (
       <div className="flex flex-col items-center justify-center h-64">
-        <Loader2 className="h-8 w-8 animate-spin" />
+        <Image
+          src="/logo.png"
+          alt="Logo"
+          width={64}
+          height={64}
+          className="rotate-45 animate-bell"
+        />
         <p className="mt-4 text-lg animate-pulse">{loadingMessage}</p>
       </div>
     );

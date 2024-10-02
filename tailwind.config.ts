@@ -56,6 +56,16 @@ const config: Config = {
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
       },
+      keyframes: {
+        bell: {
+          '0%, 100%': { transform: 'rotate(0deg)' },
+          '25%': { transform: 'rotate(30deg)' },
+          '75%': { transform: 'rotate(-30deg)' },
+        },
+      },
+      animation: {
+        bell: 'bell 1s ease-in-out infinite',
+      }
     },
   },
   plugins: [require("tailwindcss-animate")],

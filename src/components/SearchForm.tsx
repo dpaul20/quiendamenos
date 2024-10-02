@@ -29,7 +29,7 @@ export default function SearchForm() {
       />
       <Button
         type="submit"
-        className="rounded-md"
+        className="rounded-md w-1/3"
         disabled={isLoading}
       >
         {isLoading ? (

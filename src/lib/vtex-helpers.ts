@@ -7,12 +7,9 @@ export function encodeUrl(str: string) {
 }
 
 export function encodeQueryParams(params: Record<string, string>) {
-  return (
-    "?" +
-    Object.keys(params)
-      .map((key) => `${key}=${params[key]}`)
-      .join("&")
-  );
+  return Object.keys(params)
+    .map((key) => `${key}=${params[key]}`)
+    .join("&");
 }
 
 export function getVariablesWithQuery(q: string) {

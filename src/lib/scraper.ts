@@ -6,27 +6,64 @@ import { vtexProduct } from "@/types/vtex-product";
 import { MusimundoProductSource } from "@/types/musimundo";
 import { Product } from "@/types/product";
 import { StoreNamesEnum } from "@/enums/stores.enum";
+import { encodeCarrefourQuery } from "./vtex-carrefour";
 
 type Scraper = (url: string) => Promise<Product[]>;
 
 const formatProductNaldo = (product: vtexProduct): Product => {
+  const installments =
+    product.items?.[0]?.sellers?.[0]?.commertialOffer?.Installments || [];
+  const validInstallments = installments.filter(
+    (installment) => installment.InterestRate === 0
+  );
+  const maxInstallment = validInstallments.reduce(
+    (max, installment) => {
+      return installment.NumberOfInstallments > max.NumberOfInstallments
+        ? installment
+        : max;
+    },
+    { NumberOfInstallments: 0, InterestRate: 0 }
+  );
+
+  const NumberOfInstallments = maxInstallment.NumberOfInstallments;
+
   return {
     name: product.productName,
     price: Number(product.priceRange.sellingPrice.lowPrice),
     url: `https://www.naldo.com.ar${product.link}`,
     image: product.items[0].images[0].imageUrl,
     brand: capitalize(product.brand),
+    installment: NumberOfInstallments,
     from: StoreNamesEnum.NALDO,
   };
 };
 
 const formatProductCarrefour = (product: vtexProduct): Product => {
+  const sellers = product.items?.[0]?.sellers || [];
+  const defaultSeller = sellers.find((seller) => seller.sellerDefault);
+
+  const installments = defaultSeller?.commertialOffer?.Installments || [];
+  const validInstallments = installments.filter(
+    (installment) => installment.InterestRate === 0
+  );
+  const maxInstallment = validInstallments.reduce(
+    (max, installment) => {
+      return installment.NumberOfInstallments > max.NumberOfInstallments
+        ? installment
+        : max;
+    },
+    { NumberOfInstallments: 0, InterestRate: 0 }
+  );
+
+  const NumberOfInstallments = maxInstallment.NumberOfInstallments;
+
   return {
     name: product.productName,
     price: Number(product.priceRange.sellingPrice.lowPrice),
     url: `https://www.carrefour.com.ar${product.link}`,
     image: product.items[0].images[0].imageUrl,
     brand: capitalize(product.brand),
+    installment: NumberOfInstallments,
     from: StoreNamesEnum.CARREFOUR,
   };
 };
@@ -36,9 +73,9 @@ const buildUrlNaldo = (query: string) => {
   return `${baseUrl}?${encodeQuery(query)}`;
 };
 
-const buildUrlCarrefour = (query: string) => {
+const buildUrlCarrefour = async (query: string) => {
   const baseUrl = "https://www.carrefour.com.ar/_v/segment/graphql/v1";
-  return `${baseUrl}?${encodeQuery(query)}`;
+  return `${baseUrl}?${encodeCarrefourQuery(query, "lavado")}`;
 };
 
 const scrapers: Record<string, Scraper> = {
@@ -61,11 +98,12 @@ const scrapers: Record<string, Scraper> = {
     }
   },
   carrefour: async (query: string) => {
-    const url = buildUrlCarrefour(query);
+    const url = await buildUrlCarrefour(query);
 
     try {
       const { data } = await axios.get(url);
-      const products = data?.data?.productSuggestions?.products?.map(
+
+      const products = data?.data?.productSearch?.products?.map(
         (product: vtexProduct) => formatProductCarrefour(product)
       );
 
@@ -106,6 +144,12 @@ const scrapers: Record<string, Scraper> = {
             : "https://placehold.co/300x200";
           const url = $(item).find("a").attr("href");
 
+          const installmentText = $(item)
+            .find(".installment-info > span.value > span.installment-count")
+            .text()
+            .trim();
+          const installment = installmentText ? Number(installmentText) : 0;
+
           return {
             name,
             price: Number(price),
@@ -113,6 +157,7 @@ const scrapers: Record<string, Scraper> = {
             image: imageUrl,
             url,
             brand: "Unknown",
+            installment,
           };
         })
         .get();
@@ -143,6 +188,8 @@ const scrapers: Record<string, Scraper> = {
             image: product.UrlImagen,
             url: product.Link,
             brand: capitalize(product.Marca),
+            installment:
+              Number(product.Cuota_Numero) > 1 ? product.Cuota_Numero : 0,
           };
         }
       );

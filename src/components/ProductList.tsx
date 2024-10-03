@@ -77,14 +77,14 @@ export default function ProductList() {
           return (
             <Card
               key={index}
-              className="flex flex-col items-center p-2 lg:p-4 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300 gap-1"
+              className="flex flex-col justify-between items-center p-2 lg:p-4 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300 gap-1"
             >
               <Link href={product.url} target="_blank">
                 <h3 className="text-xs lg:text-base font-semibold tracking-tight text-center uppercase">
                   {product.name}
                 </h3>
               </Link>
-              <div className="w-full flex flex-row justify-center gap-1">
+              <div className="w-full flex flex-row justify-between gap-1">
                 <Image
                   loader={imageLoader}
                   src={product.image}
@@ -93,8 +93,8 @@ export default function ProductList() {
                   height={100}
                   className="object-contain"
                 />
-                <div className="flex flex-col justify-center gap-1">
-                  <div className="flex flex-col justify-center items-center gap-1">
+                <div className="flex flex-col justify-between gap-1">
+                  <div className="flex flex-col justify-between items-center gap-1">
                     <p className="text-sm lg:text-2xl font-bold text-green-600">
                       {product.price.toLocaleString("es-AR", {
                         style: "currency",
@@ -112,6 +112,12 @@ export default function ProductList() {
                       className="object-contain h-full w-full"
                     />
                   </div>
+
+                  {product?.installment ? (
+                    <Badge className="text-xs lg:text-sm bg-orange-500 mx-auto">
+                      {product.installment} cuotas sin interés
+                    </Badge>
+                  ) : null}
                 </div>
               </div>
             </Card>

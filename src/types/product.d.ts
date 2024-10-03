@@ -7,5 +7,5 @@ export interface Product {
   image: string;
   url: string | null | undefined;
   brand: string;
-  installment?: string;
+  installment?: number;
 }

@@ -3,9 +3,10 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useProductsStore } from "@/store/products.store";
 import { Loader2, Search } from "lucide-react";
+import { ALL } from "@/lib/constants";
 
 export default function SearchForm() {
-  const { getProducts, setIsLoading } = useProductsStore();
+  const { getProducts, setIsLoading, setSelectedBrand } = useProductsStore();
   const { isLoading } = useProductsStore();
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -14,6 +15,7 @@ export default function SearchForm() {
     const productName = (form.elements[0] as HTMLInputElement).value;
     getProducts(productName);
     setIsLoading(true);
+    setSelectedBrand(ALL)
   };
 
   return (

@@ -1,3 +1,4 @@
+import { StoreNamesEnum } from "@/enums/stores.enum";
 import { getProduct } from "@/lib/api";
 import { ALL } from "@/lib/constants";
 import { updateUnknownBrands } from "@/lib/unkonw-brands";
@@ -5,24 +6,22 @@ import { Product } from "@/types/product";
 import { create } from "zustand";
 
 interface State {
+  getProducts: (productName: string) => Promise<void>;
   products: Product[];
   productSearched: string;
   brands: string[];
-  showDisclaimer: boolean;
-  setDisclaimer: (show: boolean) => void;
+  selectedBrand: string;
+  setSelectedBrand: (brand: string) => void;
   isLoading: boolean;
   setIsLoading: (loading: boolean) => void;
-  selectedBrand: string;
-  getProducts: (productName: string) => Promise<void>;
-  setSelectedBrand: (brand: string) => void;
-  // filterProducts: (selectedBrand: string) => Product[];
+  setStores: () => void;
+  stores: StoreNamesEnum[];
 }
 
-export const useProductsStore = create<State>((set) => ({
+export const useProductsStore = create<State>((set, get) => ({
   products: [],
   productSearched: "",
   brands: [],
-  showDisclaimer: true,
   selectedBrand: ALL,
   isLoading: false,
   setIsLoading: (loading: boolean) => set({ isLoading: loading }),
@@ -41,7 +40,7 @@ export const useProductsStore = create<State>((set) => ({
     );
     const uniqueBrands = Array.from(new Set(brands));
 
-    uniqueBrands.sort();
+    uniqueBrands.sort((a, b) => a.localeCompare(b));
 
     uniqueBrands.unshift(ALL);
 
@@ -53,5 +52,12 @@ export const useProductsStore = create<State>((set) => ({
     }));
   },
   setSelectedBrand: (brand: string) => set({ selectedBrand: brand }),
-  setDisclaimer: (show: boolean) => set({ showDisclaimer: show }),
+  stores: [],
+  setStores: () => {
+    const products = get().products;
+    console.log({ products });
+    const stores = products.map((product) => product.from);
+    const uniqueStores = Array.from(new Set(stores));
+    set(() => ({ stores: uniqueStores }));
+  },
 }));

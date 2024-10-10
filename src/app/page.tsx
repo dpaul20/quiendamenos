@@ -6,6 +6,7 @@ import MissionModal from "../components/MissionModal";
 import { ModeToggle } from "@/components/DarkMode";
 import Image from "next/image";
 import { Footer } from "@/components/Footer";
+import { StoresList } from "@/components/StoresList";
 
 export default async function Home() {
   return (
@@ -38,6 +39,7 @@ export default async function Home() {
             <SearchForm />
           </div>
         </div>
+        <StoresList />
 
         <ProductList />
       </div>

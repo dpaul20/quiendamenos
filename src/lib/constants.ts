@@ -74,6 +74,7 @@ export const BASE_URLS = {
   musimundo: "https://u.braindw.com",
   fravega: "https://www.fravega.com",
   carrefour: "https://www.carrefour.com.ar",
+  mercadoLibre: "https://www.mercadolibre.com.ar",
 };
 
 export const STORES_MAP = {
@@ -85,7 +86,7 @@ export const STORES_MAP = {
   megatone: "Megatone",
   masOnline: "Mas Online",
   rex: "Rex",
-  mercadoLibre: "Mercado Libre",
+  mercadoLibre: "MercadoLibre",
 };
 
 export const STORES = [
@@ -94,4 +95,5 @@ export const STORES = [
   STORES_MAP.musimundo,
   STORES_MAP.fravega,
   STORES_MAP.carrefour,
+  STORES_MAP.mercadoLibre,
 ];

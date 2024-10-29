@@ -4,4 +4,5 @@ export enum StoreNamesEnum {
   MUSIMUNDO = "Musimundo",
   NALDO = "Naldo",
   CARREFOUR = "Carrefour",
+  MERCADOLIBRE = "MercadoLibre",
 }

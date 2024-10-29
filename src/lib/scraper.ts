@@ -14,7 +14,7 @@ const formatProductNaldo = (product: vtexProduct): Product => {
   const installments =
     product.items?.[0]?.sellers?.[0]?.commertialOffer?.Installments || [];
   const validInstallments = installments.filter(
-    (installment) => installment.InterestRate === 0
+    (installment) => installment.InterestRate === 0,
   );
   const maxInstallment = validInstallments.reduce(
     (max, installment) => {
@@ -22,7 +22,7 @@ const formatProductNaldo = (product: vtexProduct): Product => {
         ? installment
         : max;
     },
-    { NumberOfInstallments: 0, InterestRate: 0 }
+    { NumberOfInstallments: 0, InterestRate: 0 },
   );
 
   const NumberOfInstallments = maxInstallment.NumberOfInstallments;
@@ -44,7 +44,7 @@ const formatProductCarrefour = (product: vtexProduct): Product => {
 
   const installments = defaultSeller?.commertialOffer?.Installments || [];
   const validInstallments = installments.filter(
-    (installment) => installment.InterestRate === 0
+    (installment) => installment.InterestRate === 0,
   );
   const maxInstallment = validInstallments.reduce(
     (max, installment) => {
@@ -52,7 +52,7 @@ const formatProductCarrefour = (product: vtexProduct): Product => {
         ? installment
         : max;
     },
-    { NumberOfInstallments: 0, InterestRate: 0 }
+    { NumberOfInstallments: 0, InterestRate: 0 },
   );
 
   const NumberOfInstallments = maxInstallment.NumberOfInstallments;
@@ -84,7 +84,7 @@ const scrapers: Record<string, Scraper> = {
     try {
       const { data } = await axios.get(url);
       const products = data?.data?.productSearch?.products?.map(
-        (product: vtexProduct) => formatProductNaldo(product)
+        (product: vtexProduct) => formatProductNaldo(product),
       );
 
       if (!products) {
@@ -104,7 +104,7 @@ const scrapers: Record<string, Scraper> = {
       const { data } = await axios.get(url);
 
       const products = data?.data?.productSearch?.products?.map(
-        (product: vtexProduct) => formatProductCarrefour(product)
+        (product: vtexProduct) => formatProductCarrefour(product),
       );
 
       if (!products) {
@@ -191,7 +191,7 @@ const scrapers: Record<string, Scraper> = {
             installment:
               Number(product.Cuota_Numero) > 1 ? product.Cuota_Numero : 0,
           };
-        }
+        },
       );
 
       if (!products) {
@@ -243,9 +243,53 @@ const scrapers: Record<string, Scraper> = {
       return [];
     }
   },
+  mercadolibre: async (query) => {
+    const formattedQuery = query.replace(" ", "-");
+    const url = `https://listado.mercadolibre.com.ar/${formattedQuery}#D[A:${formattedQuery},L:undefined]`;
+    try {
+      const { data } = await axios.get(url);
+      const $ = load(data);
+
+      const products: Product[] = $(".poly-card.poly-card--list")
+        .map((_, item) => {
+          const name = $(item).find(".poly-component__title").text().trim();
+
+          const priceText = $(item)
+            .find(
+              "div.poly-card__content > div.poly-content > div:nth-child(1) > div.poly-component__price > div > span.andes-money-amount.andes-money-amount--cents-superscript > span.andes-money-amount__fraction",
+            )
+            .text()
+            .trim()
+            .replace(/\./g, "");
+
+          const imageUrl =
+            $(item).find("img").attr("data-src") ??
+            "https://placehold.co/300x200";
+          const productUrl = $(item).find("a").attr("href");
+
+          return {
+            name,
+            price: Number(priceText),
+            from: StoreNamesEnum.MERCADOLIBRE,
+            image: imageUrl,
+            url: productUrl,
+            brand: "Unknown",
+          };
+        })
+        .get();
+      console.log({ products });
+      if (!products) {
+        return [];
+      }
+      return products;
+    } catch (error) {
+      console.error("Error fetching products from MercadoLibre:", error);
+      return [];
+    }
+  },
   default: async (url) => {
     console.warn(
-      `No specific scraper found for ${url}. Using default scraper.`
+      `No specific scraper found for ${url}. Using default scraper.`,
     );
     return [];
   },
@@ -259,6 +303,7 @@ export async function scrapeWebsite(query: string): Promise<Product[]> {
       `https://www.cetrogar.com.ar/catalogsearch/result/?q=${query}`,
       `https://www.fravega.com/l/?keyword=${query}`,
       `https://www.carrefour.com.ar`,
+      `https://listado.mercadolibre.com.ar/${query}#D[A:${query},L:undefined]`,
     ];
 
     const promises = urls.map((url) => {

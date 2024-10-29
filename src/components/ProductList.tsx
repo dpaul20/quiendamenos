@@ -8,6 +8,7 @@ import fravega from "../../public/stores/fravega.webp";
 import musimundo from "../../public/stores/musimundo.webp";
 import naldo from "../../public/stores/naldo.webp";
 import carrefour from "../../public/stores/carrefour.webp";
+import mercadolibre from "../../public/stores/mercadolibre.png";
 import { StoreNamesEnum } from "@/enums/stores.enum";
 import { useProductsStore } from "@/store/products.store";
 import { ALL } from "@/lib/constants";
@@ -21,6 +22,7 @@ const storeLogos: Record<StoreNamesEnum, StaticImageData> = {
   Musimundo: musimundo,
   Naldo: naldo,
   Carrefour: carrefour,
+  MercadoLibre: mercadolibre,
 };
 
 export default function ProductList() {
@@ -42,13 +44,13 @@ export default function ProductList() {
   let filteredProducts = products;
   if (selectedBrand !== ALL) {
     filteredProducts = products.filter(
-      (product) => product.brand.toUpperCase() === selectedBrand
+      (product) => product.brand.toUpperCase() === selectedBrand,
     );
   }
 
   if (isLoading)
     return (
-      <div className="flex flex-col items-center justify-center h-64">
+      <div className="flex h-64 flex-col items-center justify-center">
         <Image
           src="/logo.png"
           alt="Logo"
@@ -56,7 +58,7 @@ export default function ProductList() {
           height={64}
           className="rotate-45 animate-bell"
         />
-        <p className="mt-4 text-lg animate-pulse">{loadingMessage}</p>
+        <p className="mt-4 animate-pulse text-lg">{loadingMessage}</p>
       </div>
     );
 
@@ -69,7 +71,7 @@ export default function ProductList() {
         <Badge variant="secondary">Productos ordenados por menor precio</Badge>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 py-4">
+      <div className="grid grid-cols-1 gap-6 py-4 md:grid-cols-2 lg:grid-cols-3">
         {filteredProducts.map((product, index) => {
           if (!product.price || !product.name || !product.url) {
             return null;
@@ -77,14 +79,14 @@ export default function ProductList() {
           return (
             <Card
               key={index}
-              className="flex flex-col justify-between items-center p-2 lg:p-4 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300 gap-1"
+              className="flex flex-col items-center justify-between gap-1 rounded-xl p-2 shadow-md transition-shadow duration-300 hover:shadow-lg lg:p-4"
             >
               <Link href={product.url} target="_blank">
-                <h3 className="text-xs lg:text-base font-semibold tracking-tight text-center uppercase">
+                <h3 className="text-center text-xs font-semibold uppercase tracking-tight lg:text-base">
                   {product.name}
                 </h3>
               </Link>
-              <div className="w-full flex flex-row justify-between gap-1">
+              <div className="flex w-full flex-row justify-between gap-1">
                 <Image
                   loader={imageLoader}
                   src={product.image}
@@ -94,27 +96,27 @@ export default function ProductList() {
                   className="object-contain"
                 />
                 <div className="flex flex-col justify-between gap-1">
-                  <div className="flex flex-col justify-between items-center gap-1">
-                    <p className="text-sm lg:text-2xl font-bold text-green-600">
+                  <div className="flex flex-col items-center justify-between gap-1">
+                    <p className="text-sm font-bold text-green-600 lg:text-2xl">
                       {product.price.toLocaleString("es-AR", {
                         style: "currency",
                         currency: "ARS",
                       })}
                     </p>
-                    <span className="text-xs lg:text-sm text-center uppercase text-muted-foreground">
+                    <span className="text-center text-xs uppercase text-muted-foreground lg:text-sm">
                       {product.brand}
                     </span>
                   </div>
-                  <div className="max-w-max max-h-6 px-2 py-1 rounded-md mx-auto bg-primary text-primary-foreground">
+                  <div className="mx-auto max-h-6 max-w-max rounded-md bg-primary px-2 py-1 text-primary-foreground">
                     <Image
                       src={storeLogos[product.from]}
                       alt={product.from}
-                      className="object-contain h-full w-full"
+                      className="h-full w-full object-contain"
                     />
                   </div>
 
                   {product?.installment ? (
-                    <Badge className="text-xs lg:text-sm bg-orange-500 mx-auto">
+                    <Badge className="mx-auto bg-orange-500 text-xs lg:text-sm">
                       {product.installment} cuotas sin interés
                     </Badge>
                   ) : null}

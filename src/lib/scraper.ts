@@ -83,7 +83,7 @@ const scrapers: Record<string, Scraper> = {
     const url = buildUrlNaldo(query);
     try {
       const { data } = await axios.get(url);
-      const products = data?.data?.productSuggestions?.products?.map(
+      const products = data?.data?.productSearch?.products?.map(
         (product: vtexProduct) => formatProductNaldo(product)
       );
 

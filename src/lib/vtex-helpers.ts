@@ -36,7 +36,7 @@ export function getExtensionsWithQuery(q: string) {
     persistedQuery: {
       version: 1,
       sha256Hash:
-        "db333c9cfdf258f98d62add1567adf4e594a8195da9c70f68a1ef614d5a67242",
+        "3e2c473672fc986dc5377d35560f5d5244fbca3698414bd02772c649d67994b6",
       sender: "vtex.store-resources@0.x",
       provider: "vtex.search-graphql@0.x",
     },
@@ -52,7 +52,7 @@ export function encodeQuery(query: string) {
     appsEtag: "remove",
     domain: "store",
     locale: "es-AR",
-    operationName: "productSuggestions",
+    operationName: "productSearchV3",
     variables: encodeUrl("{}"),
     extensions: encodeUrl(extensions),
   };

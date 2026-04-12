@@ -1,7 +1,12 @@
 import { exponentialBackoff } from '@/platform/backoff';
-import { getCachedData, setCachedData } from '@/platform/cache';
+import { getCachedData, cacheKey } from '@/platform/cache';
 import { Product } from '@/types/product';
 
+/**
+ * Wraps a scraper with exponential backoff + per-store cache fallback.
+ * Cache writes are intentionally NOT done here — service.ts batch-writes
+ * all successful results via Redis pipeline after Promise.all completes.
+ */
 export async function scrapeWithFallback(
   store: string,
   query: string,
@@ -11,13 +16,13 @@ export async function scrapeWithFallback(
 
   if (result.success && result.data !== undefined) {
     console.log(`[Router] store=${store} attempt=${result.attempts} outcome=success`);
-    await setCachedData(store, result.data);
     return result.data;
   }
 
   console.log(`[Router] store=${store} attempt=${result.attempts} outcome=retry_exhausted`);
 
-  const cached = await getCachedData(store);
+  const key = cacheKey.store(store, query);
+  const cached = await getCachedData(key);
   if (cached !== null) {
     console.log(`[Router] store=${store} outcome=cache_hit`);
     return cached as Product[];

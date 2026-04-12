@@ -5,6 +5,7 @@ import { scrapeFravega } from "./fravega";
 import { scrapeMusimundo } from "./musimundo";
 import { scrapeCarrefour } from "./carrefour";
 import { scrapeMercadoLibre } from "./mercadolibre";
+import { scrapeOnCity } from "./oncity";
 
 type Scraper = (query: string) => Promise<Product[]>;
 
@@ -15,5 +16,6 @@ export const scrapers: Record<string, Scraper> = {
   musimundo: scrapeMusimundo,
   carrefour: scrapeCarrefour,
   mercadolibre: scrapeMercadoLibre,
+  oncity: scrapeOnCity,
   default: async () => [],
 };

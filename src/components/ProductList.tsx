@@ -9,6 +9,7 @@ import musimundo from "../../public/stores/musimundo.webp";
 import naldo from "../../public/stores/naldo.webp";
 import carrefour from "../../public/stores/carrefour.webp";
 import mercadolibre from "../../public/stores/mercadolibre.png";
+import oncity from "../../public/stores/oncity.png";
 import { StoreNamesEnum } from "@/enums/stores.enum";
 import { useProductsStore } from "@/store/products.store";
 import { ALL } from "@/lib/constants";
@@ -23,6 +24,7 @@ const storeLogos: Record<StoreNamesEnum, StaticImageData> = {
   Naldo: naldo,
   Carrefour: carrefour,
   MercadoLibre: mercadolibre,
+  OnCity: oncity,
 };
 
 export default function ProductList() {

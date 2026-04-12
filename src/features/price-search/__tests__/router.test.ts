@@ -1,14 +1,18 @@
 import { scrapeWithFallback } from '../router';
 import { exponentialBackoff } from '@/platform/backoff';
-import { getCachedData, setCachedData } from '@/platform/cache';
+import { getCachedData } from '@/platform/cache';
 import { Product } from '@/types/product';
 
 jest.mock('@/platform/backoff');
-jest.mock('@/platform/cache');
+jest.mock('@/platform/cache', () => ({
+  ...jest.requireActual('@/platform/cache'),
+  getCachedData: jest.fn(),
+  setCachedData: jest.fn(),
+  setStoreCacheNX: jest.fn(),
+}));
 
 const mockExponentialBackoff = exponentialBackoff as jest.MockedFunction<typeof exponentialBackoff>;
 const mockGetCachedData = getCachedData as jest.MockedFunction<typeof getCachedData>;
-const mockSetCachedData = setCachedData as jest.MockedFunction<typeof setCachedData>;
 
 const sampleProduct: Product = {
   name: 'TV Samsung 55"',
@@ -35,7 +39,6 @@ describe('scrapeWithFallback', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    mockSetCachedData.mockResolvedValue(undefined);
   });
 
   it('devuelve productos si primaryScraper tiene éxito en primer intento', async () => {
@@ -76,7 +79,7 @@ describe('scrapeWithFallback', () => {
     const result = await scrapeWithFallback('naldo', 'tv', mockScraper);
 
     expect(result).toEqual([cachedProduct]);
-    expect(mockGetCachedData).toHaveBeenCalledWith('naldo');
+    expect(mockGetCachedData).toHaveBeenCalledWith('s:naldo:tv');
   });
 
   it('devuelve [] cuando todos los intentos fallan y caché es null (cache miss)', async () => {
@@ -93,7 +96,9 @@ describe('scrapeWithFallback', () => {
     expect(result).toEqual([]);
   });
 
-  it('llama setCachedData con resultado exitoso', async () => {
+  it('NO llama setCachedData (las escrituras se delegan al pipeline de service.ts)', async () => {
+    const { setCachedData } = jest.requireMock('@/platform/cache') as { setCachedData: jest.Mock };
+
     mockExponentialBackoff.mockResolvedValueOnce({
       success: true,
       data: [sampleProduct],
@@ -103,10 +108,12 @@ describe('scrapeWithFallback', () => {
 
     await scrapeWithFallback('naldo', 'tv', mockScraper);
 
-    expect(mockSetCachedData).toHaveBeenCalledWith('naldo', [sampleProduct]);
+    expect(setCachedData).not.toHaveBeenCalled();
   });
 
   it('NO llama setCachedData si se devuelve resultado de caché', async () => {
+    const { setCachedData } = jest.requireMock('@/platform/cache') as { setCachedData: jest.Mock };
+
     mockExponentialBackoff.mockResolvedValueOnce({
       success: false,
       error: new Error('fallo'),
@@ -117,6 +124,6 @@ describe('scrapeWithFallback', () => {
 
     await scrapeWithFallback('naldo', 'tv', mockScraper);
 
-    expect(mockSetCachedData).not.toHaveBeenCalled();
+    expect(setCachedData).not.toHaveBeenCalled();
   });
 });

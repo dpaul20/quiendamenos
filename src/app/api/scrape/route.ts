@@ -1,6 +1,6 @@
-import { addToQueue } from "@/lib/queue";
-import { getCachedData, setCachedData } from "@/lib/cache";
-import { scrapeWebsite } from "@/lib/scraper";
+import { addToQueue } from "@/platform/queue";
+import { getCachedData, setCachedData } from "@/platform/cache";
+import { scrapeWebsite } from "@/features/price-search/service";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest) {

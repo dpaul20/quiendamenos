@@ -1,6 +1,6 @@
-import { addToQueue } from "@/lib/queue";
-import { getCachedData, setCachedData } from "@/lib/cache";
-import { scrapeWebsite } from "@/lib/scraper";
+import { scheduleRevalidation } from "@/platform/queue";
+import { getQueryCache, setQueryCache, cacheKey } from "@/platform/cache";
+import { scrapeWebsite } from "@/features/price-search/service";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest) {
@@ -22,13 +22,20 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const cachedData = await getCachedDataIfNeeded(query);
+    const key = cacheKey.query(query);
+    const cached = await getQueryCache(key);
 
-    if (cachedData && cachedData.length > 0) {
-      return NextResponse.json(cachedData);
+    if (cached) {
+      if (cached.stale) {
+        // Stale-While-Revalidate: responde de inmediato, actualiza en segundo plano
+        scheduleRevalidation(query);
+      }
+      return NextResponse.json(cached.data);
     }
 
-    const result = await scrapeAndCache(query);
+    // Cache miss — hacer scraping de todas las tiendas, cachear resultado y responder
+    const result = await scrapeWebsite(query);
+    await setQueryCache(key, result);
     return NextResponse.json(result);
   } catch (error) {
     console.error("Error in scrape route:", error);
@@ -40,30 +47,5 @@ export async function GET(request: NextRequest) {
 }
 
 function isValidQuery(query: unknown): boolean {
-  // Implementar validación de query
   return typeof query === "string" && query.trim().length > 0;
-}
-
-async function getCachedDataIfNeeded(query: string) {
-  const cachedData = await getCachedData(query);
-  if (cachedData && cachedData.length > 0) {
-    return cachedData;
-  }
-
-  return null;
-}
-
-async function scrapeAndCache(query: string) {
-  try {
-    const result = await scrapeWebsite(query);
-    await setCachedData(query, result);
-
-    addToQueue(query);
-
-    return result;
-  } catch (error) {
-    console.error("Error scraping website:", error);
-    // No cachear el error
-    throw error;
-  }
 }

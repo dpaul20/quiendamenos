@@ -19,13 +19,13 @@ export function StoresList() {
   if (isLoading) return <Skeleton className="h-9 w-full" />;
 
   return (
-    <div className="rounded-lg p-4 shadow-md">
+    <div className="rounded-lg border border-border p-4">
       <div className="flex items-center gap-1">
         <Store className="h-5 w-5" />
         <h2 className="text-lg font-semibold">Tiendas consultadas en:</h2>
         <Image src={argentinaFlag} alt="Bandera de Argentina" />
       </div>
-      <p className="text-sm text-gray-600">
+      <p className="text-sm text-muted-foreground">
         Resultados encontrados en {stores.length}{" "}
         {stores.length === 1 ? "tienda" : "tiendas"}: {stores.join(", ")}
       </p>

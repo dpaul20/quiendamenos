@@ -25,7 +25,7 @@ export function StoresList() {
         <h2 className="text-lg font-semibold">Tiendas consultadas en:</h2>
         <Image src={argentinaFlag} alt="Bandera de Argentina" />
       </div>
-      <p className="text-sm text-gray-600">
+      <p className="text-sm text-muted-foreground">
         Resultados encontrados en {stores.length}{" "}
         {stores.length === 1 ? "tienda" : "tiendas"}: {stores.join(", ")}
       </p>

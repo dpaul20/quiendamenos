@@ -12,14 +12,14 @@ export default function Disclaimer() {
     showDisclaimer && (
       <Alert
         variant="destructive"
-        className="bg-orange-100 border-orange-300 flex flex-row"
+        className="bg-destructive/10 border-destructive/30 flex flex-row"
       >
-        <ExclamationTriangleIcon className="h-4 w-4 text-orange-500" />
+        <ExclamationTriangleIcon className="h-4 w-4 text-destructive" />
         <div className="flex flex-col">
-          <AlertTitle className="text-lg font-semibold text-orange-700">
+          <AlertTitle className="text-sm font-semibold text-destructive">
             Aviso importante
           </AlertTitle>
-          <AlertDescription className="mt-2 text-xs lg:text-base text-left text-orange-600">
+          <AlertDescription className="mt-1 text-xs text-left text-destructive/80">
             Este proyecto tiene como finalidad permitir a los usuarios comprar
             libremente y de manera unificada el producto que buscan al menor
             precio posible, recopilando información de diversas tiendas de
@@ -33,10 +33,10 @@ export default function Disclaimer() {
           <Button
             variant="ghost"
             size="icon"
-            className="p-1 h-6 w-6 hover:bg-orange-200 text-orange-500"
+            className="p-1 h-6 w-6 hover:bg-destructive/20 text-destructive"
             onClick={() => setShowDisclaimer(false)}
           >
-            <X className="h-full w-full hover:text-orange-700" />
+            <X className="h-full w-full" />
             <span className="sr-only">Cerrar</span>
           </Button>
         </div>

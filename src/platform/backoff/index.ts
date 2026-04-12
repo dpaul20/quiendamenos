@@ -7,6 +7,7 @@
  * Secuencia: 2s → 4s → 8s → 16s (con jitter aleatorio de 0-1s)
  */
 
+import { categorizeError, categorizeHttpError } from '@/platform/errors';
 /**
  * Configuración para exponential backoff
  */
@@ -59,6 +60,32 @@ export function calculateDelay(
   return Math.round(cappedDelay + jitter);
 }
 
+/** Determina la categoría del error según su tipo (HTTP o genérico). */
+function categorizarError(error: unknown): ReturnType<typeof categorizeError> {
+  const axiosLike = error as {
+    response?: { status?: number; headers?: Record<string, string> };
+  };
+  if (axiosLike?.response?.status) {
+    return categorizeHttpError(
+      axiosLike.response.status,
+      axiosLike.response.headers?.['retry-after'],
+    );
+  }
+  return categorizeError(error);
+}
+
+/** Calcula el delay del siguiente reintento respetando Retry-After si está presente. */
+function resolverDelay(
+  categorized: ReturnType<typeof categorizeError>,
+  attempt: number,
+  config: { baseDelay: number; maxDelay: number; multiplier: number },
+): number {
+  if (categorized.retryDelay !== undefined) {
+    return categorized.retryDelay * 1000;
+  }
+  return calculateDelay(attempt, config);
+}
+
 /**
  * Ejecuta una función con reintentos usando exponential backoff
  * 
@@ -102,28 +129,36 @@ export async function exponentialBackoff<T>(
       };
     } catch (error) {
       lastError = error instanceof Error ? error : new Error(String(error));
+      const categorized = categorizarError(error);
 
-      // Si tenemos reintentos restantes, esperar y reintentar
-      if (attempt < maxAttempts) {
-        const delay = calculateDelay(attempt, {
-          baseDelay,
-          maxDelay,
-          multiplier,
-        });
-
-        console.log(
-          `[Backoff] ⚠️  Intento ${attempt + 1}/${maxAttempts + 1} falló. ` +
-            `Esperando ${delay}ms antes de reintentar... (Error: ${lastError.message})`
-        );
-
-        // Esperar antes de reintentar
-        await new Promise((resolve) => setTimeout(resolve, delay));
+      if (categorized.retriable) {
+        // Si tenemos reintentos restantes, esperar y reintentar
+        if (attempt < maxAttempts) {
+          const delay = resolverDelay(categorized, attempt, { baseDelay, maxDelay, multiplier });
+          console.log(
+            `[Backoff] ⚠️  Intento ${attempt + 1}/${maxAttempts + 1} falló (${categorized.type}). ` +
+              `Esperando ${delay}ms antes de reintentar... (Error: ${lastError.message})`,
+          );
+          await new Promise((resolve) => setTimeout(resolve, delay));
+        } else {
+          // No más reintentos
+          const totalTime = Date.now() - startTime;
+          console.log(
+            `[Backoff] ❌ Los ${maxAttempts + 1} intentos se agotaron después de ${totalTime}ms`,
+          );
+        }
       } else {
-        // No más reintentos
+        // Errores no recuperables (404, 4xx desconocido, etc.) — salir inmediatamente.
         const totalTime = Date.now() - startTime;
         console.log(
-          `[Backoff] ❌ Los ${maxAttempts + 1} intentos se agotaron después de ${totalTime}ms`
+          `[Backoff] 🚫 Error no recuperable (${categorized.type}): ${lastError.message} — sin reintentos`,
         );
+        return {
+          success: false,
+          error: lastError,
+          attempts: attempt + 1,
+          totalTime,
+        };
       }
     }
   }
@@ -157,19 +192,6 @@ export async function withBackoff<T>(
     throw result.error || new Error('Se alcanzó el máximo de reintentos');
   }
   return result.data!;
-}
-
-/**
- * Crea una instancia de backoff con configuración personalizada
- * Útil para escenarios específicos con estrategias de reintentos diferentes
- * 
- * @param config Configuración personalizada de backoff
- * @returns Función ejecutora de backoff
- */
-export function createBackoffExecutor(config: Partial<BackoffConfig>) {
-  return async function <T>(fn: () => Promise<T>): Promise<RetryResult<T>> {
-    return exponentialBackoff(fn, config);
-  };
 }
 
 /**

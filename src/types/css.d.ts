@@ -1,2 +1,2 @@
-// Allow side-effect CSS imports (e.g. import "./globals.css")
+// Permite imports CSS de efecto secundario (e.g. import "./globals.css")
 declare module "*.css" {}

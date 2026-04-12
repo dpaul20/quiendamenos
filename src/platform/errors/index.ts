@@ -42,7 +42,7 @@ export function categorizeHttpError(
   statusCode: number,
   retryAfter?: string
 ): CategorizedError {
-  const retryDelay = retryAfter ? parseInt(retryAfter, 10) : undefined;
+  const retryDelay = retryAfter ? Number.parseInt(retryAfter, 10) : undefined;
 
   switch (statusCode) {
     // 429: Demasiadas solicitudes - Rate limited
@@ -113,141 +113,116 @@ export function categorizeError(
   error: unknown,
   htmlContent?: string
 ): CategorizedError {
-  // Manejar null/undefined
-  if (!error) {
-    return {
-      type: ErrorType.UNKNOWN,
-      message: 'Error desconocido (null/undefined)',
-      retriable: false,
-    };
-  }
+  if (!error) return categorizarNulo();
+  if (error instanceof Error) return categorizarInstanciaError(error);
+  if (typeof error === 'string') return categorizarErrorString(error);
+  if (htmlContent) return categorizarHtml(htmlContent);
 
-  // Manejar objetos Error
-  if (error instanceof Error) {
-    const message = error.message.toLowerCase();
-
-    // Errores de red - recuperables
-    if (
-      message.includes('econnrefused') ||
-      message.includes('connect econnrefused')
-    ) {
-      return {
-        type: ErrorType.NETWORK_ERROR,
-        message: 'Conexión rechazada - El servidor podría estar caído',
-        retriable: true,
-        details: { originalError: error.message },
-      };
-    }
-
-    if (
-      message.includes('etimedout') ||
-      message.includes('timeout') ||
-      message.includes('timed out')
-    ) {
-      return {
-        type: ErrorType.TIMEOUT,
-        message: 'Timeout de solicitud - El servidor no está respondiendo',
-        retriable: true,
-        details: { originalError: error.message },
-      };
-    }
-
-    if (message.includes('enotfound') || message.includes('getaddrinfo')) {
-      return {
-        type: ErrorType.NETWORK_ERROR,
-        message: 'Error de búsqueda DNS - Dominio no encontrado',
-        retriable: true,
-        details: { originalError: error.message },
-      };
-    }
-
-    if (message.includes('econnreset')) {
-      return {
-        type: ErrorType.NETWORK_ERROR,
-        message: 'Conexión reiniciada - El servidor cerró la conexión',
-        retriable: true,
-        details: { originalError: error.message },
-      };
-    }
-
-    // Detección de JavaScript requerido
-    if (
-      message.includes('javascript') ||
-      message.includes('content too small')
-    ) {
-      return {
-        type: ErrorType.JAVASCRIPT_REQUIRED,
-        message: 'El contenido requiere renderización de JavaScript',
-        retriable: true,
-        details: { originalError: error.message },
-      };
-    }
-
-    // Default: desconocido pero posiblemente recuperable para problemas de red
-    return {
-      type: ErrorType.UNKNOWN,
-      message: error.message,
-      retriable: true, // Asumir recuperable para errores genéricos
-      details: { originalError: error.message },
-    };
-  }
-
-  // Manejar errores de string
-  if (typeof error === 'string') {
-    const lowerError = error.toLowerCase();
-
-    if (lowerError.includes('timeout')) {
-      return {
-        type: ErrorType.TIMEOUT,
-        message: error,
-        retriable: true,
-      };
-    }
-
-    if (
-      lowerError.includes('connection') ||
-      lowerError.includes('network')
-    ) {
-      return {
-        type: ErrorType.NETWORK_ERROR,
-        message: error,
-        retriable: true,
-      };
-    }
-
-    return {
-      type: ErrorType.UNKNOWN,
-      message: error,
-      retriable: false,
-    };
-  }
-
-  // Verificar contenido HTML para requerimiento de JavaScript
-  if (htmlContent) {
-    // HTML muy pequeño usualmente significa página de error o placeholder JS
-    if (htmlContent.length < 1000) {
-      // Verificar patrones comunes de JavaScript requerido
-      if (
-        htmlContent.includes('javascript') ||
-        htmlContent.includes('enable javascript') ||
-        htmlContent.includes('script is required')
-      ) {
-        return {
-          type: ErrorType.JAVASCRIPT_REQUIRED,
-          message: 'Contenido requiere JavaScript - HTML muy pequeño',
-          retriable: true,
-          details: { contentLength: htmlContent.length },
-        };
-      }
-    }
-  }
-
-  // Fallback definitivo
   return {
     type: ErrorType.UNKNOWN,
     message: `Error desconocido: ${String(error)}`,
     retriable: false,
     details: { originalError: String(error) },
+  };
+}
+
+function categorizarNulo(): CategorizedError {
+  return {
+    type: ErrorType.UNKNOWN,
+    message: 'Error desconocido (null/undefined)',
+    retriable: false,
+  };
+}
+
+function categorizarInstanciaError(error: Error): CategorizedError {
+  const message = error.message.toLowerCase();
+
+  if (message.includes('econnrefused') || message.includes('connect econnrefused')) {
+    return {
+      type: ErrorType.NETWORK_ERROR,
+      message: 'Conexión rechazada - El servidor podría estar caído',
+      retriable: true,
+      details: { originalError: error.message },
+    };
+  }
+
+  if (message.includes('etimedout') || message.includes('timeout') || message.includes('timed out')) {
+    return {
+      type: ErrorType.TIMEOUT,
+      message: 'Timeout de solicitud - El servidor no está respondiendo',
+      retriable: true,
+      details: { originalError: error.message },
+    };
+  }
+
+  if (message.includes('enotfound') || message.includes('getaddrinfo')) {
+    return {
+      type: ErrorType.NETWORK_ERROR,
+      message: 'Error de búsqueda DNS - Dominio no encontrado',
+      retriable: true,
+      details: { originalError: error.message },
+    };
+  }
+
+  if (message.includes('econnreset')) {
+    return {
+      type: ErrorType.NETWORK_ERROR,
+      message: 'Conexión reiniciada - El servidor cerró la conexión',
+      retriable: true,
+      details: { originalError: error.message },
+    };
+  }
+
+  if (message.includes('javascript') || message.includes('content too small')) {
+    return {
+      type: ErrorType.JAVASCRIPT_REQUIRED,
+      message: 'El contenido requiere renderización de JavaScript',
+      retriable: true,
+      details: { originalError: error.message },
+    };
+  }
+
+  // Default: asumir recuperable para errores genéricos
+  return {
+    type: ErrorType.UNKNOWN,
+    message: error.message,
+    retriable: true,
+    details: { originalError: error.message },
+  };
+}
+
+function categorizarErrorString(error: string): CategorizedError {
+  const lower = error.toLowerCase();
+
+  if (lower.includes('timeout')) {
+    return { type: ErrorType.TIMEOUT, message: error, retriable: true };
+  }
+  if (lower.includes('connection') || lower.includes('network')) {
+    return { type: ErrorType.NETWORK_ERROR, message: error, retriable: true };
+  }
+  return { type: ErrorType.UNKNOWN, message: error, retriable: false };
+}
+
+function categorizarHtml(htmlContent: string): CategorizedError {
+  const esJsRequerido =
+    htmlContent.length < 1000 &&
+    (htmlContent.includes('javascript') ||
+      htmlContent.includes('enable javascript') ||
+      htmlContent.includes('script is required'));
+
+  if (esJsRequerido) {
+    return {
+      type: ErrorType.JAVASCRIPT_REQUIRED,
+      message: 'Contenido requiere JavaScript - HTML muy pequeño',
+      retriable: true,
+      details: { contentLength: htmlContent.length },
+    };
+  }
+
+  return {
+    type: ErrorType.UNKNOWN,
+    message: 'Error desconocido en contenido HTML',
+    retriable: false,
   };
 }
 
@@ -297,34 +272,6 @@ export function getRetryDelay(error: CategorizedError): number | undefined {
     default:
       return undefined; // Sin delay
   }
-}
-
-/**
- * Registra un error para debugging
- * 
- * @param error Error categorizado
- * @param context Contexto adicional (URL, tienda, etc.)
- */
-export function logError(
-  error: CategorizedError,
-  context?: Record<string, unknown>
-): void {
-  const icon =
-    error.type === ErrorType.RATE_LIMITED || error.type === ErrorType.BLOCKING
-      ? '🚫'
-      : error.type === ErrorType.NETWORK_ERROR
-        ? '📡'
-        : error.type === ErrorType.JAVASCRIPT_REQUIRED
-          ? '📜'
-          : '❌';
-
-  console.log(`[Categorizador de Errores] ${icon} ${error.type}:`, {
-    message: error.message,
-    retriable: error.retriable,
-    statusCode: error.statusCode,
-    retryDelay: error.retryDelay,
-    context,
-  });
 }
 
 /**

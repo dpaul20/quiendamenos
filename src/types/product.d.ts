@@ -5,7 +5,7 @@ export interface Product {
   name: string | undefined;
   price: number | undefined;
   image: string;
-  url: string | null | undefined;
+  url: string | undefined;
   brand: string;
   installment?: number;
 }

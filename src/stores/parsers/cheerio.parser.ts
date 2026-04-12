@@ -44,13 +44,17 @@ export function createCheerioScraper(
             : "";
           const installment = installmentText ? Number(installmentText) : 0;
 
+          const brand = selectors.brand
+            ? $(item).find(selectors.brand).text().trim() || "Unknown"
+            : "Unknown";
+
           return {
             name,
             price: Number(priceText) || 0,
             from: config.displayName as unknown as StoreNamesEnum,
             image,
             url: productUrl,
-            brand: "Unknown",
+            brand,
             installment,
           };
         })

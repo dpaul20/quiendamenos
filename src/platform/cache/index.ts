@@ -1,31 +1,31 @@
 import redis from "../redis";
 
-const normalize = (s: string) => s.toLowerCase().trim().replace(/\s+/g, "_");
+const normalize = (s: string) => s.toLowerCase().trim().replaceAll(/\s+/g, "_");
 
-/** Namespaced cache keys — prevents collisions between query and store caches. */
+/** Claves de caché con namespace — evita colisiones entre caché de consulta y por tienda. */
 export const cacheKey = {
-  /** Primary cache: full result for a search query. TTL = 1h. */
+  /** Caché primario: resultado completo de una búsqueda. TTL = 1h. */
   query: (q: string) => `q:${normalize(q)}`,
-  /** Fallback cache: per-store result for a query. TTL = 24h. */
+  /** Caché de respaldo: resultado por tienda para una consulta. TTL = 24h. */
   store: (store: string, q: string) => `s:${store}:${normalize(q)}`,
 };
 
 export const TTL = {
-  QUERY: 3_600,   // 1h  — primary fast path
-  STORE: 86_400,  // 24h — per-store fallback (outlives query cache on purpose)
-  /** Trigger SWR revalidation when this fraction of QUERY TTL is consumed. */
-  SWR_RATIO: 0.75, // after 45min of 60min TTL
+  QUERY: 3_600,   // 1h  — ruta primaria rápida
+  STORE: 86_400,  // 24h — respaldo por tienda (supera intencionalmente al caché de consulta)
+  /** Dispara revalidación SWR cuando se consume esta fracción del TTL de consulta. */
+  SWR_RATIO: 0.75, // a partir de 45min de los 60min de TTL
 };
 
 interface CacheEntry<T> {
   data: T;
-  createdAt: number; // Date.now() ms — used to determine SWR staleness
+  createdAt: number; // Date.now() ms — determina el tiempo de vida SWR
 }
 
 /**
- * Returns true when the cached entry is old enough to warrant a background
- * revalidation (Stale-While-Revalidate). The entry is still served as-is;
- * the caller is responsible for triggering the refresh.
+ * Retorna true cuando la entrada cacheada es lo suficientemente antigua como para
+ * requerir una revalidación en segundo plano (Stale-While-Revalidate).
+ * La entrada se sigue sirviendo tal cual; el llamador es responsable de disparar la actualización.
  */
 export function isSwr(createdAt: number, ttlSeconds = TTL.QUERY): boolean {
   const ageMs = Date.now() - createdAt;
@@ -33,9 +33,9 @@ export function isSwr(createdAt: number, ttlSeconds = TTL.QUERY): boolean {
 }
 
 /**
- * Read the primary query cache.
- * Returns the data plus a `stale` flag so the caller can decide whether to
- * trigger a background revalidation without blocking the response.
+ * Lee el caché primario de consulta.
+ * Devuelve los datos junto a un flag `stale` para que el llamador decida
+ * si disparar una revalidación en segundo plano sin bloquear la respuesta.
  */
 export async function getQueryCache(
   key: string,
@@ -51,8 +51,8 @@ export async function getQueryCache(
 }
 
 /**
- * Write the primary query cache with a creation timestamp embedded.
- * The timestamp enables SWR staleness checks on subsequent reads.
+ * Escribe el caché primario de consulta con un timestamp de creación embebido.
+ * El timestamp permite verificar la antigüedad SWR en lecturas posteriores.
  */
 export async function setQueryCache(key: string, data: unknown): Promise<void> {
   try {
@@ -64,9 +64,9 @@ export async function setQueryCache(key: string, data: unknown): Promise<void> {
 }
 
 /**
- * Batch-write per-store fallback entries using SET NX (only-if-not-exists).
- * This prevents re-writing 24h keys on every SWR refresh, saving memory on
- * free-tier Redis. Each (store, query) pair is stored at most once per 24h.
+ * Escribe en lote entradas de respaldo por tienda usando SET NX (solo si no existe).
+ * Evita reescribir claves de 24h en cada actualización SWR, ahorrando memoria en
+ * Redis de plan gratuito. Cada par (tienda, consulta) se almacena como máximo una vez cada 24h.
  */
 export async function setStoreCacheNX(
   entries: Array<{ key: string; data: unknown }>,
@@ -84,8 +84,8 @@ export async function setStoreCacheNX(
 }
 
 /**
- * Low-level read used by the fallback path in router.ts.
- * Returns raw parsed JSON or null.
+ * Lectura de bajo nivel usada por el path de fallback en router.ts.
+ * Devuelve el JSON deserializado o null.
  */
 export async function getCachedData(key: string): Promise<unknown> {
   try {
@@ -96,15 +96,4 @@ export async function getCachedData(key: string): Promise<unknown> {
   }
 }
 
-/** @deprecated Use setQueryCache or setStoreCacheNX instead. */
-export async function setCachedData(
-  key: string,
-  data: unknown,
-  ttlSeconds = TTL.QUERY,
-): Promise<void> {
-  try {
-    await redis.set(key, JSON.stringify(data), "EX", ttlSeconds);
-  } catch (error) {
-    console.error("[cache] setCachedData error:", error);
-  }
-}
+

@@ -8,6 +8,7 @@ export interface StoreSelectors {
   image: string;
   url: string;
   installment?: string;
+  brand?: string;
 }
 
 export interface StoreConfig {

@@ -22,10 +22,6 @@ export function getAllStores(): RegistryEntry[] {
   }));
 }
 
-export function getStore(key: string): Scraper | null {
-  return store.get(key) ?? null;
-}
-
 export function initRegistry(): void {
   const configs = loadStores();
   for (const config of configs) {
@@ -33,7 +29,7 @@ export function initRegistry(): void {
   }
 }
 
-/** Only for use in tests — clears all registered scrapers. */
+/** Solo para uso en tests — limpia todos los scrapers registrados. */
 export function _clearForTests(): void {
   store.clear();
 }

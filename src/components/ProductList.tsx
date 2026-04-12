@@ -5,7 +5,6 @@ import Link from "next/link";
 import { imageLoader } from "@/lib/image-loader";
 import cetrogar from "../../public/stores/cetrogar.webp";
 import fravega from "../../public/stores/fravega.webp";
-import musimundo from "../../public/stores/musimundo.webp";
 import naldo from "../../public/stores/naldo.webp";
 import carrefour from "../../public/stores/carrefour.webp";
 import mercadolibre from "../../public/stores/mercadolibre.png";
@@ -14,13 +13,12 @@ import { StoreNamesEnum } from "@/enums/stores.enum";
 import { useProductsStore } from "@/store/products.store";
 import { ALL } from "@/lib/constants";
 import { Badge } from "./ui/badge";
-import { loadingMessages } from "@/lib/loading-messages ";
+import { loadingMessages } from "@/lib/loading-messages";
 import { useEffect, useState } from "react";
 
 const storeLogos: Record<StoreNamesEnum, StaticImageData> = {
   Cetrogar: cetrogar,
   Fravega: fravega,
-  Musimundo: musimundo,
   Naldo: naldo,
   Carrefour: carrefour,
   MercadoLibre: mercadolibre,
@@ -80,7 +78,7 @@ export default function ProductList() {
           }
           return (
             <Card
-              key={index}
+              key={product.url}
               className="flex flex-col items-center justify-between gap-1 rounded-xl p-2 shadow-md transition-shadow duration-300 hover:shadow-lg lg:p-4"
             >
               <Link href={product.url} target="_blank">

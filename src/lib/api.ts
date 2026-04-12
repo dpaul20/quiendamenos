@@ -15,7 +15,5 @@ export async function getProduct(productName: string) {
     price: Number(product.price),
   }));
 
-  // const updatedProducts = updateUnknownBrands(productsWithNumericPrices);
-  // const sortedProducts = sortProductsByPrice(updatedProducts);
   return productsWithNumericPrices;
 }

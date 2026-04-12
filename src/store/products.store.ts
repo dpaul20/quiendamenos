@@ -1,7 +1,7 @@
 import { StoreNamesEnum } from "@/enums/stores.enum";
 import { getProduct } from "@/lib/api";
 import { ALL } from "@/lib/constants";
-import { updateUnknownBrands } from "@/lib/unkonw-brands";
+import { updateUnknownBrands } from "@/lib/unknown-brands";
 import { Product } from "@/types/product";
 import { create } from "zustand";
 
@@ -30,8 +30,8 @@ export const useProductsStore = create<State>((set, get) => ({
     const productsUpdated = updateUnknownBrands(products);
     // Ordenar los productos por menor precio
     productsUpdated.sort((a: Product, b: Product) => {
-      const priceA = a.price ?? Number.MAX_VALUE; // Use a very high value if price is undefined
-      const priceB = b.price ?? Number.MAX_VALUE;
+      const priceA = a.price ?? Infinity;
+      const priceB = b.price ?? Infinity;
       return priceA - priceB;
     });
 
@@ -55,7 +55,6 @@ export const useProductsStore = create<State>((set, get) => ({
   stores: [],
   setStores: () => {
     const products = get().products;
-    console.log({ products });
     const stores = products.map((product) => product.from);
     const uniqueStores = Array.from(new Set(stores));
     set(() => ({ stores: uniqueStores }));

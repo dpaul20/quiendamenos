@@ -4,17 +4,22 @@ import { capitalize } from "@/lib/capitalize";
 import { vtexProduct } from "@/types/vtex-product";
 import { Product } from "@/types/product";
 import { StoreNamesEnum } from "@/enums/stores.enum";
+import {
+  buildVtexIsUrl,
+  formatVtexProduct,
+  isElectronicsProduct,
+} from "@/platform/vtex/helpers";
 
 const USER_AGENT =
   "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36";
 
-/** Extracts products from the VTEX IO Apollo cache embedded in category-page HTML. */
+/** Extrae productos del caché Apollo de VTEX IO embebido en el HTML de la página de categoría. */
 function extractFromApolloCache(html: string): Product[] {
   const $ = load(html);
   let cache: Record<string, unknown> = {};
 
   $("script:not([src])").each((_, el) => {
-    if (cache && Object.keys(cache).length > 0) return; // already found
+    if (cache && Object.keys(cache).length > 0) return; // ya encontrado
     const content = $(el).html() ?? "";
     if (!/"productName":"/.test(content)) return;
     try {
@@ -23,7 +28,7 @@ function extractFromApolloCache(html: string): Product[] {
         cache = parsed;
       }
     } catch {
-      // not valid JSON – keep scanning
+      // JSON inválido – continuar escaneando
     }
   });
 
@@ -76,61 +81,30 @@ function extractFromApolloCache(html: string): Product[] {
     .filter((p): p is NonNullable<typeof p> => p !== null);
 }
 
+const DOMAIN = "https://www.carrefour.com.ar";
+
 const formatProductCarrefour = (product: vtexProduct): Product => {
-  const sellers = product.items?.[0]?.sellers || [];
-  const defaultSeller = sellers.find((seller) => seller.sellerDefault);
-
-  const installments = defaultSeller?.commertialOffer?.Installments || [];
-  const validInstallments = installments.filter(
-    (installment) => installment.InterestRate === 0,
-  );
-  const maxInstallment = validInstallments.reduce(
-    (max, installment) => {
-      return installment.NumberOfInstallments > max.NumberOfInstallments
-        ? installment
-        : max;
-    },
-    { NumberOfInstallments: 0, InterestRate: 0 },
-  );
-
-  const NumberOfInstallments = maxInstallment.NumberOfInstallments;
-
-  return {
-    name: product.productName,
-    price: Number(product.priceRange.sellingPrice.lowPrice),
-    url: `https://www.carrefour.com.ar${product.link}`,
-    image: product.items[0].images[0].imageUrl,
-    brand: capitalize(product.brand),
-    installment: NumberOfInstallments,
-    from: StoreNamesEnum.CARREFOUR,
-  };
-};
-
-const buildUrlCarrefour = (query: string) => {
-  const params = new URLSearchParams({
-    query,
-    count: "20",
-    from: "0",
-    to: "19",
-    locale: "es-AR",
-    hideUnavailableItems: "true",
-  });
-  return `https://www.carrefour.com.ar/_v/api/intelligent-search/product_search/v3?${params}`;
+  const sellers = product.items?.[0]?.sellers ?? [];
+  const defaultSeller = sellers.find((s) => s.sellerDefault);
+  const installments = defaultSeller?.commertialOffer?.Installments ?? [];
+  return formatVtexProduct(product, StoreNamesEnum.CARREFOUR, DOMAIN, installments);
 };
 
 export async function scrapeCarrefour(query: string): Promise<Product[]> {
-  const url = buildUrlCarrefour(query);
+  const url = buildVtexIsUrl(DOMAIN, query);
   try {
     const { data } = await axios.get(url, {
       headers: { "User-Agent": USER_AGENT },
     });
 
-    // IS API returned products directly → standard path
+    // IS API devolvió productos directamente → flujo estándar
     if (data?.products?.length > 0) {
-      return (data.products as vtexProduct[]).map(formatProductCarrefour);
+      return (data.products as vtexProduct[])
+        .filter(isElectronicsProduct)
+        .map(formatProductCarrefour);
     }
 
-    // IS API configured a redirect to a category page → scrape Apollo cache
+    // IS API configuró una redirección a página de categoría → extraer caché Apollo
     if (data?.redirect) {
       const categoryUrl = `https://www.carrefour.com.ar${data.redirect}`;
       const { data: html } = await axios.get<string>(categoryUrl, {

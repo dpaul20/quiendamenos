@@ -3,9 +3,9 @@ import { getCachedData, cacheKey } from '@/platform/cache';
 import { Product } from '@/types/product';
 
 /**
- * Wraps a scraper with exponential backoff + per-store cache fallback.
- * Cache writes are intentionally NOT done here — service.ts batch-writes
- * all successful results via Redis pipeline after Promise.all completes.
+ * Envuelve un scraper con exponential backoff + caché de respaldo por tienda.
+ * Las escrituras en caché NO se hacen aquí intencionalmente — service.ts escribe
+ * en lote todos los resultados exitosos via pipeline Redis al completar Promise.all.
  */
 export async function scrapeWithFallback(
   store: string,

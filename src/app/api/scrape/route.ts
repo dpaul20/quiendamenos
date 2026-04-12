@@ -27,13 +27,13 @@ export async function GET(request: NextRequest) {
 
     if (cached) {
       if (cached.stale) {
-        // Stale-While-Revalidate: serve immediately, refresh in background
+        // Stale-While-Revalidate: responde de inmediato, actualiza en segundo plano
         scheduleRevalidation(query);
       }
       return NextResponse.json(cached.data);
     }
 
-    // Cache miss — scrape all stores, cache result, respond
+    // Cache miss — hacer scraping de todas las tiendas, cachear resultado y responder
     const result = await scrapeWebsite(query);
     await setQueryCache(key, result);
     return NextResponse.json(result);

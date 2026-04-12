@@ -2,17 +2,17 @@ import { scrapeWebsite } from "@/features/price-search/service";
 import { cacheKey, setQueryCache } from "@/platform/cache";
 
 /**
- * Schedules a background revalidation of the query cache (Stale-While-Revalidate).
+ * Programa una revalidación en segundo plano del caché de consulta (Stale-While-Revalidate).
  *
- * Intentionally NOT using Bull/BullMQ: free-tier Redis has a ~30MB memory cap
- * and Bull stores job metadata (lists, hashes) that compete with our actual
- * product data. A detached Promise is sufficient here because:
- *   - We don't need durability — the stale data keeps serving requests.
- *   - We don't need retries — the next SWR hit will retry automatically.
- *   - The scope is a single Next.js process, not a distributed system.
+ * Deliberadamente NO se usa Bull/BullMQ: Redis en plan gratuito tiene ~30MB de límite
+ * y Bull almacena metadatos de jobs (lists, hashes) que compiten con los datos de productos.
+ * Una Promise desacoplada es suficiente porque:
+ *   - No se necesita durabilidad — los datos stale siguen respondiendo peticiones.
+ *   - No se necesitan reintentos — el próximo hit SWR reintentará automáticamente.
+ *   - El alcance es un único proceso Next.js, no un sistema distribuido.
  */
 export function scheduleRevalidation(query: string): void {
-  // Fire-and-forget: detach from the current request lifecycle
+  // Fire-and-forget: desacopla del ciclo de vida de la petición actual
   setImmediate(() => {
     void (async () => {
       try {

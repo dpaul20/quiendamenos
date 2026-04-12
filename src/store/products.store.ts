@@ -12,6 +12,8 @@ interface State {
   brands: string[];
   selectedBrand: string;
   setSelectedBrand: (brand: string) => void;
+  selectedStore: string;
+  setSelectedStore: (store: string) => void;
   isLoading: boolean;
   setIsLoading: (loading: boolean) => void;
   setStores: () => void;
@@ -52,6 +54,8 @@ export const useProductsStore = create<State>((set, get) => ({
     }));
   },
   setSelectedBrand: (brand: string) => set({ selectedBrand: brand }),
+  selectedStore: ALL,
+  setSelectedStore: (store: string) => set({ selectedStore: store }),
   stores: [],
   setStores: () => {
     const products = get().products;

@@ -16,6 +16,7 @@ import { ALL } from "@/lib/constants";
 import { Badge } from "./ui/badge";
 import { loadingMessages } from "@/lib/loading-messages";
 import { useEffect, useState } from "react";
+import { CheckIcon } from "@radix-ui/react-icons";
 
 const storeLogos: Record<StoreNamesEnum, StaticImageData> = {
   Cetrogar: cetrogar,
@@ -43,7 +44,7 @@ function SkeletonCard() {
 }
 
 export default function ProductList() {
-  const { products, selectedBrand, isLoading } = useProductsStore();
+  const { products, selectedBrand, selectedStore, isLoading } = useProductsStore();
   const [loadingMessage, setLoadingMessage] = useState("");
 
   useEffect(() => {
@@ -60,8 +61,13 @@ export default function ProductList() {
 
   let filteredProducts = products;
   if (selectedBrand !== ALL) {
-    filteredProducts = products.filter(
+    filteredProducts = filteredProducts.filter(
       (product) => product.brand.toUpperCase() === selectedBrand,
+    );
+  }
+  if (selectedStore !== ALL) {
+    filteredProducts = filteredProducts.filter(
+      (product) => product.from === selectedStore,
     );
   }
 
@@ -116,6 +122,12 @@ export default function ProductList() {
                     fill
                     className="object-contain p-3"
                   />
+                  {index === 0 && (
+                    <div className="absolute top-2 left-2 flex items-center gap-1 rounded-full bg-primary px-2 py-0.5 text-[10px] font-semibold text-primary-foreground">
+                      <CheckIcon className="h-2.5 w-2.5" />
+                      Mejor precio
+                    </div>
+                  )}
                   <div className="absolute bottom-2 right-2 rounded bg-background/90 p-1">
                     <Image
                       src={storeLogos[product.from]}

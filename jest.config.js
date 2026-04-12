@@ -7,10 +7,7 @@ const config = {
   },
   transform: {
     '^.+\\.tsx?$': ['ts-jest', {
-      tsconfig: {
-        module: 'commonjs',
-        moduleResolution: 'node',
-      },
+      tsconfig: './tsconfig.test.json',
     }],
   },
 };

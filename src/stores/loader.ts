@@ -1,5 +1,5 @@
-import { readFileSync, existsSync } from "fs";
-import path from "path";
+import { readFileSync, existsSync } from "node:fs";
+import path from "node:path";
 
 export interface StoreSelectors {
   container: string;

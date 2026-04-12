@@ -1,9 +1,4 @@
 import { encodeUrl, encodeQueryParams, encodeBase64 } from "./helpers";
-// import { Buffer } from "buffer";
-
-// function encodeBase64(str: string): string {
-//   return Buffer.from(str).toString("base64");
-// }
 
 export function getVariablesForCarrefour(q: string, category: string) {
   return {

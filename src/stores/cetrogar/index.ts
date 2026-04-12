@@ -19,12 +19,12 @@ export async function scrapeCetrogar(query: string): Promise<Product[]> {
           .find("span[data-price-type='finalPrice']")
           .text()
           .trim()
-          .replace(/[^\d,.-]/g, "")
-          .replace(/\./g, "")
+          .replaceAll(/[^\d,.-]/g, "")
+          .replaceAll(".", "")
           .replace(",", ".");
 
         const imageStyle = $(item).find(".product-image-photo").attr("style");
-        const imageUrlMatch = imageStyle?.match(/url\(['"]?(.*?)['"]?\)/);
+        const imageUrlMatch = /url\(['"]?(.*?)['"]?\)/.exec(imageStyle ?? "");
         const imageUrl = imageUrlMatch
           ? imageUrlMatch[1]
           : "https://placehold.co/300x200";

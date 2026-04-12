@@ -14,7 +14,7 @@ export async function scrapeMusimundo(query: string): Promise<Product[]> {
         const product = hit._source;
         return {
           name: product.Descripcion,
-          price: parseFloat(product.Precio.replace(/[^0-9,-]+/g, "")),
+          price: Number.parseFloat(product.Precio.replaceAll(/[^0-9,-]+/g, "")),
           from: StoreNamesEnum.MUSIMUNDO,
           image: product.UrlImagen,
           url: product.Link,

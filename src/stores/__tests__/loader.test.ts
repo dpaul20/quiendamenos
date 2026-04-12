@@ -1,8 +1,8 @@
 import { loadStores } from "../loader";
 import { _clearForTests, getAllStores, initRegistry } from "../registry";
 
-jest.mock("fs");
-import { existsSync, readFileSync } from "fs";
+jest.mock("node:fs");
+import { existsSync, readFileSync } from "node:fs";
 
 const mockExistsSync = existsSync as jest.MockedFunction<typeof existsSync>;
 const mockReadFileSync = readFileSync as jest.MockedFunction<typeof readFileSync>;

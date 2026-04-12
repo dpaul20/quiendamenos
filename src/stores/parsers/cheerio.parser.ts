@@ -24,8 +24,8 @@ export function createCheerioScraper(
             .find(selectors.price)
             .text()
             .trim()
-            .replace(/[^\d,.-]/g, "")
-            .replace(/\./g, "")
+            .replaceAll(/[^\d,.-]/g, "")
+            .replaceAll(".", "")
             .replace(",", ".");
 
           const imageEl = $(item).find(selectors.image);

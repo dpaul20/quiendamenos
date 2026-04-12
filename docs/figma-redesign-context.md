@@ -238,3 +238,373 @@ Colección Colors ID: VariableCollectionId:5:4, Light mode ID: 5:0
 Screens page ID 5:3 — refactor (no rebuild), tiene Mobile/Tablet/Desktop ya.
 Caveman mode activo en español.
 ```
+
+---
+
+## Plan de Mejoras UI — Implementación en Código
+
+> Generado: 2026-04-12 | Análisis basado en tendencias 2026 aplicables al producto
+> Filosofía: **precio es el protagonista** — es una app de comparación, no un catálogo visual
+> Principio: eliminar > agregar. Cada cambio tiene un "por qué".
+
+### Diagnóstico — Problemas confirmados en código
+
+| Archivo | Línea | Problema | Severidad |
+|---------|-------|---------|-----------|
+| `page.tsx` | 12 | `h-screen` corta contenido en mobile con muchos productos | Alta |
+| `page.tsx` | 13 | `space-y-4 py-2` = 8px entre secciones. Asfixiante | Alta |
+| `ProductList.tsx` | 61 | `animate-pulse` en texto de loading — prohibido (crea ansiedad visual) | Media |
+| `ProductList.tsx` | 82 | `shadow-md hover:shadow-lg transition-shadow` — hover de sombra prohibido | Media |
+| `ProductList.tsx` | 82 | Card layout horizontal: imagen 100×100 a la izquierda. La imagen no es protagonista | Alta |
+| `ProductList.tsx` | 100 | `text-green-600` — Tailwind directo, no token. Se rompe en dark mode customize | Alta |
+| `ProductList.tsx` | 71-79 | Loading = logo girando fullscreen. No da feedback de progreso real | Alta |
+| `ProductList.tsx` | 68 | Grid plano `lg:grid-cols-3`. Primer resultado (más barato) tiene misma jerarquía que el último | Media |
+| `StoresList.tsx` | 22 | `shadow-md rounded-lg` — patrón shadow prohibido | Baja |
+
+---
+
+### F1 — Page Container (`src/app/page.tsx`)
+
+**Decisión:** Cambiar estructura base de la página.
+
+**Problemas:**
+- `h-screen` fuerza todo en viewport → con productos llena la pantalla y corta el Footer
+- `space-y-4 py-2` = demasiado comprimido para una UI de consulta sostenida
+- `max-w-5xl` es correcto pero el padding lateral `px-4` en mobile es insuficiente
+
+**Cambios:**
+
+```tsx
+// ANTES
+<main className="h-screen flex flex-col justify-between">
+  <div className="w-full max-w-5xl flex flex-col mx-auto space-y-4 px-4 py-2">
+
+// DESPUÉS
+<main className="min-h-screen flex flex-col">
+  <div className="w-full max-w-5xl flex flex-col mx-auto space-y-6 px-4 py-6 md:py-8 flex-1">
+```
+
+**Además:** mover `<Footer />` fuera del div interior para que siempre cierre la página:
+
+```tsx
+// ANTES
+<main className="h-screen flex flex-col justify-between">
+  <div ...>
+    ...
+    <ProductList />
+  </div>
+  <Footer />
+</main>
+
+// DESPUÉS
+<main className="min-h-screen flex flex-col">
+  <div className="w-full max-w-5xl flex flex-col mx-auto space-y-6 px-4 py-6 md:py-8 flex-1">
+    ...
+    <ProductList />
+  </div>
+  <Footer />
+</main>
+```
+
+**Resultado:** Footer siempre al fondo pero la página hace scroll natural cuando hay productores.
+
+---
+
+### F2 — ProductCard Redesign (`src/components/ProductList.tsx`)
+
+**Decisión de diseño: el PRECIO es el protagonista.** Esta app responde a "¿quién da menos?". El precio debe ser lo primero que el ojo encuentra.
+
+**Problema con layout actual:**
+```
+[Título uppercase pequeño]
+[Imagen 100×100 izq] | [Precio, Marca, Logo tienda, Badge cuotas]
+```
+La imagen compite visualmente pero el contenedor limita el tamaño a 100px. El resultado es que ni la imagen ni el precio tienen peso visual dominante — todo tiene el mismo tono, clásico AI-generated feel.
+
+**Nueva estructura vertical:**
+```
+[Imagen — aspect-square, full-width, fondo muted para productos]
+[Padding interno:]
+  [Store logo chip — top right corner, pequeño, 24px]
+  [Título — 2 líneas max, text-sm, muted]
+  [PRECIO — text-2xl font-bold text-primary, protagonista]
+  [Fila bottom: Marca (muted-foreground) | Badge cuotas (orange)]
+```
+
+**Regla de jerarquía aplicada:**
+- Precio: 120 puntos de importancia
+- Imagen: 80 puntos (reconocimiento del producto)
+- Título: 60 puntos (ya saben lo que buscaron)
+- Marca / cuotas: 40 puntos (dato secundario)
+
+**Cambios en el Card:**
+
+```tsx
+// ANTES
+<Card
+  className="flex flex-col items-center justify-between gap-1 rounded-xl p-2 shadow-md transition-shadow duration-300 hover:shadow-lg lg:p-4"
+>
+  <Link href={product.url} target="_blank">
+    <h3 className="text-center text-xs font-semibold uppercase tracking-tight lg:text-base">
+      {product.name}
+    </h3>
+  </Link>
+  <div className="flex w-full flex-row justify-between gap-1">
+    <Image
+      loader={imageLoader}
+      src={product.image}
+      alt={product.name ?? "Product image"}
+      width={100}
+      height={100}
+      className="object-contain"
+    />
+    <div className="flex flex-col justify-between gap-1">
+      <div className="flex flex-col items-center justify-between gap-1">
+        <p className="text-sm font-bold text-green-600 lg:text-2xl">
+          {product.price.toLocaleString("es-AR", { style: "currency", currency: "ARS" })}
+        </p>
+        <span className="text-center text-xs uppercase text-muted-foreground lg:text-sm">
+          {product.brand}
+        </span>
+      </div>
+      <div className="mx-auto max-h-6 max-w-max rounded-md bg-primary px-2 py-1 text-primary-foreground">
+        <Image src={storeLogos[product.from]} alt={product.from} className="h-full w-full object-contain" />
+      </div>
+      {product?.installment ? (
+        <Badge className="mx-auto bg-orange-500 text-xs lg:text-sm">
+          {product.installment} cuotas sin interés
+        </Badge>
+      ) : null}
+    </div>
+  </div>
+</Card>
+
+// DESPUÉS
+<Card
+  key={product.url}
+  className={cn(
+    "flex flex-col overflow-hidden rounded-xl border border-border transition-colors duration-200 hover:border-primary/30",
+    index === 0 && "ring-1 ring-primary/40"  // primer resultado = más barato, leve highlight
+  )}
+>
+  {/* Imagen: protagonista visual secundario */}
+  <Link href={product.url} target="_blank" className="block">
+    <div className="relative aspect-square w-full bg-muted">
+      <Image
+        loader={imageLoader}
+        src={product.image}
+        alt={product.name ?? "Product image"}
+        fill
+        className="object-contain p-3"
+      />
+      {/* Store logo — chip overlay esquina inferior derecha */}
+      <div className="absolute bottom-2 right-2 rounded bg-background/90 p-1 shadow-sm">
+        <Image
+          src={storeLogos[product.from]}
+          alt={product.from}
+          width={48}
+          height={16}
+          className="h-4 w-auto object-contain"
+        />
+      </div>
+    </div>
+  </Link>
+
+  {/* Contenido: precio protagonista */}
+  <div className="flex flex-col gap-1 p-3">
+    <Link href={product.url} target="_blank">
+      <h3 className="line-clamp-2 text-xs text-muted-foreground leading-snug">
+        {product.name}
+      </h3>
+    </Link>
+
+    {/* PRECIO — elemento protagonista 120/100 */}
+    <p className="text-xl font-bold text-primary leading-tight">
+      {product.price.toLocaleString("es-AR", { style: "currency", currency: "ARS" })}
+    </p>
+
+    {/* Fila bottom: marca + badge cuotas */}
+    <div className="flex items-center justify-between gap-1 mt-1">
+      <span className="text-xs text-muted-foreground uppercase tracking-wide">
+        {product.brand}
+      </span>
+      {product?.installment ? (
+        <Badge className="bg-orange-500 text-[10px] px-1.5 py-0 leading-5">
+          {product.installment}× sin interés
+        </Badge>
+      ) : null}
+    </div>
+  </div>
+</Card>
+```
+
+**Imports adicionales necesarios:**
+```tsx
+import { cn } from "@/lib/utils";
+// index en el map:
+filteredProducts.map((product, index) => {
+```
+
+**Por qué `ring-1 ring-primary/40` en index===0:**
+Los productos están ordenados por menor precio (`sorts.ts`). El primer resultado es la mejor oferta. Un ring verde sutil lo señala sin gritar — jerarquía sin romper la grilla.
+
+**Por qué eliminar `shadow-md hover:shadow-lg`:**
+Las sombras coloreadas o hover son el patrón más AI-generated del catálogo. El borde `border-border hover:border-primary/30` da el mismo feedback interactivo sin "popping" artificial.
+
+---
+
+### F3 — Grid con mayor densidad (`src/components/ProductList.tsx`)
+
+**Decisión:** Cambiar a 4 columnas en desktop.
+
+**Razonamiento:** Con el nuevo diseño vertical (imagen + precio), cada card es más alta que la versión horizontal pero más angosta. 4 columnas en desktop permite comparar más productos sin scroll, que es exactamente el valor del producto.
+
+```tsx
+// ANTES
+<div className="grid grid-cols-1 gap-6 py-4 md:grid-cols-2 lg:grid-cols-3">
+
+// DESPUÉS
+<div className="grid grid-cols-2 gap-4 py-4 sm:grid-cols-3 lg:grid-cols-4">
+```
+
+**Por qué cambiar `gap-6` a `gap-4`:**
+Con cards más angostas (4 columnas), gap-6 (24px) se come demasiado espacio. Gap-4 (16px) mantiene separación visual legible.
+
+**Badge "ordenado por menor precio":**
+```tsx
+// ANTES
+<div>
+  <Badge variant="secondary">Productos ordenados por menor precio</Badge>
+</div>
+
+// DESPUÉS
+<div className="flex items-center gap-2">
+  <Badge variant="secondary" className="text-xs">
+    Ordenados por menor precio
+  </Badge>
+  <span className="text-xs text-muted-foreground">
+    {filteredProducts.length} resultado{filteredProducts.length !== 1 ? "s" : ""}
+  </span>
+</div>
+```
+
+Agregar el conteo de resultados da contexto inmediato ("encontré 24 resultados" vs silenco). Es información útil, no decoración.
+
+---
+
+### F4 — Loading State: de logo girando a Skeleton Grid (`src/components/ProductList.tsx`)
+
+**Decisión:** Reemplazar loader fullscreen con skeleton cards en el mismo layout real.
+
+**Por qué es mejor:**
+- El usuario ve la estructura de lo que va a aparecer → menos ansiedad de espera
+- No interrumpe el layout (la página no "salta" cuando cargan los productos)
+- El `animate-pulse` único y colectivo en el skeleton es aceptable (1 animación de sistema, no texto)
+- Elimina el `animate-bell` personalizado en el logo (buscar en `globals.css` si existe)
+
+**Número de skeletons:** 8 (llena 2 filas en desktop de 4 columnas, comunica que hay resultados cargando)
+
+```tsx
+// COMPONENTE SKELETON CARD (inline en ProductList o extraer)
+function SkeletonCard() {
+  return (
+    <div className="flex flex-col overflow-hidden rounded-xl border border-border animate-pulse">
+      <div className="aspect-square w-full bg-muted" />
+      <div className="flex flex-col gap-2 p-3">
+        <div className="h-3 w-full rounded bg-muted" />
+        <div className="h-3 w-2/3 rounded bg-muted" />
+        <div className="h-6 w-3/4 rounded bg-muted mt-1" />
+        <div className="h-3 w-1/2 rounded bg-muted" />
+      </div>
+    </div>
+  );
+}
+
+// EN EL RETURN DE LOADING (reemplaza el bloque isLoading actual):
+if (isLoading)
+  return (
+    <div className="flex flex-col gap-4">
+      <div className="flex items-center gap-2">
+        <div className="h-4 w-24 animate-pulse rounded bg-muted" />
+        <p className="text-xs text-muted-foreground animate-pulse">{loadingMessage}</p>
+      </div>
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+        {Array.from({ length: 8 }).map((_, i) => (
+          <SkeletonCard key={i} />
+        ))}
+      </div>
+    </div>
+  );
+```
+
+**Nota sobre `loadingMessages`:** Conservar el texto del mensaje pero cambiarlo a estilo inline sutil (no fullscreen, no `animate-pulse` en el texto — el pulse ya está en los skeletons).
+
+---
+
+### F5 — Token Compliance (`src/components/StoresList.tsx`)
+
+Problema menor pero genera inconsistencia visual:
+
+```tsx
+// ANTES
+<div className="rounded-lg p-4 shadow-md">
+
+// DESPUÉS
+<div className="rounded-lg border border-border p-4">
+```
+
+Elimina la sombra, reemplaza con borde para consistencia con las Cards.
+
+---
+
+### F6 — SearchForm — Mobile-first (`src/components/SearchForm.tsx`)
+
+El formulario actual funciona pero tiene issues menores:
+
+```tsx
+// PROBLEMA: w-2/3 y w-1/3 en todos los tamaños
+<Input className="rounded-md w-2/3 text-base" />
+<Button className="rounded-md w-1/3" />
+
+// SOLUCIÓN: en mobile el botón puede ser más compacto
+// El form ya tiene max-w-3xl y flex-row, funciona
+// Cambio mínimo: usar flex-1 en el input para que se expanda naturalmente
+<Input className="flex-1 text-base" />
+<Button type="submit" className="shrink-0" disabled={isLoading}>
+```
+
+**Por qué min:** El SearchForm no es el componente con más deuda. Cambio quirúrgico.
+
+---
+
+### Checklist de implementación
+
+| # | Tarea | Archivo | Impacto |
+|---|-------|---------|---------|
+| F1a | `h-screen` → `min-h-screen flex-col` | `page.tsx` | Alto |
+| F1b | `space-y-4 py-2` → `space-y-6 py-6 md:py-8` | `page.tsx` | Alto |
+| F2a | Reestructurar layout Card a vertical + imagen fill | `ProductList.tsx` | Alto |
+| F2b | `text-green-600` → `text-primary` | `ProductList.tsx` | Alto |
+| F2c | `shadow-md hover:shadow-lg` → `border border-border hover:border-primary/30` | `ProductList.tsx` | Medio |
+| F2d | `ring-1 ring-primary/40` en `index === 0` | `ProductList.tsx` | Medio |
+| F3 | Grid `lg:grid-cols-3` → `grid-cols-2 sm:grid-cols-3 lg:grid-cols-4` + contador | `ProductList.tsx` | Medio |
+| F4 | Loading fullscreen → SkeletonCard grid | `ProductList.tsx` | Alto |
+| F5 | `shadow-md` → `border border-border` en StoresList | `StoresList.tsx` | Bajo |
+| F6 | `w-2/3 w-1/3` → `flex-1 shrink-0` en SearchForm | `SearchForm.tsx` | Bajo |
+
+**Orden recomendado de ejecución:** F2 → F4 → F1 → F3 → F5 → F6
+
+F2 y F4 son los cambios de mayor impacto visual. F1 resuelve el bug de layout. F3 ajusta la grilla al nuevo card. F5-F6 son pulido.
+
+---
+
+### Decisiones de diseño — Justificación
+
+**¿Por qué no Bento Grid (tamaños variables)?**
+Bento Grid funciona cuando el contenido tiene jerarquía semántica natural (ej: "este artículo es más importante"). En una lista de precios, TODOS los productos son igual de consultables. Usar Bento Grid forzaría una jerarquía arbitraria. La jerarquía real (precio más bajo = primero) se expresa con `ring-1` mínimo, no con tamaño de celda.
+
+**¿Por qué 4 columnas en desktop y no 3?**
+4 columnas = ver más productos sin scroll = cumple el objetivo del producto (comparar precios). 3 columnas con cards más altas crea necesidad de scroll excesivo. El precio se lee igual de grande en 4 columnas.
+
+**¿Por qué eliminar el logo girando en loading?**
+El logo girando con `animate-bell` es branding, no feedback de carga. El usuario quiere saber que algo está pasando, no ver una animación de marca. El skeleton grid comunica "van a aparecer X productos aquí" — información útil.

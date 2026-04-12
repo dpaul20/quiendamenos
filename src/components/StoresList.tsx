@@ -19,7 +19,7 @@ export function StoresList() {
   if (isLoading) return <Skeleton className="h-9 w-full" />;
 
   return (
-    <div className="rounded-lg p-4 shadow-md">
+    <div className="rounded-lg border border-border p-4">
       <div className="flex items-center gap-1">
         <Store className="h-5 w-5" />
         <h2 className="text-lg font-semibold">Tiendas consultadas en:</h2>

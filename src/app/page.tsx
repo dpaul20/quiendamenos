@@ -10,8 +10,8 @@ import { StoresList } from "@/components/StoresList";
 
 export default async function Home() {
   return (
-    <main className="h-screen flex flex-col justify-between">
-      <div className="w-full max-w-5xl flex flex-col mx-auto space-y-4 px-4 py-2">
+    <main className="min-h-screen flex flex-col">
+      <div className="w-full max-w-5xl flex flex-col mx-auto space-y-6 px-4 py-6 md:py-8 flex-1">
         <div className="flex flex-row justify-between items-center">
           <div className="flex flex-row items-center">
             <Image

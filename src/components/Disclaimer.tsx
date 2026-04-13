@@ -12,15 +12,15 @@ export default function Disclaimer() {
         <span className="font-bold text-sm leading-none select-none">!</span>
       </div>
       <div className="flex flex-col gap-1 flex-1 min-w-0">
-        <p className="text-base font-bold text-red-800 dark:text-red-400">Aviso importante</p>
-        <p className="text-sm font-normal leading-5 text-red-800 dark:text-red-400">
+        <p className="text-base font-bold text-destructive">Aviso importante</p>
+        <p className="text-sm font-normal leading-5 text-destructive">
           Este proyecto permite comparar precios de electrónica en las
           principales tiendas de Argentina mediante web scraping. Los precios
           son referenciales y pueden diferir del precio final.
         </p>
       </div>
       <button
-        className="size-6 rounded flex items-center justify-center text-red-800 dark:text-red-400 shrink-0 hover:bg-destructive/10 transition-colors"
+        className="size-6 rounded flex items-center justify-center text-destructive shrink-0 hover:bg-destructive/10 transition-colors"
         onClick={() => setVisible(false)}
         aria-label="Cerrar aviso"
       >

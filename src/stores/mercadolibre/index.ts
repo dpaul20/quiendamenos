@@ -32,9 +32,9 @@ function extraerMarcasDesdeJsonLd(html: string): Map<string, string> {
       const json = JSON.parse(raw) as JsonLdDocument | JsonLdOffer;
       let items: JsonLdOffer[];
       if ("@graph" in json && Array.isArray(json["@graph"])) {
-        items = json["@graph"] as JsonLdOffer[];
-      } else if ("itemListElement" in json && Array.isArray((json as JsonLdDocument).itemListElement)) {
-        items = ((json as JsonLdDocument).itemListElement ?? [])
+        items = json["@graph"];
+      } else if ("itemListElement" in json && Array.isArray(json.itemListElement)) {
+        items = (json.itemListElement ?? [])
           .map((e) => e.item)
           .filter(Boolean) as JsonLdOffer[];
       } else {

@@ -27,11 +27,11 @@ export default function SearchForm() {
         type="text"
         placeholder="Nombre del producto..."
         required
-        className="flex-1 text-base"
+        className="flex-1 text-base h-[46px]"
       />
       <Button
         type="submit"
-        className="shrink-0"
+        className="shrink-0 h-[46px]"
         disabled={isLoading}
       >
         {isLoading ? (

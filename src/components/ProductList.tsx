@@ -15,12 +15,12 @@ const SKELETON_KEYS = ["s0", "s1", "s2", "s3", "s4", "s5", "s6", "s7"] as const;
 
 function SkeletonCard() {
   return (
-    <div className="bg-card border border-border rounded-lg w-[220px] flex flex-col overflow-hidden animate-pulse">
+    <div className="bg-card border border-border rounded-xl flex flex-col overflow-hidden animate-pulse">
       <div className="bg-muted h-[140px] w-full shrink-0" />
       <div className="flex flex-col gap-[10px] p-3 w-full">
         <div className="bg-muted h-[10px] w-[80px] rounded-sm" />
-        <div className="bg-muted h-[10px] w-[160px] rounded-sm" />
-        <div className="bg-muted h-[10px] w-[120px] rounded-sm" />
+        <div className="bg-muted h-[10px] w-full rounded-sm" />
+        <div className="bg-muted h-[10px] w-3/4 rounded-sm" />
         <div className="bg-muted h-[24px] w-[60px] rounded-sm" />
         <div className="bg-muted h-[18px] w-[100px] rounded-sm" />
       </div>
@@ -74,7 +74,7 @@ export default function ProductList() {
         {loadingMessage && (
           <p className="text-xs text-muted-foreground">{loadingMessage}</p>
         )}
-        <div className="flex flex-wrap gap-5 content-start items-start">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-5">
           {SKELETON_KEYS.map((id) => (
             <SkeletonCard key={id} />
           ))}
@@ -91,12 +91,18 @@ export default function ProductList() {
 
   return (
     <div className="flex flex-col gap-4">
-      <span className="text-sm font-medium text-muted-foreground">
-        {filteredProducts.length} resultado
-        {filteredProducts.length === 1 ? "" : "s"}
-      </span>
+      <div className="flex items-center justify-between">
+        <span className="text-xs sm:text-sm font-medium text-foreground">
+          {filteredProducts.length} resultado
+          {filteredProducts.length === 1 ? "" : "s"}
+        </span>
+        <span className="text-xs sm:text-sm font-normal text-muted-foreground">
+          <span className="sm:hidden">Precio ↕</span>
+          <span className="hidden sm:inline">Ordenar: Menor precio ↕</span>
+        </span>
+      </div>
 
-      <div className="flex flex-wrap gap-5 content-start items-start">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-5">
         {paginatedProducts.map((product) => {
           if (!product.price || !product.name || !product.url) return null;
           return (
@@ -104,7 +110,7 @@ export default function ProductList() {
               key={product.url}
               href={product.url}
               target="_blank"
-              className="w-[220px] rounded-xl bg-card border border-border flex flex-col items-center overflow-hidden hover:border-primary/40 transition-colors"
+              className="rounded-xl bg-card border border-border flex flex-col items-center overflow-hidden hover:border-primary/40 transition-colors"
             >
               <div className="w-full h-[140px] bg-surface relative overflow-hidden">
                 <Image
@@ -152,9 +158,9 @@ export default function ProductList() {
           <button
             onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
             disabled={currentPage === 1}
-            className="border border-border rounded-md h-[36px] w-[120px] px-[14px] text-sm text-foreground disabled:opacity-40"
+            className="border border-border rounded-md h-[36px] flex-1 sm:flex-none sm:w-[120px] px-3 text-sm text-foreground disabled:opacity-40"
           >
-            Anterior
+            ← <span className="hidden sm:inline">Anterior</span><span className="sm:hidden">Ant.</span>
           </button>
 
           {Array.from({ length: totalPages }, (_, i) => i + 1)
@@ -178,7 +184,7 @@ export default function ProductList() {
                   key={`ellipsis-${arr[i - 1]}-${arr[i + 1]}`}
                   className="size-[36px] flex items-center justify-center text-xs text-muted-foreground select-none"
                 >
-                  ...
+                  •••
                 </span>
               ) : (
                 <button
@@ -198,9 +204,9 @@ export default function ProductList() {
           <button
             onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
             disabled={currentPage === totalPages}
-            className="border border-border rounded-md h-[36px] w-[120px] px-[14px] text-sm text-foreground disabled:opacity-40"
+            className="border border-border rounded-md h-[36px] flex-1 sm:flex-none sm:w-[120px] px-3 text-sm text-foreground disabled:opacity-40"
           >
-            Siguiente
+            <span className="hidden sm:inline">Siguiente</span><span className="sm:hidden">Sig.</span> →
           </button>
         </div>
       )}

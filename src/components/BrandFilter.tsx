@@ -25,7 +25,7 @@ export default function BrandFilter() {
     useProductsStore();
 
   if (brands.length === 0) return null;
-  if (isLoading) return <Skeleton className="w-[81px] h-[46px] rounded-md" />;
+  if (isLoading) return <Skeleton className="w-full sm:w-[81px] h-[46px] rounded-md" />;
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -34,9 +34,11 @@ export default function BrandFilter() {
           type="button"
           aria-haspopup="listbox"
           aria-expanded={open}
-          className="h-[46px] border border-border rounded-md flex items-center gap-2 pl-3 pr-[10px] text-sm font-medium text-foreground bg-background whitespace-nowrap shrink-0"
+          className="h-[46px] border border-border rounded-lg flex items-center justify-between gap-2 pl-3 pr-[10px] text-sm font-medium bg-background w-full sm:w-auto"
         >
-          {selectedBrand === ALL ? "Marca" : selectedBrand}
+          <span className={selectedBrand === ALL ? "text-muted-foreground" : "text-foreground"}>
+            {selectedBrand === ALL ? "Marca" : selectedBrand}
+          </span>
           <CaretSortIcon className="h-2 w-2.5 shrink-0 opacity-70" />
         </button>
       </PopoverTrigger>

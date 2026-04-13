@@ -13,7 +13,7 @@ export function StoreFilter() {
 
   return (
     <div className="flex items-center gap-2 flex-wrap">
-      <span className="text-sm font-medium text-muted-foreground shrink-0">Tiendas:</span>
+      <span className="hidden sm:inline text-sm font-medium text-muted-foreground shrink-0">Tiendas:</span>
       {stores.map((store) => (
         <button
           key={store}

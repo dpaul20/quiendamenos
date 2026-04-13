@@ -1,28 +1,17 @@
-import Link from "next/link";
-import Image from "next/image";
-import { MoveRight } from "lucide-react";
-
 export default function Cafecito() {
   return (
     <div className="flex flex-row items-center gap-2">
       <div className="flex flex-row items-center gap-2">
-        <span className="text-xs text-center font-semibold">¿Conseguiste el mejor precio?</span>
-        <div className="hidden lg:block h-4 w-4">
-          <MoveRight className="h-full w-full" />
-        </div>
+        <span className="text-xs text-center font-semibold text-foreground">¿Conseguiste el mejor precio?</span>
+        <span className="text-base font-normal">→</span>
       </div>
-      <Link
-        href="https://cafecito.app/quien-da-menos"
-        rel="noopener"
-        target="_blank"
-      >
-        <Image
-          src="https://cdn.cafecito.app/imgs/buttons/button_1.png"
+      <a href="https://cafecito.app/quien-da-menos" rel="noopener" target="_blank">
+        <img
+          srcSet="https://cdn.cafecito.app/imgs/buttons/button_4.png 1x, https://cdn.cafecito.app/imgs/buttons/button_4_2x.png 2x, https://cdn.cafecito.app/imgs/buttons/button_4_3.75x.png 3.75x"
+          src="https://cdn.cafecito.app/imgs/buttons/button_4.png"
           alt="Invitame un café en cafecito.app"
-          width={192}
-          height={40}
         />
-      </Link>
+      </a>
     </div>
   );
 }

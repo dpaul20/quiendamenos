@@ -10,24 +10,28 @@ export default async function Home() {
   return (
     <main className="min-h-screen flex flex-col">
       <Header />
+      <div className="w-full h-px bg-border shrink-0" />
 
-      <div className="w-full max-w-5xl flex flex-col mx-auto px-6 py-8 flex-1 gap-6">
+      <div className="w-full max-w-[1280px] flex flex-col mx-auto px-4 sm:px-10 lg:px-20 pt-6 lg:pt-10 pb-10 lg:pb-16 flex-1 gap-5 lg:gap-8">
         <Disclaimer />
 
         {/* Hero */}
-        <section className="flex flex-col items-center gap-3 pt-2 pb-4">
-          <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-center">
+        <section className="flex flex-col items-center gap-[10px] sm:gap-4 pt-2 pb-4 sm:pt-6 sm:pb-8">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-center">
             ¿Quién da menos?
           </h1>
-          <p className="text-muted-foreground text-sm md:text-base text-center max-w-lg">
-            Compará precios de electrónica en las principales tiendas de
-            Argentina
+          <p className="text-muted-foreground text-sm sm:text-base text-center max-w-lg">
+            <span className="sm:hidden">Compará precios en Argentina</span>
+            <span className="hidden sm:inline">
+              Compará precios de electrónica en las principales tiendas de
+              Argentina
+            </span>
           </p>
           <SearchRow />
         </section>
 
-        <StoresList />
         <StoreFilter />
+        <StoresList />
         <ProductList />
       </div>
 

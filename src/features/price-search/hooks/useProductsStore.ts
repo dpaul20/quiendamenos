@@ -1,7 +1,7 @@
 import { StoreNamesEnum } from "@/enums/stores.enum";
-import { getProduct } from "@/lib/api";
-import { ALL } from "@/lib/constants";
-import { updateUnknownBrands } from "@/lib/unknown-brands";
+import { getProduct } from "@/features/price-search/api";
+import { ALL } from "@/features/price-search/constants";
+import { updateUnknownBrands } from "@/features/price-search/unknown-brands";
 import { Product } from "@/types/product";
 import { create } from "zustand";
 

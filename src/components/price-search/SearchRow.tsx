@@ -1,5 +1,5 @@
-import BrandFilter from "@/components/BrandFilter";
-import SearchForm from "@/components/SearchForm";
+import BrandFilter from "@/components/price-search/BrandFilter";
+import SearchForm from "@/components/price-search/SearchForm";
 
 export default function SearchRow() {
   return (

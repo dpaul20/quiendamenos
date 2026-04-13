@@ -43,6 +43,12 @@ const config: Config = {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
+        surface: "hsl(var(--surface))",
+        "price-green": "hsl(var(--price-green))",
+        "orange-500": "hsl(var(--orange-500))",
+        "green-50": "hsl(var(--green-50))",
+        "amber-300": "hsl(var(--amber-300))",
+        "amber-900": "hsl(var(--amber-900))",
         chart: {
           "1": "hsl(var(--chart-1))",
           "2": "hsl(var(--chart-2))",
@@ -55,6 +61,8 @@ const config: Config = {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
+        xl: "calc(var(--radius) + 4px)",
+        "2xl": "calc(var(--radius) + 8px)",
       },
       keyframes: {
         bell: {

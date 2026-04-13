@@ -2,7 +2,7 @@ import axios from "axios";
 import { load } from "cheerio";
 import { Product } from "@/types/product";
 import { StoreNamesEnum } from "@/enums/stores.enum";
-import { StoreConfig } from "@/stores/loader";
+import { StoreConfig } from "@/scrapers/loader";
 
 export function createCheerioScraper(
   config: StoreConfig,

@@ -1,6 +1,6 @@
 import { Product } from "@/types/product";
-import { scrapers } from "@/stores";
-import { getAllStores } from "@/stores/registry";
+import { scrapers } from "@/scrapers";
+import { getAllStores } from "@/scrapers/registry";
 import { scrapeWithFallback } from "./router";
 import { cacheKey, setStoreCacheNX } from "@/platform/cache";
 

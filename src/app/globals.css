@@ -3,48 +3,70 @@
 @tailwind utilities;
 
 @layer base {
+  body {
+    font-family: var(--font-geist-sans), sans-serif;
+  }
+
   :root {
-    --background: 0 0% 100%;
-    --foreground: 240 10% 3.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 240 10% 3.9%;
+    /* === Figma Design Tokens — Light Mode === */
+    --background: 0 0% 100%;           /* #ffffff */
+    --foreground: 240 26% 5%;          /* #0a0a11 */
+    --card: 0 0% 100%;                 /* #ffffff */
+    --card-foreground: 240 26% 5%;     /* #0a0a11 */
     --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 3.9%;
-    --primary: 142.1 76.2% 36.3%;
-    --primary-foreground: 355.7 100% 97.3%;
-    --secondary: 240 4.8% 95.9%;
-    --secondary-foreground: 240 5.9% 10%;
-    --muted: 240 4.8% 95.9%;
-    --muted-foreground: 240 3.8% 46.1%;
-    --accent: 240 4.8% 95.9%;
-    --accent-foreground: 240 5.9% 10%;
-    --destructive: 0 84.2% 60.2%;
+    --popover-foreground: 240 26% 5%;
+    --primary: 142 76% 36%;            /* #16a34a */
+    --primary-foreground: 355 85% 97%; /* #fef3f4 */
+    --secondary: 240 5% 96%;          /* #f4f4f5 */
+    --secondary-foreground: 255 7% 11%; /* #1a191d */
+    --muted: 240 5% 96%;              /* #f4f4f5 */
+    --muted-foreground: 240 0% 46%;   /* #757576 */
+    --accent: 240 5% 96%;
+    --accent-foreground: 255 7% 11%;
+    --destructive: 0 84% 60%;         /* #ef4444 */
     --destructive-foreground: 0 0% 98%;
-    --border: 240 5.9% 90%;
-    --input: 240 5.9% 90%;
-    --ring: 142.1 76.2% 36.3%;
+    --border: 240 2% 90%;             /* #e5e5e6 */
+    --input: 240 2% 90%;              /* #e5e5e6 */
+    --ring: 142 76% 36%;              /* #16a34a */
     --radius: 0.5rem;
+
+    /* Figma extra tokens */
+    --price-green: 142 76% 36%;       /* #16a34a */
+    --orange-500: 25 95% 53%;         /* #f97316 */
+    --green-50: 130 67% 97%;          /* #f0fcf2 */
+    --surface: 240 11% 98%;           /* #fafafb */
+    --amber-300: 45 99% 69%;          /* #fed661 */
+    --amber-900: 30 100% 15%;         /* #4d2600 */
   }
 
   .dark {
-    --background: 144 20% 5%;
-    --foreground: 0 0% 98%;
-    --card: 140 21% 8%;
-    --card-foreground: 0 0% 98%;
+    /* === Figma Design Tokens — Dark Mode === */
+    --background: 144 20% 5%;         /* #0a0f0c */
+    --foreground: 0 0% 98%;           /* #fafafa */
+    --card: 140 21% 8%;               /* #111a14 */
+    --card-foreground: 0 0% 98%;      /* #fafafa */
     --popover: 140 21% 8%;
     --popover-foreground: 0 0% 98%;
-    --primary: 142.1 70.6% 45.3%;
-    --primary-foreground: 145 80% 10%;
-    --secondary: 145 17% 14%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 145 17% 14%;
-    --muted-foreground: 135 8% 63%;
+    --primary: 142 71% 45%;           /* #22c55e */
+    --primary-foreground: 145 80% 10%; /* #052e16 */
+    --secondary: 145 17% 14%;         /* #1d2922 */
+    --secondary-foreground: 0 0% 98%; /* #fafafa */
+    --muted: 145 17% 14%;             /* #1d2922 */
+    --muted-foreground: 135 8% 63%;   /* #98a89c */
     --accent: 145 17% 14%;
     --accent-foreground: 0 0% 98%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 85.7% 97.3%;
-    --border: 134 18% 14%;
-    --input: 134 18% 14%;
-    --ring: 142.1 70.6% 45.3%;
+    --destructive: 0 84% 60%;         /* #ef4444 */
+    --destructive-foreground: 0 86% 97%;
+    --border: 134 18% 14%;            /* #1e2b21 */
+    --input: 134 18% 14%;             /* #1e2b21 */
+    --ring: 142 71% 45%;              /* #22c55e */
+
+    /* Figma extra tokens */
+    --price-green: 142 71% 45%;       /* #22c55e */
+    --orange-500: 25 95% 53%;         /* #f97316 */
+    --green-50: 145 80% 10%;          /* #052e16 */
+    --surface: 140 21% 8%;            /* #111a14 */
+    --amber-300: 45 99% 69%;          /* #fed661 */
+    --amber-900: 30 100% 15%;         /* #4d2600 */
   }
 }

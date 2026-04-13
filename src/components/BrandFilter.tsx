@@ -36,7 +36,7 @@ export default function BrandFilter() {
           aria-expanded={open}
           className="h-[46px] border border-border rounded-md flex items-center gap-2 pl-3 pr-[10px] text-sm font-medium text-foreground bg-background whitespace-nowrap shrink-0"
         >
-          {selectedBrand === ALL ? "Marca" : selectedBrand.toLowerCase()}
+          {selectedBrand === ALL ? "Marca" : selectedBrand}
           <CaretSortIcon className="h-2 w-2.5 shrink-0 opacity-70" />
         </button>
       </PopoverTrigger>
@@ -51,7 +51,10 @@ export default function BrandFilter() {
                   key={brand}
                   value={brand}
                   onSelect={(value) => {
-                    setSelectedBrand(selectedBrand === value ? ALL : value);
+                    const matched =
+                      brands.find((b) => b.toLowerCase() === value.toLowerCase()) ??
+                      ALL;
+                    setSelectedBrand(selectedBrand === matched ? ALL : matched);
                     setOpen(false);
                   }}
                 >

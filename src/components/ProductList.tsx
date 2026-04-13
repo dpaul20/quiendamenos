@@ -5,6 +5,7 @@ import { imageLoader } from "@/features/price-search/image-loader";
 import { useProductsStore } from "@/features/price-search/hooks/useProductsStore";
 import { ALL } from "@/features/price-search/constants";
 import { loadingMessages } from "@/features/price-search/loading-messages";
+import { capitalize } from "@/lib/capitalize";
 import { useEffect, useState } from "react";
 import { EmptyState } from "./EmptyState";
 
@@ -52,7 +53,7 @@ export default function ProductList() {
   let filteredProducts = products;
   if (selectedBrand !== ALL) {
     filteredProducts = filteredProducts.filter(
-      (product) => product.brand.toUpperCase() === selectedBrand,
+      (product) => capitalize(product.brand) === selectedBrand,
     );
   }
   if (selectedStore !== ALL) {
@@ -113,8 +114,8 @@ export default function ProductList() {
                   fill
                   className="object-contain p-3"
                 />
-                <div className="absolute bottom-2 right-2 bg-white/90 px-2 py-[3px] rounded-sm">
-                  <span className="text-xs font-medium text-secondary-foreground">
+                <div className="absolute bottom-2 right-2 bg-card/90 px-2 py-[3px] rounded-[4px]">
+                  <span className="text-xs font-medium text-secondary-foreground whitespace-nowrap">
                     {product.from}
                   </span>
                 </div>
@@ -134,11 +135,11 @@ export default function ProductList() {
                   <span className="text-xs font-medium text-muted-foreground uppercase">
                     {product.brand}
                   </span>
-                  {product.installment && (
+                  {product.installment ? (
                     <span className="bg-orange-500 rounded-md px-2 py-[3px] text-xs font-medium text-background">
                       {product.installment}x sin interes
                     </span>
-                  )}
+                  ) : null}
                 </div>
               </div>
             </Link>

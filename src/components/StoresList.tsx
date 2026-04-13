@@ -5,11 +5,12 @@ import { useProductsStore } from "@/features/price-search/hooks/useProductsStore
 import { Skeleton } from "./ui/skeleton";
 
 export function StoresList() {
-  const { stores, products, isLoading, setStores } = useProductsStore();
+  const { stores, products, selectedBrand, isLoading, setStores } =
+    useProductsStore();
 
   useEffect(() => {
     setStores();
-  }, [products, setStores]);
+  }, [products, selectedBrand, setStores]);
 
   if (stores.length === 0) return null;
   if (isLoading) return <Skeleton className="h-9 w-full" />;

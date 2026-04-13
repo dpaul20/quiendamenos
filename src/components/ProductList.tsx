@@ -124,6 +124,7 @@ export default function ProductList() {
                   src={product.image}
                   alt={product.name}
                   fill
+                  sizes="(min-width: 768px) 25vw, (min-width: 640px) 33vw, 50vw"
                   className="object-contain p-3"
                 />
                 <div className="absolute bottom-2 right-2 bg-card/90 px-2 py-[3px] rounded-[4px]">

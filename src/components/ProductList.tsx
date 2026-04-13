@@ -1,61 +1,36 @@
-"use client";
-import Image, { StaticImageData } from "next/image";
-import { cn } from "@/lib/utils";
-import { Card } from "@/components/ui/card";
+﻿"use client";
+import Image from "next/image";
 import Link from "next/link";
-import { imageLoader } from "@/lib/image-loader";
-import cetrogar from "../../public/stores/cetrogar.webp";
-import fravega from "../../public/stores/fravega.webp";
-import naldo from "../../public/stores/naldo.webp";
-import carrefour from "../../public/stores/carrefour.webp";
-import mercadolibre from "../../public/stores/mercadolibre.png";
-import oncity from "../../public/stores/oncity.png";
-import { StoreNamesEnum } from "@/enums/stores.enum";
-import { useProductsStore } from "@/store/products.store";
-import { ALL } from "@/lib/constants";
-import { Badge } from "./ui/badge";
-import { loadingMessages } from "@/lib/loading-messages";
+import { imageLoader } from "@/features/price-search/image-loader";
+import { useProductsStore } from "@/features/price-search/hooks/useProductsStore";
+import { ALL } from "@/features/price-search/constants";
+import { loadingMessages } from "@/features/price-search/loading-messages";
+import { capitalize } from "@/lib/capitalize";
 import { useEffect, useState } from "react";
-import { CheckIcon } from "@radix-ui/react-icons";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationEllipsis,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination";
+import { EmptyState } from "./EmptyState";
 
 const ITEMS_PER_PAGE = 12;
 
-const storeLogos: Record<StoreNamesEnum, StaticImageData> = {
-  Cetrogar: cetrogar,
-  Fravega: fravega,
-  Naldo: naldo,
-  Carrefour: carrefour,
-  MercadoLibre: mercadolibre,
-  OnCity: oncity,
-};
-
-const SKELETON_KEYS = ["s0","s1","s2","s3","s4","s5","s6","s7"] as const;
+const SKELETON_KEYS = ["s0", "s1", "s2", "s3", "s4", "s5", "s6", "s7"] as const;
 
 function SkeletonCard() {
   return (
-    <div className="flex flex-col overflow-hidden rounded-xl border border-border animate-pulse">
-      <div className="aspect-square w-full bg-muted" />
-      <div className="flex flex-col gap-2 p-3">
-        <div className="h-3 w-full rounded bg-muted" />
-        <div className="h-3 w-2/3 rounded bg-muted" />
-        <div className="h-6 w-3/4 rounded bg-muted mt-1" />
-        <div className="h-3 w-1/2 rounded bg-muted" />
+    <div className="bg-card border border-border rounded-lg w-[220px] flex flex-col overflow-hidden animate-pulse">
+      <div className="bg-muted h-[140px] w-full shrink-0" />
+      <div className="flex flex-col gap-[10px] p-3 w-full">
+        <div className="bg-muted h-[10px] w-[80px] rounded-sm" />
+        <div className="bg-muted h-[10px] w-[160px] rounded-sm" />
+        <div className="bg-muted h-[10px] w-[120px] rounded-sm" />
+        <div className="bg-muted h-[24px] w-[60px] rounded-sm" />
+        <div className="bg-muted h-[18px] w-[100px] rounded-sm" />
       </div>
     </div>
   );
 }
 
 export default function ProductList() {
-  const { products, selectedBrand, selectedStore, isLoading } = useProductsStore();
+  const { products, selectedBrand, selectedStore, isLoading } =
+    useProductsStore();
   const [loadingMessage, setLoadingMessage] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -65,20 +40,20 @@ export default function ProductList() {
 
   useEffect(() => {
     if (isLoading) {
-      const simulateLoading = async () => {
+      const simulate = async () => {
         for (const message of loadingMessages) {
           setLoadingMessage(message);
-          await new Promise((resolve) => setTimeout(resolve, 1500)); // Espera 1.5 segundos entre cada mensaje
+          await new Promise((res) => setTimeout(res, 1500));
         }
       };
-      simulateLoading();
+      simulate();
     }
   }, [isLoading]);
 
   let filteredProducts = products;
   if (selectedBrand !== ALL) {
     filteredProducts = filteredProducts.filter(
-      (product) => product.brand.toUpperCase() === selectedBrand,
+      (product) => capitalize(product.brand) === selectedBrand,
     );
   }
   if (selectedStore !== ALL) {
@@ -93,166 +68,141 @@ export default function ProductList() {
     currentPage * ITEMS_PER_PAGE,
   );
 
-  if (isLoading)
+  if (isLoading) {
     return (
       <div className="flex flex-col gap-4">
-        <div className="flex items-center gap-2">
-          <div className="h-5 w-32 animate-pulse rounded bg-muted" />
+        {loadingMessage && (
           <p className="text-xs text-muted-foreground">{loadingMessage}</p>
-        </div>
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-          {SKELETON_KEYS.map(id => (
+        )}
+        <div className="flex flex-wrap gap-5 content-start items-start">
+          {SKELETON_KEYS.map((id) => (
             <SkeletonCard key={id} />
           ))}
         </div>
       </div>
     );
-
-  if (filteredProducts.length === 0) {
-    return null;
   }
+
+  if (filteredProducts.length === 0 && products.length > 0) {
+    return <EmptyState />;
+  }
+
+  if (filteredProducts.length === 0) return null;
+
   return (
-    <div className="flex flex-col">
-      <div className="flex items-center justify-between mb-1">
-        <span className="text-sm font-medium">
-          {filteredProducts.length} resultado{filteredProducts.length === 1 ? "" : "s"}
-        </span>
-        <span className="text-xs text-muted-foreground">Ordenar: Menor precio ↕</span>
-      </div>
+    <div className="flex flex-col gap-4">
+      <span className="text-sm font-medium text-muted-foreground">
+        {filteredProducts.length} resultado
+        {filteredProducts.length === 1 ? "" : "s"}
+      </span>
 
-      <div className="grid grid-cols-2 gap-4 py-4 sm:grid-cols-3 lg:grid-cols-4">
-        {paginatedProducts.map((product, index) => {
-          if (!product.price || !product.name || !product.url) {
-            return null;
-          }
+      <div className="flex flex-wrap gap-5 content-start items-start">
+        {paginatedProducts.map((product) => {
+          if (!product.price || !product.name || !product.url) return null;
           return (
-            <Card
+            <Link
               key={product.url}
-              className={cn(
-                "flex flex-col overflow-hidden rounded-xl border border-border transition-colors duration-200 hover:border-primary/30",
-                currentPage === 1 && index === 0 && "ring-1 ring-primary/40"
-              )}
+              href={product.url}
+              target="_blank"
+              className="w-[220px] rounded-xl bg-card border border-border flex flex-col items-center overflow-hidden hover:border-primary/40 transition-colors"
             >
-              <Link href={product.url} target="_blank" className="block">
-                <div className="relative aspect-square w-full bg-muted">
-                  <Image
-                    loader={imageLoader}
-                    src={product.image}
-                    alt={product.name ?? "Product image"}
-                    fill
-                    className="object-contain p-3"
-                  />
-                  {currentPage === 1 && index === 0 && (
-                    <div className="absolute top-2 left-2 flex items-center gap-1 rounded-full bg-primary px-2 py-0.5 text-[10px] font-semibold text-primary-foreground">
-                      <CheckIcon className="h-2.5 w-2.5" />
-                      Mejor precio
-                    </div>
-                  )}
-                  <div className="absolute bottom-2 right-2 rounded bg-background/90 p-1">
-                    <Image
-                      src={storeLogos[product.from]}
-                      alt={product.from}
-                      width={48}
-                      height={16}
-                      className="h-4 w-auto object-contain"
-                    />
-                  </div>
+              <div className="w-full h-[140px] bg-surface relative overflow-hidden">
+                <Image
+                  loader={imageLoader}
+                  src={product.image}
+                  alt={product.name}
+                  fill
+                  className="object-contain p-3"
+                />
+                <div className="absolute bottom-2 right-2 bg-card/90 px-2 py-[3px] rounded-[4px]">
+                  <span className="text-xs font-medium text-secondary-foreground whitespace-nowrap">
+                    {product.from}
+                  </span>
                 </div>
-              </Link>
+              </div>
 
-              <div className="flex flex-col gap-1 p-3">
-                <Link href={product.url} target="_blank">
-                  <h3 className="line-clamp-2 text-xs text-muted-foreground leading-snug">
-                    {product.name}
-                  </h3>
-                </Link>
-
-                <p className="text-xl font-bold text-primary leading-tight">
+              <div className="w-full p-3 flex flex-col gap-[6px]">
+                <h3 className="text-sm font-normal text-muted-foreground line-clamp-2">
+                  {product.name}
+                </h3>
+                <p className="text-2xl font-bold text-price-green">
                   {product.price.toLocaleString("es-AR", {
                     style: "currency",
                     currency: "ARS",
                   })}
                 </p>
-
-                <div className="flex items-center justify-between gap-1 mt-1">
-                  <span className="text-xs text-muted-foreground uppercase tracking-wide">
+                <div className="flex gap-[6px] items-start flex-wrap">
+                  <span className="text-xs font-medium text-muted-foreground uppercase">
                     {product.brand}
                   </span>
-                  {product?.installment ? (
-                    <Badge className="bg-orange-500 text-[10px] px-1.5 py-0 leading-5">
-                      {product.installment}× sin interés
-                    </Badge>
+                  {product.installment ? (
+                    <span className="bg-orange-500 rounded-md px-2 py-[3px] text-xs font-medium text-background">
+                      {product.installment}x sin interes
+                    </span>
                   ) : null}
                 </div>
               </div>
-            </Card>
+            </Link>
           );
         })}
       </div>
 
       {totalPages > 1 && (
-        <Pagination className="mt-4">
-          <PaginationContent>
-            <PaginationItem>
-              <PaginationPrevious
-                href="#"
-                onClick={(e) => {
-                  e.preventDefault();
-                  setCurrentPage((p) => Math.max(1, p - 1));
-                }}
-                aria-disabled={currentPage === 1}
-                className={currentPage === 1 ? "pointer-events-none opacity-50" : ""}
-              />
-            </PaginationItem>
+        <div className="flex gap-1 items-center justify-center px-1 py-2 mt-2">
+          <button
+            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+            disabled={currentPage === 1}
+            className="border border-border rounded-md h-[36px] w-[120px] px-[14px] text-sm text-foreground disabled:opacity-40"
+          >
+            Anterior
+          </button>
 
-            {Array.from({ length: totalPages }, (_, i) => i + 1)
-              .filter((page) =>
+          {Array.from({ length: totalPages }, (_, i) => i + 1)
+            .filter(
+              (page) =>
                 page === 1 ||
                 page === totalPages ||
                 Math.abs(page - currentPage) <= 1,
-              )
-              .reduce<(number | "ellipsis")[]>((acc, page, i, arr) => {
-                const prev = arr[i - 1];
-                if (i > 0 && typeof prev === "number" && page - prev > 1) {
-                  acc.push("ellipsis");
-                }
-                acc.push(page);
-                return acc;
-              }, [])
-              .map((item, i, arr) =>
-                item === "ellipsis" ? (
-                  <PaginationItem key={`ellipsis-${arr[i - 1]}-${arr[i + 1]}`}>
-                    <PaginationEllipsis />
-                  </PaginationItem>
-                ) : (
-                  <PaginationItem key={item}>
-                    <PaginationLink
-                      href="#"
-                      isActive={item === currentPage}
-                      onClick={(e) => {
-                        e.preventDefault();
-                        setCurrentPage(item);
-                      }}
-                    >
-                      {item}
-                    </PaginationLink>
-                  </PaginationItem>
-                ),
-              )}
+            )
+            .reduce<(number | "ellipsis")[]>((acc, page, i, arr) => {
+              const prev = arr[i - 1];
+              if (i > 0 && typeof prev === "number" && page - prev > 1) {
+                acc.push("ellipsis");
+              }
+              acc.push(page);
+              return acc;
+            }, [])
+            .map((item, i, arr) =>
+              item === "ellipsis" ? (
+                <span
+                  key={`ellipsis-${arr[i - 1]}-${arr[i + 1]}`}
+                  className="size-[36px] flex items-center justify-center text-xs text-muted-foreground select-none"
+                >
+                  ...
+                </span>
+              ) : (
+                <button
+                  key={item}
+                  onClick={() => setCurrentPage(item as number)}
+                  className={
+                    item === currentPage
+                      ? "bg-primary rounded-md size-[36px] text-sm font-medium text-primary-foreground"
+                      : "border border-border rounded-md size-[36px] text-sm text-foreground"
+                  }
+                >
+                  {item}
+                </button>
+              ),
+            )}
 
-            <PaginationItem>
-              <PaginationNext
-                href="#"
-                onClick={(e) => {
-                  e.preventDefault();
-                  setCurrentPage((p) => Math.min(totalPages, p + 1));
-                }}
-                aria-disabled={currentPage === totalPages}
-                className={currentPage === totalPages ? "pointer-events-none opacity-50" : ""}
-              />
-            </PaginationItem>
-          </PaginationContent>
-        </Pagination>
+          <button
+            onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+            disabled={currentPage === totalPages}
+            className="border border-border rounded-md h-[36px] w-[120px] px-[14px] text-sm text-foreground disabled:opacity-40"
+          >
+            Siguiente
+          </button>
+        </div>
       )}
     </div>
   );

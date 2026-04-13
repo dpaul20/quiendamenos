@@ -1,41 +1,17 @@
 import Disclaimer from "../components/Disclaimer";
-import ProductList from "../components/ProductList";
-import { ModeToggle } from "@/components/DarkMode";
-import Image from "next/image";
+import ProductList from "@/components/ProductList";
 import { Footer } from "@/components/Footer";
 import { StoresList } from "@/components/StoresList";
 import { StoreFilter } from "@/components/StoreFilter";
-import MissionModal from "@/components/MissionModal";
 import SearchRow from "@/components/SearchRow";
+import { Header } from "@/components/Header";
 
 export default async function Home() {
   return (
     <main className="min-h-screen flex flex-col">
-      {/* Header */}
-      <header className="border-b border-border">
-        <div className="w-full max-w-5xl mx-auto px-4 h-12 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-[8px] bg-primary flex items-center justify-center shrink-0">
-              <Image
-                src="/logo.png"
-                alt="Logo"
-                width={18}
-                height={18}
-              />
-            </div>
-            <span className="font-semibold text-sm tracking-tight">
-              Scraping Electronica
-            </span>
-          </div>
-          <div className="flex items-center gap-2">
-            <MissionModal />
-            <ModeToggle />
-          </div>
-        </div>
-      </header>
+      <Header />
 
-      {/* Page content */}
-      <div className="w-full max-w-5xl flex flex-col mx-auto px-4 py-6 md:py-8 flex-1 gap-6">
+      <div className="w-full max-w-5xl flex flex-col mx-auto px-6 py-8 flex-1 gap-6">
         <Disclaimer />
 
         {/* Hero */}
@@ -50,8 +26,8 @@ export default async function Home() {
           <SearchRow />
         </section>
 
-        <StoreFilter />
         <StoresList />
+        <StoreFilter />
         <ProductList />
       </div>
 

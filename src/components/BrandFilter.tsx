@@ -1,10 +1,9 @@
 "use client";
 import React from "react";
 import { cn } from "@/lib/utils";
-import { useProductsStore } from "@/store/products.store";
-import { ALL } from "@/lib/constants";
+import { useProductsStore } from "@/features/price-search/hooks/useProductsStore";
+import { ALL } from "@/features/price-search/constants";
 import { CaretSortIcon, CheckIcon } from "@radix-ui/react-icons";
-import { Button } from "@/components/ui/button";
 import {
   Command,
   CommandEmpty,
@@ -18,32 +17,30 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Skeleton } from "./ui/skeleton";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function BrandFilter() {
   const [open, setOpen] = React.useState(false);
-
-  const { brands, selectedBrand, isLoading } = useProductsStore();
-  const { setSelectedBrand } = useProductsStore();
+  const { brands, selectedBrand, isLoading, setSelectedBrand } =
+    useProductsStore();
 
   if (brands.length === 0) return null;
-
-  if (isLoading) return <Skeleton className="w-[200px] h-[46px]" />;
+  if (isLoading) return <Skeleton className="w-[81px] h-[46px] rounded-md" />;
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <Button
-          variant="outline"
-          role="combobox"
+        <button
+          type="button"
+          aria-haspopup="listbox"
           aria-expanded={open}
-          className="h-[46px] justify-between capitalize"
+          className="h-[46px] border border-border rounded-md flex items-center gap-2 pl-3 pr-[10px] text-sm font-medium text-foreground bg-background whitespace-nowrap shrink-0"
         >
-          {selectedBrand.toLowerCase() || "Marca"}
-          <CaretSortIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-        </Button>
+          {selectedBrand === ALL ? "Marca" : selectedBrand}
+          <CaretSortIcon className="h-2 w-2.5 shrink-0 opacity-70" />
+        </button>
       </PopoverTrigger>
-      <PopoverContent className="p-0">
+      <PopoverContent className="p-0 w-[200px]">
         <Command>
           <CommandInput placeholder="Buscar marca..." className="h-9" />
           <CommandList>
@@ -54,7 +51,10 @@ export default function BrandFilter() {
                   key={brand}
                   value={brand}
                   onSelect={(value) => {
-                    setSelectedBrand(selectedBrand === value ? ALL : value);
+                    const matched =
+                      brands.find((b) => b.toLowerCase() === value.toLowerCase()) ??
+                      ALL;
+                    setSelectedBrand(selectedBrand === matched ? ALL : matched);
                     setOpen(false);
                   }}
                 >

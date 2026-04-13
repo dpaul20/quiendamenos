@@ -1,4 +1,4 @@
-import { Product } from "../types/product";
+import { Product } from "@/types/product";
 
 // Actualiza las marcas "unknown" usando las marcas que ya existen en los propios productos
 export const updateUnknownBrands = (products: Product[]): Product[] => {

@@ -1,13 +1,11 @@
 "use client";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { useProductsStore } from "@/store/products.store";
+import { useProductsStore } from "@/features/price-search/hooks/useProductsStore";
 import { Loader2, Search } from "lucide-react";
-import { ALL } from "@/lib/constants";
+import { ALL } from "@/features/price-search/constants";
 
 export default function SearchForm() {
-  const { getProducts, setIsLoading, setSelectedBrand } = useProductsStore();
-  const { isLoading } = useProductsStore();
+  const { getProducts, setIsLoading, setSelectedBrand, isLoading } =
+    useProductsStore();
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -15,32 +13,28 @@ export default function SearchForm() {
     const productName = (form.elements[0] as HTMLInputElement).value;
     getProducts(productName);
     setIsLoading(true);
-    setSelectedBrand(ALL)
+    setSelectedBrand(ALL);
   };
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="w-full flex flex-row gap-2 max-w-3xl justify-end"
-    >
-      <Input
-        type="text"
-        placeholder="Nombre del producto..."
-        required
-        className="flex-1 text-base h-[46px]"
-      />
-      <Button
+    <form onSubmit={handleSubmit} className="flex flex-1 gap-2 items-center">
+      <div className="flex flex-1 items-center gap-2 bg-card border border-border rounded-lg px-3 h-[46px]">
+        <Search className="h-4 w-4 text-muted-foreground shrink-0" />
+        <input
+          type="text"
+          placeholder="Nombre del producto..."
+          required
+          className="flex-1 text-base bg-transparent outline-none text-foreground placeholder:text-muted-foreground"
+        />
+      </div>
+      <button
         type="submit"
-        className="shrink-0 h-[46px]"
         disabled={isLoading}
+        className="h-[46px] px-6 rounded-lg bg-primary text-primary-foreground text-sm font-medium shrink-0 flex items-center gap-2 disabled:opacity-60 transition-opacity"
       >
-        {isLoading ? (
-          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-        ) : (
-          <Search className="mr-2 h-4 w-4" />
-        )}
+        {isLoading && <Loader2 className="h-4 w-4 animate-spin" />}
         {isLoading ? "Buscando..." : "Buscar"}
-      </Button>
+      </button>
     </form>
   );
 }

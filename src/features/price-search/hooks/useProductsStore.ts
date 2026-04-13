@@ -1,7 +1,8 @@
 import { StoreNamesEnum } from "@/enums/stores.enum";
-import { getProduct } from "@/lib/api";
-import { ALL } from "@/lib/constants";
-import { updateUnknownBrands } from "@/lib/unknown-brands";
+import { getProduct } from "@/features/price-search/api";
+import { ALL } from "@/features/price-search/constants";
+import { updateUnknownBrands } from "@/features/price-search/unknown-brands";
+import { capitalize } from "@/lib/capitalize";
 import { Product } from "@/types/product";
 import { create } from "zustand";
 
@@ -38,7 +39,7 @@ export const useProductsStore = create<State>((set, get) => ({
     });
 
     const brands = productsUpdated.map((product: Product) =>
-      product.brand.toUpperCase()
+      capitalize(product.brand)
     );
     const uniqueBrands = Array.from(new Set(brands));
 
@@ -58,8 +59,12 @@ export const useProductsStore = create<State>((set, get) => ({
   setSelectedStore: (store: string) => set({ selectedStore: store }),
   stores: [],
   setStores: () => {
-    const products = get().products;
-    const stores = products.map((product) => product.from);
+    const { products, selectedBrand } = get();
+    const filtered =
+      selectedBrand === ALL
+        ? products
+        : products.filter((p) => capitalize(p.brand) === selectedBrand);
+    const stores = filtered.map((product) => product.from);
     const uniqueStores = Array.from(new Set(stores));
     set(() => ({ stores: uniqueStores }));
   },

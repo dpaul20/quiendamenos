@@ -1,46 +1,31 @@
 "use client";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { X } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
 import { useState } from "react";
 
 export default function Disclaimer() {
-  const [showDisclaimer, setShowDisclaimer] = useState(true);
+  const [visible, setVisible] = useState(true);
+
+  if (!visible) return null;
 
   return (
-    showDisclaimer && (
-      <Alert
-        variant="destructive"
-        className="bg-destructive/10 border-destructive/30 flex flex-row"
+    <div className="bg-red-50 border border-destructive rounded-lg p-4 flex gap-3 items-start w-full">
+      <div className="bg-destructive rounded-[10px] size-5 flex items-center justify-center shrink-0">
+        <span className="font-bold text-sm text-white leading-none select-none">!</span>
+      </div>
+      <div className="flex flex-col gap-1 flex-1 text-destructive min-w-0">
+        <p className="text-base font-bold">Aviso importante</p>
+        <p className="text-sm font-normal leading-5">
+          Este proyecto permite comparar precios de electrónica en las
+          principales tiendas de Argentina mediante web scraping. Los precios
+          son referenciales y pueden diferir del precio final.
+        </p>
+      </div>
+      <button
+        className="size-6 rounded flex items-center justify-center text-destructive shrink-0 hover:bg-destructive/10 transition-colors"
+        onClick={() => setVisible(false)}
+        aria-label="Cerrar aviso"
       >
-        <ExclamationTriangleIcon className="h-4 w-4 text-destructive" />
-        <div className="flex flex-col">
-          <AlertTitle className="text-sm font-semibold text-destructive">
-            Aviso importante
-          </AlertTitle>
-          <AlertDescription className="mt-1 text-xs text-left text-destructive/80">
-            Este proyecto tiene como finalidad permitir a los usuarios comprar
-            libremente y de manera unificada el producto que buscan al menor
-            precio posible, recopilando información de diversas tiendas de
-            tecnología y artículos para el hogar, mediante web scraping. Nuestro
-            objetivo es proporcionar una experiencia fluida para comparar
-            productos en tiempo real y optimizar la decisión de compra.
-          </AlertDescription>
-        </div>
-
-        <div>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="p-1 h-6 w-6 hover:bg-destructive/20 text-destructive"
-            onClick={() => setShowDisclaimer(false)}
-          >
-            <X className="h-full w-full" />
-            <span className="sr-only">Cerrar</span>
-          </Button>
-        </div>
-      </Alert>
-    )
+        <span className="text-base leading-none select-none">×</span>
+      </button>
+    </div>
   );
 }

@@ -33,10 +33,16 @@ export default function ProductList() {
     useProductsStore();
   const [loadingMessage, setLoadingMessage] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [prevBrand, setPrevBrand] = useState(selectedBrand);
+  const [prevStore, setPrevStore] = useState(selectedStore);
+  const [prevProducts, setPrevProducts] = useState(products);
 
-  useEffect(() => {
+  if (prevBrand !== selectedBrand || prevStore !== selectedStore || prevProducts !== products) {
+    setPrevBrand(selectedBrand);
+    setPrevStore(selectedStore);
+    setPrevProducts(products);
     setCurrentPage(1);
-  }, [selectedBrand, selectedStore, products]);
+  }
 
   useEffect(() => {
     if (isLoading) {

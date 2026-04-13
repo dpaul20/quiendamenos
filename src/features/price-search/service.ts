@@ -24,7 +24,7 @@ export async function scrapeWebsite(query: string): Promise<Product[]> {
     settled
       .filter((r) => r.status === "rejected")
       .forEach((r) =>
-        console.error("[scrape] tienda falló:", (r as PromiseRejectedResult).reason),
+        console.error("[scrape] tienda falló:", r.reason),
       );
 
     const exitosos = settled.filter(

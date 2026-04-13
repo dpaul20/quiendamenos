@@ -2,6 +2,7 @@
 import React from "react";
 import { cn } from "@/lib/utils";
 import { useProductsStore } from "@/store/products.store";
+import { ALL } from "@/lib/constants";
 import { CaretSortIcon, CheckIcon } from "@radix-ui/react-icons";
 import { Button } from "@/components/ui/button";
 import {
@@ -27,7 +28,7 @@ export default function BrandFilter() {
 
   if (brands.length === 0) return null;
 
-  if (isLoading) return <Skeleton className="w-[200px] h-9" />;
+  if (isLoading) return <Skeleton className="w-[200px] h-[46px]" />;
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -36,7 +37,7 @@ export default function BrandFilter() {
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="justify-between capitalize"
+          className="h-[46px] justify-between capitalize"
         >
           {selectedBrand.toLowerCase() || "Marca"}
           <CaretSortIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -52,11 +53,8 @@ export default function BrandFilter() {
                 <CommandItem
                   key={brand}
                   value={brand}
-                  onSelect={(selectedBrand) => {
-                    setSelectedBrand(
-                      selectedBrand === brand ? selectedBrand : ""
-                    );
-
+                  onSelect={(value) => {
+                    setSelectedBrand(selectedBrand === value ? ALL : value);
                     setOpen(false);
                   }}
                 >

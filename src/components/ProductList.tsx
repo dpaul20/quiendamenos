@@ -16,6 +16,18 @@ import { ALL } from "@/lib/constants";
 import { Badge } from "./ui/badge";
 import { loadingMessages } from "@/lib/loading-messages";
 import { useEffect, useState } from "react";
+import { CheckIcon } from "@radix-ui/react-icons";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
+
+const ITEMS_PER_PAGE = 12;
 
 const storeLogos: Record<StoreNamesEnum, StaticImageData> = {
   Cetrogar: cetrogar,
@@ -43,8 +55,13 @@ function SkeletonCard() {
 }
 
 export default function ProductList() {
-  const { products, selectedBrand, isLoading } = useProductsStore();
+  const { products, selectedBrand, selectedStore, isLoading } = useProductsStore();
   const [loadingMessage, setLoadingMessage] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [selectedBrand, selectedStore, products]);
 
   useEffect(() => {
     if (isLoading) {
@@ -60,10 +77,21 @@ export default function ProductList() {
 
   let filteredProducts = products;
   if (selectedBrand !== ALL) {
-    filteredProducts = products.filter(
+    filteredProducts = filteredProducts.filter(
       (product) => product.brand.toUpperCase() === selectedBrand,
     );
   }
+  if (selectedStore !== ALL) {
+    filteredProducts = filteredProducts.filter(
+      (product) => product.from === selectedStore,
+    );
+  }
+
+  const totalPages = Math.ceil(filteredProducts.length / ITEMS_PER_PAGE);
+  const paginatedProducts = filteredProducts.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE,
+  );
 
   if (isLoading)
     return (
@@ -85,17 +113,15 @@ export default function ProductList() {
   }
   return (
     <div className="flex flex-col">
-      <div className="flex items-center gap-2 mb-1">
-        <Badge variant="secondary" className="text-xs">
-          Ordenados por menor precio
-        </Badge>
-        <span className="text-xs text-muted-foreground">
+      <div className="flex items-center justify-between mb-1">
+        <span className="text-sm font-medium">
           {filteredProducts.length} resultado{filteredProducts.length === 1 ? "" : "s"}
         </span>
+        <span className="text-xs text-muted-foreground">Ordenar: Menor precio ↕</span>
       </div>
 
       <div className="grid grid-cols-2 gap-4 py-4 sm:grid-cols-3 lg:grid-cols-4">
-        {filteredProducts.map((product, index) => {
+        {paginatedProducts.map((product, index) => {
           if (!product.price || !product.name || !product.url) {
             return null;
           }
@@ -104,7 +130,7 @@ export default function ProductList() {
               key={product.url}
               className={cn(
                 "flex flex-col overflow-hidden rounded-xl border border-border transition-colors duration-200 hover:border-primary/30",
-                index === 0 && "ring-1 ring-primary/40"
+                currentPage === 1 && index === 0 && "ring-1 ring-primary/40"
               )}
             >
               <Link href={product.url} target="_blank" className="block">
@@ -116,6 +142,12 @@ export default function ProductList() {
                     fill
                     className="object-contain p-3"
                   />
+                  {currentPage === 1 && index === 0 && (
+                    <div className="absolute top-2 left-2 flex items-center gap-1 rounded-full bg-primary px-2 py-0.5 text-[10px] font-semibold text-primary-foreground">
+                      <CheckIcon className="h-2.5 w-2.5" />
+                      Mejor precio
+                    </div>
+                  )}
                   <div className="absolute bottom-2 right-2 rounded bg-background/90 p-1">
                     <Image
                       src={storeLogos[product.from]}
@@ -157,6 +189,71 @@ export default function ProductList() {
           );
         })}
       </div>
+
+      {totalPages > 1 && (
+        <Pagination className="mt-4">
+          <PaginationContent>
+            <PaginationItem>
+              <PaginationPrevious
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setCurrentPage((p) => Math.max(1, p - 1));
+                }}
+                aria-disabled={currentPage === 1}
+                className={currentPage === 1 ? "pointer-events-none opacity-50" : ""}
+              />
+            </PaginationItem>
+
+            {Array.from({ length: totalPages }, (_, i) => i + 1)
+              .filter((page) =>
+                page === 1 ||
+                page === totalPages ||
+                Math.abs(page - currentPage) <= 1,
+              )
+              .reduce<(number | "ellipsis")[]>((acc, page, i, arr) => {
+                const prev = arr[i - 1];
+                if (i > 0 && typeof prev === "number" && page - prev > 1) {
+                  acc.push("ellipsis");
+                }
+                acc.push(page);
+                return acc;
+              }, [])
+              .map((item, i, arr) =>
+                item === "ellipsis" ? (
+                  <PaginationItem key={`ellipsis-${arr[i - 1]}-${arr[i + 1]}`}>
+                    <PaginationEllipsis />
+                  </PaginationItem>
+                ) : (
+                  <PaginationItem key={item}>
+                    <PaginationLink
+                      href="#"
+                      isActive={item === currentPage}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setCurrentPage(item);
+                      }}
+                    >
+                      {item}
+                    </PaginationLink>
+                  </PaginationItem>
+                ),
+              )}
+
+            <PaginationItem>
+              <PaginationNext
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setCurrentPage((p) => Math.min(totalPages, p + 1));
+                }}
+                aria-disabled={currentPage === totalPages}
+                className={currentPage === totalPages ? "pointer-events-none opacity-50" : ""}
+              />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
+      )}
     </div>
   );
 }

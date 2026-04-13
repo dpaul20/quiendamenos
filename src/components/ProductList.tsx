@@ -149,7 +149,7 @@ export default function ProductList() {
                     {product.brand}
                   </span>
                   {product.installment ? (
-                    <span className="bg-orange-500 rounded-md px-2 py-[3px] text-xs font-medium text-background">
+                    <span className="bg-orange-700 rounded-md px-2 py-[3px] text-xs font-medium text-white">
                       {product.installment}x sin interes
                     </span>
                   ) : null}

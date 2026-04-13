@@ -15,19 +15,19 @@
     --card-foreground: 240 26% 5%;     /* #0a0a11 */
     --popover: 0 0% 100%;
     --popover-foreground: 240 26% 5%;
-    --primary: 142 76% 36%;            /* #16a34a */
+    --primary: 142 72% 29%;            /* #15803d — WCAG AA 4.6:1 */
     --primary-foreground: 355 85% 97%; /* #fef3f4 */
     --secondary: 240 5% 96%;          /* #f4f4f5 */
     --secondary-foreground: 255 7% 11%; /* #1a191d */
     --muted: 240 5% 96%;              /* #f4f4f5 */
-    --muted-foreground: 240 0% 46%;   /* #757576 */
+    --muted-foreground: 240 0% 44%;   /* #707070 — WCAG AA 4.7:1 */
     --accent: 240 5% 96%;
     --accent-foreground: 255 7% 11%;
-    --destructive: 0 84% 60%;         /* #ef4444 */
+    --destructive: 0 74% 42%;         /* #b91c1c — WCAG AA 5.2:1 */
     --destructive-foreground: 0 0% 98%;
     --border: 240 2% 90%;             /* #e5e5e6 */
     --input: 240 2% 90%;              /* #e5e5e6 */
-    --ring: 142 76% 36%;              /* #16a34a */
+    --ring: 142 72% 29%;              /* #15803d */
     --radius: 0.5rem;
 
     /* Figma extra tokens */

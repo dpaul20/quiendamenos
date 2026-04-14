@@ -9,8 +9,8 @@
  */
 
 import { chromium, Browser, BrowserContext, Page } from '@playwright/test';
-import { exponentialBackoff, RetryResult } from '@/platform/backoff';
-import { categorizeError, categorizeHttpError, ErrorType } from '@/platform/errors';
+import { exponentialBackoff } from '@/platform/backoff';
+import { categorizeError } from '@/platform/errors';
 
 /**
  * Configuración del Adaptador Playwright

@@ -149,7 +149,7 @@ export default function ProductList() {
                     {product.brand}
                   </span>
                   {product.installment ? (
-                    <span className="bg-orange-500 rounded-md px-2 py-[3px] text-xs font-medium text-background">
+                    <span className="bg-orange-700 rounded-md px-2 py-[3px] text-xs font-medium text-white">
                       {product.installment}x sin interes
                     </span>
                   ) : null}
@@ -196,7 +196,7 @@ export default function ProductList() {
               ) : (
                 <button
                   key={item}
-                  onClick={() => setCurrentPage(item as number)}
+                  onClick={() => setCurrentPage(item)}
                   className={
                     item === currentPage
                       ? "bg-primary rounded-md size-[36px] text-sm font-medium text-primary-foreground"

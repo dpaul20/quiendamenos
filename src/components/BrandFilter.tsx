@@ -34,6 +34,9 @@ export default function BrandFilter() {
           type="button"
           aria-haspopup="listbox"
           aria-expanded={open}
+          aria-controls="brand-filter-popover"
+          aria-label="Seleccionar marca"
+          id="brand-filter-button"
           className="h-[46px] border border-border rounded-lg flex items-center justify-between gap-2 pl-3 pr-[10px] text-sm font-medium bg-background w-full sm:w-auto"
         >
           <span className={selectedBrand === ALL ? "text-muted-foreground" : "text-foreground"}>
@@ -42,7 +45,13 @@ export default function BrandFilter() {
           <CaretSortIcon className="h-2 w-2.5 shrink-0 opacity-70" />
         </button>
       </PopoverTrigger>
-      <PopoverContent className="p-0 w-[200px]">
+      <PopoverContent
+        className="p-0 w-[200px]"
+        id="brand-filter-popover"
+        role="dialog"
+        aria-modal="false"
+        aria-labelledby="brand-filter-button"
+      >
         <Command>
           <CommandInput placeholder="Buscar marca..." className="h-9" />
           <CommandList>

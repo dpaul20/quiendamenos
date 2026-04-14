@@ -20,7 +20,7 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 type StoreFilterState = {
-  stores?: string[];
+  stores?: StoreNamesEnum[];
   selectedStore?: string;
   isLoading?: boolean;
 };

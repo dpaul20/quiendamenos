@@ -1,13 +1,17 @@
 import type { Preview } from "@storybook/nextjs-vite";
 import React from "react";
 import { ThemeProvider } from "../src/components/theme-provider";
+// @ts-expect-error: No type declarations for CSS imports
 import "../src/app/globals.css";
-
 const preview: Preview = {
   decorators: [
     (Story) => (
-      <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
-        <div className="bg-background text-foreground min-h-screen p-4">
+      <ThemeProvider
+        attribute="class"
+        defaultTheme="light"
+        enableSystem={false}
+      >
+        <div className="min-h-screen bg-background p-4 text-foreground">
           <Story />
         </div>
       </ThemeProvider>
@@ -21,10 +25,9 @@ const preview: Preview = {
       },
     },
     a11y: {
-      // 'todo' - show a11y violations in the test UI only
       // 'error' - fail CI on a11y violations
       // 'off' - skip a11y checks entirely
-      test: "todo",
+      test: "error",
     },
   },
 };

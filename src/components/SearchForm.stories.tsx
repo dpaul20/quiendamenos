@@ -15,22 +15,44 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+import { useEffect } from "react";
+
+type SearchFormState = {
+  isLoading?: boolean;
+};
+
+function resetStoreState(state: SearchFormState) {
+  Object.keys(state).forEach((k) => {
+    let safeValue = undefined;
+    if (k === "isLoading") safeValue = false;
+    useProductsStore.setState({ [k]: safeValue });
+  });
+}
+
+function useSetStoreState(state: SearchFormState) {
+  useEffect(() => {
+    useProductsStore.setState(state);
+    return () => {
+      resetStoreState(state);
+    };
+  }, [state]);
+}
+
+function SearchFormDecorator(state: SearchFormState) {
+  const Decorator = (Story: React.ComponentType) => {
+    useSetStoreState(state);
+    return <Story />;
+  };
+  Decorator.displayName = "SearchFormDecorator";
+  return Decorator;
+}
+
 /** Estado base listo para recibir una búsqueda. */
 export const Default: Story = {
-  decorators: [
-    (Story) => {
-      useProductsStore.setState({ isLoading: false });
-      return <Story />;
-    },
-  ],
+  decorators: [SearchFormDecorator({ isLoading: false })],
 };
 
 /** Estado durante una búsqueda activa (spinner + texto "Buscando..."). */
 export const Loading: Story = {
-  decorators: [
-    (Story) => {
-      useProductsStore.setState({ isLoading: true });
-      return <Story />;
-    },
-  ],
+  decorators: [SearchFormDecorator({ isLoading: true })],
 };

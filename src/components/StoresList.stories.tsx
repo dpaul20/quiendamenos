@@ -16,33 +16,58 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+import { useEffect } from "react";
+
+type StoresListState = {
+  stores?: string[];
+  isLoading?: boolean;
+};
+
+type StoresListDecoratorComponentProps = {
+  state: StoresListState;
+  Story: React.ComponentType;
+};
+
+function StoresListDecorator(state: StoresListState) {
+  const Decorator = (Story: React.ComponentType) => (
+    <StoresListDecoratorComponent state={state} Story={Story} />
+  );
+  Decorator.displayName = "StoresListDecorator";
+  return Decorator;
+}
+
+function StoresListDecoratorComponent({ state, Story }: Readonly<StoresListDecoratorComponentProps>) {
+  useEffect(() => {
+    useProductsStore.setState(state);
+    return () => {
+      Object.keys(state).forEach((k) => {
+        let safeValue = undefined;
+        if (k === "stores") safeValue = [];
+        else if (k === "isLoading") safeValue = false;
+        useProductsStore.setState({ [k]: safeValue });
+      });
+    };
+  }, [state]);
+  return <Story />;
+}
+
 /** Resultados encontrados en múltiples tiendas. */
 export const MultipleStores: Story = {
-  decorators: [
-    (Story) => {
-      useProductsStore.setState({
-        stores: [
-          StoreNamesEnum.FRAVEGA,
-          StoreNamesEnum.CETROGAR,
-          StoreNamesEnum.NALDO,
-          StoreNamesEnum.CARREFOUR,
-        ],
-        isLoading: false,
-      });
-      return <Story />;
-    },
-  ],
+  decorators: [StoresListDecorator({
+    stores: [
+      StoreNamesEnum.FRAVEGA,
+      StoreNamesEnum.CETROGAR,
+      StoreNamesEnum.NALDO,
+      StoreNamesEnum.CARREFOUR,
+    ],
+    isLoading: false,
+  })],
 };
 
 /** Resultado encontrado en una sola tienda. */
 export const SingleStore: Story = {
-  decorators: [
-    (Story) => {
-      useProductsStore.setState({
-        stores: [StoreNamesEnum.MERCADOLIBRE],
-        isLoading: false,
-      });
-      return <Story />;
-    },
-  ],
+  decorators: [StoresListDecorator({
+    stores: [StoreNamesEnum.MERCADOLIBRE],
+    isLoading: false,
+  })],
 };

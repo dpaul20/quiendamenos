@@ -196,7 +196,7 @@ export default function ProductList() {
               ) : (
                 <button
                   key={item}
-                  onClick={() => setCurrentPage(item as number)}
+                  onClick={() => setCurrentPage(item)}
                   className={
                     item === currentPage
                       ? "bg-primary rounded-md size-[36px] text-sm font-medium text-primary-foreground"

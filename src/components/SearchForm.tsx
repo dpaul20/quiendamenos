@@ -7,7 +7,7 @@ export default function SearchForm() {
   const { getProducts, setIsLoading, setSelectedBrand, isLoading } =
     useProductsStore();
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     const form = e.target as HTMLFormElement;
     const productName = (form.elements[0] as HTMLInputElement).value;

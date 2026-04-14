@@ -1,3 +1,4 @@
+import { userEvent, within } from "storybook/test";
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import ProductList from "./ProductList";
 import { useProductsStore } from "@/features/price-search/hooks/useProductsStore";
@@ -74,62 +75,229 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+import { useEffect } from "react";
+
+type ProductListState = {
+  products?: Product[];
+  selectedBrand?: string;
+  selectedStore?: string;
+  isLoading?: boolean;
+};
+
+type ProductListDecoratorComponentProps = Readonly<{
+  state: ProductListState;
+  Story: React.ComponentType;
+}>;
+
+function ProductListDecorator(state: ProductListState) {
+  const Decorator = (Story: React.ComponentType) => (
+    <ProductListDecoratorComponent state={state} Story={Story} />
+  );
+  Decorator.displayName = "ProductListDecorator";
+  return Decorator;
+}
+
+function ProductListDecoratorComponent({
+  state,
+  Story,
+}: ProductListDecoratorComponentProps) {
+  useEffect(() => {
+    useProductsStore.setState(state);
+    return () => {
+      Object.keys(state).forEach((k) => {
+        let safeValue = undefined;
+        if (k === "products") safeValue = [];
+        else if (k === "isLoading") safeValue = false;
+        else if (k === "selectedBrand") safeValue = undefined;
+        else if (k === "selectedStore") safeValue = undefined;
+        useProductsStore.setState({ [k]: safeValue });
+      });
+    };
+  }, [state]);
+  return <Story />;
+}
+
 /** Lista con productos cargados y sin filtros activos. */
 export const WithProducts: Story = {
   decorators: [
-    (Story) => {
-      useProductsStore.setState({
-        products: MOCK_PRODUCTS,
-        selectedBrand: ALL,
-        selectedStore: ALL,
-        isLoading: false,
-      });
-      return <Story />;
-    },
+    ProductListDecorator({
+      products: MOCK_PRODUCTS,
+      selectedBrand: ALL,
+      selectedStore: ALL,
+      isLoading: false,
+    }),
   ],
 };
 
 /** Skeleton cards con animación de carga. */
 export const Loading: Story = {
   decorators: [
-    (Story) => {
-      useProductsStore.setState({
-        products: [],
-        isLoading: true,
-        selectedBrand: ALL,
-        selectedStore: ALL,
-      });
-      return <Story />;
-    },
+    ProductListDecorator({
+      products: [],
+      isLoading: true,
+      selectedBrand: ALL,
+      selectedStore: ALL,
+    }),
   ],
 };
 
 /** Sin resultados para el filtro activo (muestra EmptyState). */
 export const Empty: Story = {
   decorators: [
-    (Story) => {
-      useProductsStore.setState({
-        products: [],
-        isLoading: false,
-        selectedBrand: ALL,
-        selectedStore: ALL,
-      });
-      return <Story />;
-    },
+    ProductListDecorator({
+      products: [],
+      isLoading: false,
+      selectedBrand: ALL,
+      selectedStore: ALL,
+    }),
   ],
 };
 
 /** Filtrado a una sola tienda. */
 export const FilteredByStore: Story = {
   decorators: [
-    (Story) => {
-      useProductsStore.setState({
-        products: MOCK_PRODUCTS,
-        selectedBrand: ALL,
-        selectedStore: StoreNamesEnum.FRAVEGA,
-        isLoading: false,
-      });
-      return <Story />;
-    },
+    ProductListDecorator({
+      products: MOCK_PRODUCTS,
+      selectedBrand: ALL,
+      selectedStore: StoreNamesEnum.FRAVEGA,
+      isLoading: false,
+    }),
+  ],
+};
+
+/** Interacción: paginación (cambiar de página) */
+export const PaginationInteraction: Story = {
+  decorators: [
+    ProductListDecorator({
+      products: Array.from({ length: 30 }, (_, i) => ({
+        from: StoreNamesEnum.FRAVEGA,
+        name: `Producto ${i + 1}`,
+        price: 1000 * (i + 1),
+        image: "https://placehold.co/400x320/e2e8f0/475569?text=Prod",
+        url: `https://fravega.com/p/${i + 1}`,
+        brand: "samsung",
+      })),
+      selectedBrand: ALL,
+      selectedStore: ALL,
+      isLoading: false,
+    }),
+  ],
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    // Click en botón siguiente para cambiar de página
+    await userEvent.click(
+      canvas.getByRole("button", { name: /siguiente|sig\./i }),
+    );
+    // Click en botón anterior para volver
+    await userEvent.click(
+      canvas.getByRole("button", { name: /anterior|ant\./i }),
+    );
+  },
+};
+
+/** Producto sin imagen, precio, url o nombre (no debe renderizar nada) */
+export const ProductMissingFields: Story = {
+  decorators: [
+    ProductListDecorator({
+      products: [
+        {
+          from: StoreNamesEnum.FRAVEGA,
+          name: "",
+          price: 1000,
+          image: "",
+          url: "",
+          brand: "samsung",
+        },
+        {
+          from: StoreNamesEnum.FRAVEGA,
+          name: "Sin precio",
+          price: undefined,
+          image: "https://placehold.co/400x320",
+          url: "https://fravega.com/p/999",
+          brand: "samsung",
+        },
+        {
+          from: StoreNamesEnum.FRAVEGA,
+          name: "Sin imagen",
+          price: 1000,
+          image: "",
+          url: "https://fravega.com/p/998",
+          brand: "samsung",
+        },
+        {
+          from: StoreNamesEnum.FRAVEGA,
+          name: "Sin url",
+          price: 1000,
+          image: "https://placehold.co/400x320",
+          url: undefined,
+          brand: "samsung",
+        },
+      ],
+      selectedBrand: ALL,
+      selectedStore: ALL,
+      isLoading: false,
+    }),
+  ],
+};
+
+/** Producto con cuotas (installment) */
+export const ProductWithInstallment: Story = {
+  decorators: [
+    ProductListDecorator({
+      products: [
+        {
+          from: StoreNamesEnum.FRAVEGA,
+          name: "Producto con cuotas",
+          price: 50000,
+          image: "https://placehold.co/400x320",
+          url: "https://fravega.com/p/inst",
+          brand: "samsung",
+          installment: 24,
+        },
+      ],
+      selectedBrand: ALL,
+      selectedStore: ALL,
+      isLoading: false,
+    }),
+  ],
+};
+
+/** Paginación con muchas páginas (verifica aparición de ellipsis y cambio de página por número) */
+export const PaginationEllipsis: Story = {
+  decorators: [
+    ProductListDecorator({
+      products: Array.from({ length: 100 }, (_, i) => ({
+        from: StoreNamesEnum.FRAVEGA,
+        name: `Producto ${i + 1}`,
+        price: 1000 * (i + 1),
+        image: 'https://placehold.co/400x320',
+        url: `https://fravega.com/p/${i + 1}`,
+        brand: 'samsung',
+      })),
+      selectedBrand: ALL,
+      selectedStore: ALL,
+      isLoading: false,
+    }),
+  ],
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    // Avanza hasta que el botón "5" esté visible
+    for (let i = 0; i < 4; i++) {
+      await userEvent.click(canvas.getByRole("button", { name: /siguiente|sig\./i }));
+    }
+    await userEvent.click(canvas.getByRole("button", { name: "5" }));
+    // Opcional: podrías verificar que el primer producto visible sea "Producto 49" (índice 48)
+  },
+};
+
+/** Filtro activo sin resultados (EmptyState) */
+export const FilteredNoResults: Story = {
+  decorators: [
+    ProductListDecorator({
+      products: MOCK_PRODUCTS,
+      selectedBrand: "no-existe",
+      selectedStore: ALL,
+      isLoading: false,
+    }),
   ],
 };

@@ -3,8 +3,6 @@
  */
 
 import {
-  initBrowser,
-  closeBrowser,
   getBrowserStatus,
   checkBrowserHealth,
 } from '@/platform/browser';

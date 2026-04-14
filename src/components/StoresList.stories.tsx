@@ -19,7 +19,7 @@ type Story = StoryObj<typeof meta>;
 import { useEffect } from "react";
 
 type StoresListState = {
-  stores?: string[];
+  stores?: StoreNamesEnum[];
   isLoading?: boolean;
 };
 

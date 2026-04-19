@@ -274,6 +274,14 @@ export function getRetryDelay(error: CategorizedError): number | undefined {
   }
 }
 
-/**
- * Exportar tipos y enums
- */
+export interface PublicError {
+  error: string;
+  stack?: string;
+}
+
+export function redactError(error: unknown, env?: string): PublicError {
+  const isProd = (env ?? process.env.NODE_ENV) === "production";
+  if (isProd) return { error: "Internal Server Error" };
+  if (error instanceof Error) return { error: error.message, stack: error.stack };
+  return { error: String(error ?? "Unknown error") };
+}

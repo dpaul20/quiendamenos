@@ -3,6 +3,7 @@ import { getQueryCache, setQueryCache, cacheKey } from "@/platform/cache";
 import { scrapeWebsite } from "@/features/price-search/service";
 import { NextRequest, NextResponse } from "next/server";
 import { validateQuery } from "@/platform/query";
+import { redactError } from "@/platform/errors";
 
 export async function GET(request: NextRequest) {
   try {
@@ -37,9 +38,6 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(result);
   } catch (error) {
     console.error("Error in scrape route:", error);
-    return NextResponse.json(
-      { error: "Internal Server Error" },
-      { status: 500 }
-    );
+    return NextResponse.json(redactError(error), { status: 500 });
   }
 }

@@ -34,7 +34,7 @@ function applySecurityHeaders(response: NextResponse): NextResponse {
   return response;
 }
 
-export function middleware(request: NextRequest): NextResponse {
+export function proxy(request: NextRequest): NextResponse {
   const apiKey = request.headers.get('x-api-key');
   if (!apiKey || apiKey !== process.env.API_SECRET_KEY) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

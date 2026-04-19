@@ -13,7 +13,7 @@
     "test:coverage": "vitest run --coverage"
   },
   "engines": {
-    "node": ">=22.13.0"
+    "node": "20.x"
   },
   "dependencies": {
     "@playwright/test": "^1.57.0",

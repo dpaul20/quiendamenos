@@ -79,7 +79,7 @@ describe('scrapeWithFallback', () => {
     const result = await scrapeWithFallback('naldo', 'tv', mockScraper);
 
     expect(result).toEqual([cachedProduct]);
-    expect(mockGetCachedData).toHaveBeenCalledWith('s:naldo:tv');
+    expect(mockGetCachedData).toHaveBeenCalledWith('s:naldo:a46e5d2bbe2d3b05b2d28b6054d98c18046bce28893d04e050724168116d5587');
   });
 
   it('devuelve [] cuando todos los intentos fallan y caché es null (cache miss)', async () => {

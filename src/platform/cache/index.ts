@@ -1,13 +1,15 @@
 import redis from "../redis";
+import { createHash } from "node:crypto";
 
-const normalize = (s: string) => s.toLowerCase().trim().replaceAll(/\s+/g, "_");
+const normalize = (s: string) => s.toLowerCase().trim().replaceAll(/\s+/g, " ");
+const sha256 = (s: string) => createHash("sha256").update(s).digest("hex");
 
 /** Claves de caché con namespace — evita colisiones entre caché de consulta y por tienda. */
 export const cacheKey = {
   /** Caché primario: resultado completo de una búsqueda. TTL = 1h. */
-  query: (q: string) => `q:${normalize(q)}`,
+  query: (q: string) => `q:${sha256(normalize(q))}`,
   /** Caché de respaldo: resultado por tienda para una consulta. TTL = 24h. */
-  store: (store: string, q: string) => `s:${store}:${normalize(q)}`,
+  store: (store: string, q: string) => `s:${store}:${sha256(normalize(q))}`,
 };
 
 export const TTL = {

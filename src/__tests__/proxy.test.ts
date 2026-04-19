@@ -52,7 +52,7 @@ describe('middleware', () => {
   });
 
   async function loadMiddleware() {
-    const mod = await import('@/middleware');
+    const mod = await import('@/proxy');
     return mod.middleware;
   }
 

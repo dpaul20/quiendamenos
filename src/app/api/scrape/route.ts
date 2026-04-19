@@ -2,26 +2,22 @@ import { scheduleRevalidation } from "@/platform/queue";
 import { getQueryCache, setQueryCache, cacheKey } from "@/platform/cache";
 import { scrapeWebsite } from "@/features/price-search/service";
 import { NextRequest, NextResponse } from "next/server";
+import { validateQuery } from "@/platform/query";
 
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
-    const query = searchParams.get("query");
+    const raw = searchParams.get("query");
+    const validation = validateQuery(raw);
 
-    if (!query) {
+    if (!validation.valid) {
       return NextResponse.json(
-        { error: "Missing query parameter" },
+        { error: validation.reason },
         { status: 400 }
       );
     }
 
-    if (!isValidQuery(query)) {
-      return NextResponse.json(
-        { error: "Invalid query parameter" },
-        { status: 400 }
-      );
-    }
-
+    const query = validation.value;
     const key = cacheKey.query(query);
     const cached = await getQueryCache(key);
 
@@ -44,8 +40,4 @@ export async function GET(request: NextRequest) {
       { status: 500 }
     );
   }
-}
-
-function isValidQuery(query: unknown): boolean {
-  return typeof query === "string" && query.trim().length > 0;
 }

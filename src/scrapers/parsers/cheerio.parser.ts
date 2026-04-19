@@ -1,8 +1,8 @@
-import axios from "axios";
 import { load } from "cheerio";
 import { Product } from "@/types/product";
 import { StoreNamesEnum } from "@/enums/stores.enum";
 import { StoreConfig } from "@/scrapers/loader";
+import { httpClient } from "@/platform/http";
 
 export function createCheerioScraper(
   config: StoreConfig,
@@ -12,7 +12,7 @@ export function createCheerioScraper(
   return async (query: string): Promise<Product[]> => {
     const url = config.url.replace("{query}", encodeURIComponent(query));
     try {
-      const { data } = await axios.get(url);
+      const { data } = await httpClient.get(url);
       const $ = load(data);
       const { selectors } = config;
 

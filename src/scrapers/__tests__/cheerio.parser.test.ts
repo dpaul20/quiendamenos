@@ -1,9 +1,12 @@
-import axios from "axios";
 import { createCheerioScraper } from "../parsers/cheerio.parser";
 import { StoreConfig } from "../loader";
 
-jest.mock("axios");
-const mockAxios = axios as jest.Mocked<typeof axios>;
+jest.mock("@/platform/http", () => ({
+  httpClient: { get: jest.fn() },
+}));
+
+import { httpClient } from "@/platform/http";
+const mockHttpClient = httpClient as unknown as { get: jest.Mock };
 
 const testConfig: StoreConfig = {
   key: "teststore",
@@ -49,16 +52,16 @@ describe("createCheerioScraper", () => {
   });
 
   it("llama axios con la URL correcta con query sustituida", async () => {
-    mockAxios.get.mockResolvedValueOnce({ data: "<html></html>" });
+    mockHttpClient.get.mockResolvedValueOnce({ data: "<html></html>" });
     const scraper = createCheerioScraper(testConfig);
     await scraper("smart tv");
-    expect(mockAxios.get).toHaveBeenCalledWith(
+    expect(mockHttpClient.get).toHaveBeenCalledWith(
       "https://teststore.com/search?q=smart%20tv",
     );
   });
 
   it("extrae productos correctamente con los selectores del config", async () => {
-    mockAxios.get.mockResolvedValueOnce({ data: mockHtml });
+    mockHttpClient.get.mockResolvedValueOnce({ data: mockHtml });
     const scraper = createCheerioScraper(testConfig);
     const products = await scraper("tv");
 
@@ -73,7 +76,7 @@ describe("createCheerioScraper", () => {
   });
 
   it("usa displayName como valor de 'from'", async () => {
-    mockAxios.get.mockResolvedValueOnce({ data: mockHtml });
+    mockHttpClient.get.mockResolvedValueOnce({ data: mockHtml });
     const scraper = createCheerioScraper(testConfig);
     const products = await scraper("tv");
     expect(products[0].from).toBe("Test Store");
@@ -84,7 +87,7 @@ describe("createCheerioScraper", () => {
       ...testConfig,
       selectors: { ...testConfig.selectors, installment: undefined },
     };
-    mockAxios.get.mockResolvedValueOnce({ data: mockHtml });
+    mockHttpClient.get.mockResolvedValueOnce({ data: mockHtml });
     const scraper = createCheerioScraper(configSinCuotas);
     const products = await scraper("tv");
     expect(products[0].installment).toBe(0);
@@ -101,21 +104,21 @@ describe("createCheerioScraper", () => {
         </div>
       </body></html>
     `;
-    mockAxios.get.mockResolvedValueOnce({ data: htmlSinImg });
+    mockHttpClient.get.mockResolvedValueOnce({ data: htmlSinImg });
     const scraper = createCheerioScraper(testConfig);
     const products = await scraper("tv");
     expect(products[0].image).toBe("https://placehold.co/300x200");
   });
 
   it("retorna [] si axios lanza error", async () => {
-    mockAxios.get.mockRejectedValueOnce(new Error("Network error"));
+    mockHttpClient.get.mockRejectedValueOnce(new Error("Network error"));
     const scraper = createCheerioScraper(testConfig);
     const products = await scraper("tv");
     expect(products).toEqual([]);
   });
 
   it("retorna [] si no hay elementos que coincidan con el selector container", async () => {
-    mockAxios.get.mockResolvedValueOnce({ data: "<html><body></body></html>" });
+    mockHttpClient.get.mockResolvedValueOnce({ data: "<html><body></body></html>" });
     const scraper = createCheerioScraper(testConfig);
     const products = await scraper("tv");
     expect(products).toEqual([]);

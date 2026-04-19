@@ -23,8 +23,10 @@ export async function GET(request: NextRequest) {
 
     if (cached) {
       if (cached.stale) {
-        // Stale-While-Revalidate: responde de inmediato, actualiza en segundo plano
-        scheduleRevalidation(query);
+        scheduleRevalidation(async () => {
+          const fresh = await scrapeWebsite(query);
+          await setQueryCache(key, fresh);
+        });
       }
       return NextResponse.json(cached.data);
     }

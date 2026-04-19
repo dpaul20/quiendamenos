@@ -1,6 +1,4 @@
 import { Product } from "@/types/product";
-import { loadStores } from "./loader";
-import { createCheerioScraper } from "./parsers/cheerio.parser";
 
 type Scraper = (query: string) => Promise<Product[]>;
 
@@ -22,16 +20,7 @@ export function getAllStores(): RegistryEntry[] {
   }));
 }
 
-export function initRegistry(): void {
-  const configs = loadStores();
-  for (const config of configs) {
-    register(config.key, createCheerioScraper(config));
-  }
-}
-
 /** Solo para uso en tests — limpia todos los scrapers registrados. */
 export function _clearForTests(): void {
   store.clear();
 }
-
-initRegistry();

@@ -1,8 +1,23 @@
 import { load } from "cheerio";
 import { Product } from "@/types/product";
 import { StoreNamesEnum } from "@/enums/stores.enum";
-import { StoreConfig } from "@/scrapers/loader";
 import { httpClient } from "@/platform/http";
+
+export interface StoreConfig {
+  key: string;
+  displayName: string;
+  parser?: string;
+  url: string;
+  selectors: {
+    container: string;
+    name: string;
+    price: string;
+    image: string;
+    url: string;
+    installment?: string;
+    brand?: string;
+  };
+}
 
 export function createCheerioScraper(
   config: StoreConfig,

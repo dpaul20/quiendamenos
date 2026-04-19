@@ -1,5 +1,4 @@
-import { createCheerioScraper } from "../parsers/cheerio.parser";
-import { StoreConfig } from "../loader";
+import { createCheerioScraper, StoreConfig } from "../parsers/cheerio.parser";
 
 jest.mock("@/platform/http", () => ({
   httpClient: { get: jest.fn() },

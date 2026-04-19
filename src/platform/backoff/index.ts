@@ -38,7 +38,7 @@ export interface RetryResult<T> {
  * @param config Configuración de backoff
  * @returns Delay en milisegundos
  */
-export function calculateDelay(
+function calculateDelay(
   attempt: number,
   config: Partial<BackoffConfig> = {}
 ): number {
@@ -183,23 +183,3 @@ export async function exponentialBackoff<T>(
  * @returns Datos en caso de éxito
  * @throws Error en caso de fallo después de agotar todos los reintentos
  */
-export async function withBackoff<T>(
-  fn: () => Promise<T>,
-  maxAttempts: number = 4
-): Promise<T> {
-  const result = await exponentialBackoff(fn, { maxAttempts });
-  if (!result.success) {
-    throw result.error || new Error('Se alcanzó el máximo de reintentos');
-  }
-  return result.data!;
-}
-
-/**
- * Exportar tipos y constantes
- */
-export const DEFAULT_BACKOFF_CONFIG: BackoffConfig = {
-  baseDelay: 2000, // 2 segundos
-  maxDelay: 64000, // 64 segundos
-  maxAttempts: 4, // 5 intentos totales (0-4)
-  multiplier: 2, // 2x cada vez
-};

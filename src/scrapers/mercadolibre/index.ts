@@ -1,8 +1,8 @@
-import axios from "axios";
 import { load } from "cheerio";
 import { capitalize } from "@/lib/capitalize";
 import { Product } from "@/types/product";
 import { StoreNamesEnum } from "@/enums/stores.enum";
+import { httpClient } from "@/platform/http";
 
 interface JsonLdOffer {
   "@type": string;
@@ -59,7 +59,7 @@ export async function scrapeMercadoLibre(query: string): Promise<Product[]> {
   const formattedQuery = query.replaceAll(/\s+/g, "-");
   const url = `https://listado.mercadolibre.com.ar/${encodeURIComponent(formattedQuery)}`;
   try {
-    const { data } = await axios.get<string>(url, {
+    const { data } = await httpClient.get<string>(url, {
       headers: {
         "User-Agent":
           "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",

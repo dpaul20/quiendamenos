@@ -1,12 +1,12 @@
-import axios from "axios";
 import { load } from "cheerio";
 import { Product } from "@/types/product";
 import { StoreNamesEnum } from "@/enums/stores.enum";
+import { httpClient } from "@/platform/http";
 
 export async function scrapeCetrogar(query: string): Promise<Product[]> {
   const url = `https://www.cetrogar.com.ar/catalogsearch/result/?q=${query}`;
   try {
-    const { data } = await axios.get(url);
+    const { data } = await httpClient.get(url);
     const $ = load(data);
 
     const products: Product[] = $(".item.product.product-item")

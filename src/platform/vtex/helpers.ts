@@ -1,8 +1,8 @@
-import axios from "axios";
 import { capitalize } from "@/lib/capitalize";
 import { vtexProduct } from "@/types/vtex-product";
 import { Product } from "@/types/product";
 import { StoreNamesEnum } from "@/enums/stores.enum";
+import { httpClient } from "@/platform/http";
 
 export type VtexInstallment =
   vtexProduct["items"][number]["sellers"][number]["commertialOffer"]["Installments"][number];
@@ -94,7 +94,7 @@ export function createVtexScraper(
   return async (query: string): Promise<Product[]> => {
     const url = buildVtexIsUrl(domain, query, workspace);
     try {
-      const { data } = await axios.get(url);
+      const { data } = await httpClient.get(url);
       return (data?.products ?? ([] as vtexProduct[]))
         .filter(isElectronicsProduct)
         .map((p: vtexProduct) => formatVtexProduct(p, storeName, domain));

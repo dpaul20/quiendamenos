@@ -1,4 +1,3 @@
-import axios from "axios";
 import { load } from "cheerio";
 import { capitalize } from "@/lib/capitalize";
 import { vtexProduct } from "@/types/vtex-product";
@@ -9,6 +8,8 @@ import {
   formatVtexProduct,
   isElectronicsProduct,
 } from "@/platform/vtex/helpers";
+import { httpClient } from "@/platform/http";
+import { sanitizeUrl } from "@/platform/url";
 
 const USER_AGENT =
   "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36";
@@ -93,7 +94,7 @@ const formatProductCarrefour = (product: vtexProduct): Product => {
 export async function scrapeCarrefour(query: string): Promise<Product[]> {
   const url = buildVtexIsUrl(DOMAIN, query);
   try {
-    const { data } = await axios.get(url, {
+    const { data } = await httpClient.get(url, {
       headers: { "User-Agent": USER_AGENT },
     });
 
@@ -106,15 +107,28 @@ export async function scrapeCarrefour(query: string): Promise<Product[]> {
 
     // IS API configuró una redirección a página de categoría → extraer caché Apollo
     if (data?.redirect) {
-      const categoryUrl = `https://www.carrefour.com.ar${data.redirect}`;
-      const { data: html } = await axios.get<string>(categoryUrl, {
-        headers: {
-          "User-Agent": USER_AGENT,
-          Accept: "text/html,application/xhtml+xml",
-          "Accept-Language": "es-AR,es;q=0.9",
-        },
-      });
-      return extractFromApolloCache(html);
+      try {
+        const redirect: string = data.redirect;
+        const resolvedUrl = redirect.startsWith('/')
+          ? `https://www.carrefour.com.ar${redirect}`
+          : redirect;
+        sanitizeUrl(resolvedUrl);
+        if (new URL(resolvedUrl).origin !== 'https://www.carrefour.com.ar') {
+          console.warn('[carrefour] Redirect origin mismatch, skipping:', resolvedUrl);
+          return [];
+        }
+        const { data: html } = await httpClient.get<string>(resolvedUrl, {
+          headers: {
+            "User-Agent": USER_AGENT,
+            Accept: "text/html,application/xhtml+xml",
+            "Accept-Language": "es-AR,es;q=0.9",
+          },
+        });
+        return extractFromApolloCache(html);
+      } catch {
+        console.warn('[carrefour] Redirect blocked:', data.redirect);
+        return [];
+      }
     }
 
     return [];

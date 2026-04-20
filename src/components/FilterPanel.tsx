@@ -66,21 +66,25 @@ export function FilterPanel() {
 
   return (
     <>
-      {/* Desktop / Tablet — horizontal row */}
-      <div className="hidden sm:flex items-center gap-3 flex-wrap">
-        <StoreFilter />
-        <BrandFilter />
-        <PriceRangeFilter />
-        <CSIFilter />
-        <SortControl />
-        {activeCount > 0 && (
-          <button
-            onClick={clearFilters}
-            className="text-sm text-muted-foreground underline hover:text-foreground transition-colors"
-          >
-            Limpiar ({activeCount})
-          </button>
-        )}
+      {/* Desktop / Tablet — two groups: stores (flex-1 overflow-hidden) | filters (shrink-0) */}
+      <div className="hidden sm:flex items-center gap-2 h-14 py-2">
+        <div className="flex flex-1 items-center gap-1.5 overflow-hidden min-w-0">
+          <StoreFilter />
+        </div>
+        <div className="flex items-center gap-2 shrink-0">
+          <BrandFilter />
+          <PriceRangeFilter />
+          <CSIFilter />
+          <SortControl />
+          {activeCount > 0 && (
+            <button
+              onClick={clearFilters}
+              className="text-sm text-muted-foreground underline hover:text-foreground transition-colors whitespace-nowrap"
+            >
+              Limpiar ({activeCount})
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Mobile — trigger + bottom sheet */}

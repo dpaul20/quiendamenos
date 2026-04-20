@@ -1,5 +1,12 @@
 "use client";
 import { useProductsStore } from "@/features/price-search/hooks/useProductsStore";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const OPTIONS = [
   { value: "price_asc", label: "Menor precio" },
@@ -11,22 +18,24 @@ const OPTIONS = [
 export function SortControl() {
   const sortBy = useProductsStore((s) => s.sortBy);
   const setSortBy = useProductsStore((s) => s.setSortBy);
+  const label = OPTIONS.find((o) => o.value === sortBy)?.label ?? "Menor precio";
 
   return (
-    <div className="flex items-center gap-2">
-      <span className="text-sm text-muted-foreground whitespace-nowrap">Ordenar por</span>
-      <select
-        value={sortBy}
-        onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
-        className="h-8 px-2 text-sm rounded-md border border-border bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+    <Select value={sortBy} onValueChange={(v) => setSortBy(v as typeof sortBy)}>
+      <SelectTrigger
+        className="h-[46px] w-[180px] rounded-[8px] border border-border bg-background px-3 flex flex-col items-start gap-0.5 [&>span]:flex [&>span]:w-full [&>span]:items-start [&>span]:flex-col"
         aria-label="Ordenar resultados"
       >
+        <span className="text-[10px] text-muted-foreground leading-none">Ordenar por</span>
+        <span className="text-sm font-medium text-foreground leading-none">{label}</span>
+      </SelectTrigger>
+      <SelectContent>
         {OPTIONS.map(({ value, label }) => (
-          <option key={value} value={value}>
+          <SelectItem key={value} value={value}>
             {label}
-          </option>
+          </SelectItem>
         ))}
-      </select>
-    </div>
+      </SelectContent>
+    </Select>
   );
 }

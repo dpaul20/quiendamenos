@@ -6,6 +6,8 @@ import { capitalize } from "@/lib/capitalize";
 import { Product } from "@/types/product";
 import { create } from "zustand";
 
+type SortBy = "price_asc" | "price_desc" | "installments_desc" | "best_installment";
+
 interface State {
   getProducts: (productName: string) => Promise<void>;
   products: Product[];
@@ -19,6 +21,16 @@ interface State {
   setIsLoading: (loading: boolean) => void;
   setStores: () => void;
   stores: StoreNamesEnum[];
+  priceMin: number | null;
+  priceMax: number | null;
+  selectedCSI: number | null;
+  sortBy: SortBy;
+  setPriceMin: (v: number | null) => void;
+  setPriceMax: (v: number | null) => void;
+  setSelectedCSI: (v: number | null) => void;
+  setSortBy: (v: SortBy) => void;
+  clearFilters: () => void;
+  filteredProducts: () => Product[];
 }
 
 export const useProductsStore = create<State>((set, get) => ({
@@ -31,7 +43,6 @@ export const useProductsStore = create<State>((set, get) => ({
   getProducts: async (productName: string) => {
     const products = await getProduct(productName);
     const productsUpdated = updateUnknownBrands(products);
-    // Ordenar los productos por menor precio
     productsUpdated.sort((a: Product, b: Product) => {
       const priceA = a.price ?? Infinity;
       const priceB = b.price ?? Infinity;
@@ -42,9 +53,7 @@ export const useProductsStore = create<State>((set, get) => ({
       capitalize(product.brand)
     );
     const uniqueBrands = Array.from(new Set(brands));
-
     uniqueBrands.sort((a, b) => a.localeCompare(b));
-
     uniqueBrands.unshift(ALL);
 
     set(() => ({
@@ -67,5 +76,41 @@ export const useProductsStore = create<State>((set, get) => ({
     const stores = filtered.map((product) => product.from);
     const uniqueStores = Array.from(new Set(stores));
     set(() => ({ stores: uniqueStores }));
+  },
+  priceMin: null,
+  priceMax: null,
+  selectedCSI: null,
+  sortBy: "price_asc",
+  setPriceMin: (v) => set({ priceMin: v }),
+  setPriceMax: (v) => set({ priceMax: v }),
+  setSelectedCSI: (v) => set({ selectedCSI: v }),
+  setSortBy: (v) => set({ sortBy: v }),
+  clearFilters: () =>
+    set({ priceMin: null, priceMax: null, selectedCSI: null, sortBy: "price_asc" }),
+  filteredProducts: () => {
+    const { products, selectedBrand, selectedStore, priceMin, priceMax, selectedCSI, sortBy } = get();
+
+    let result = products.filter((p) => {
+      if (selectedBrand !== ALL && capitalize(p.brand) !== selectedBrand) return false;
+      if (selectedStore !== ALL && p.from !== selectedStore) return false;
+      if (priceMin !== null && (p.price ?? 0) < priceMin) return false;
+      if (priceMax !== null && (p.price ?? 0) > priceMax) return false;
+      if (selectedCSI !== null && (p.installment ?? 0) < selectedCSI) return false;
+      return true;
+    });
+
+    result = [...result].sort((a, b) => {
+      if (sortBy === "price_asc") return (a.price ?? Infinity) - (b.price ?? Infinity);
+      if (sortBy === "price_desc") return (b.price ?? 0) - (a.price ?? 0);
+      if (sortBy === "installments_desc") return (b.installment ?? 0) - (a.installment ?? 0);
+      if (sortBy === "best_installment") {
+        const aVal = (a.installment ?? 0) > 0 ? (a.price ?? 0) / a.installment! : Infinity;
+        const bVal = (b.installment ?? 0) > 0 ? (b.price ?? 0) / b.installment! : Infinity;
+        return aVal - bVal;
+      }
+      return 0;
+    });
+
+    return result;
   },
 }));

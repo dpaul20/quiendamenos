@@ -1,17 +1,22 @@
-﻿"use client";
+"use client";
 import Image from "next/image";
 import Link from "next/link";
 import { imageLoader } from "@/features/price-search/image-loader";
 import { useProductsStore } from "@/features/price-search/hooks/useProductsStore";
-import { ALL } from "@/features/price-search/constants";
 import { loadingMessages } from "@/features/price-search/loading-messages";
-import { capitalize } from "@/lib/capitalize";
 import { useEffect, useState } from "react";
 import { EmptyState } from "./EmptyState";
 
 const ITEMS_PER_PAGE = 12;
 
 const SKELETON_KEYS = ["s0", "s1", "s2", "s3", "s4", "s5", "s6", "s7"] as const;
+
+const SORT_LABELS: Record<string, string> = {
+  price_asc: "Menor precio",
+  price_desc: "Mayor precio",
+  installments_desc: "Más cuotas",
+  best_installment: "Mejor cuota",
+};
 
 function SkeletonCard() {
   return (
@@ -29,18 +34,21 @@ function SkeletonCard() {
 }
 
 export default function ProductList() {
-  const { products, selectedBrand, selectedStore, isLoading } =
-    useProductsStore();
+  const products = useProductsStore((s) => s.products);
+  const filteredProducts = useProductsStore((s) => s.filteredProducts);
+  const isLoading = useProductsStore((s) => s.isLoading);
+  const sortBy = useProductsStore((s) => s.sortBy);
+
   const [loadingMessage, setLoadingMessage] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const [prevBrand, setPrevBrand] = useState(selectedBrand);
-  const [prevStore, setPrevStore] = useState(selectedStore);
-  const [prevProducts, setPrevProducts] = useState(products);
+  const [prevSortBy, setPrevSortBy] = useState(sortBy);
+  const [prevProductsRef, setPrevProductsRef] = useState(products);
 
-  if (prevBrand !== selectedBrand || prevStore !== selectedStore || prevProducts !== products) {
-    setPrevBrand(selectedBrand);
-    setPrevStore(selectedStore);
-    setPrevProducts(products);
+  const visible = filteredProducts();
+
+  if (prevSortBy !== sortBy || prevProductsRef !== products) {
+    setPrevSortBy(sortBy);
+    setPrevProductsRef(products);
     setCurrentPage(1);
   }
 
@@ -56,20 +64,8 @@ export default function ProductList() {
     }
   }, [isLoading]);
 
-  let filteredProducts = products;
-  if (selectedBrand !== ALL) {
-    filteredProducts = filteredProducts.filter(
-      (product) => capitalize(product.brand) === selectedBrand,
-    );
-  }
-  if (selectedStore !== ALL) {
-    filteredProducts = filteredProducts.filter(
-      (product) => product.from === selectedStore,
-    );
-  }
-
-  const totalPages = Math.ceil(filteredProducts.length / ITEMS_PER_PAGE);
-  const paginatedProducts = filteredProducts.slice(
+  const totalPages = Math.ceil(visible.length / ITEMS_PER_PAGE);
+  const paginatedProducts = visible.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
     currentPage * ITEMS_PER_PAGE,
   );
@@ -89,22 +85,21 @@ export default function ProductList() {
     );
   }
 
-  if (filteredProducts.length === 0 && products.length > 0) {
+  if (visible.length === 0 && products.length > 0) {
     return <EmptyState />;
   }
 
-  if (filteredProducts.length === 0) return null;
+  if (visible.length === 0) return null;
 
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
         <span className="text-xs sm:text-sm font-medium text-foreground">
-          {filteredProducts.length} resultado
-          {filteredProducts.length === 1 ? "" : "s"}
+          {visible.length} resultado{visible.length === 1 ? "" : "s"}
         </span>
         <span className="text-xs sm:text-sm font-normal text-muted-foreground">
           <span className="sm:hidden">Precio ↕</span>
-          <span className="hidden sm:inline">Ordenar: Menor precio ↕</span>
+          <span className="hidden sm:inline">Ordenar: {SORT_LABELS[sortBy]} ↕</span>
         </span>
       </div>
 
@@ -149,8 +144,8 @@ export default function ProductList() {
                     {product.brand}
                   </span>
                   {product.installment ? (
-                    <span className="bg-orange-700 rounded-md px-2 py-[3px] text-xs font-medium text-white">
-                      {product.installment}x sin interes
+                    <span className="bg-orange-500 rounded-md px-2 py-[3px] text-xs font-medium text-white">
+                      {product.installment} CSI
                     </span>
                   ) : null}
                 </div>

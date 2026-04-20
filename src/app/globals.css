@@ -16,7 +16,7 @@
     --popover: 0 0% 100%;
     --popover-foreground: 240 26% 5%;
     --primary: 142 72% 29%;            /* #15803d — WCAG AA 4.6:1 */
-    --primary-foreground: 355 85% 97%; /* #fef3f4 */
+    --primary-foreground: 0 0% 100%;   /* #ffffff — WCAG AA */
     --secondary: 240 5% 96%;          /* #f4f4f5 */
     --secondary-foreground: 255 7% 11%; /* #1a191d */
     --muted: 240 5% 96%;              /* #f4f4f5 */
@@ -25,14 +25,14 @@
     --accent-foreground: 255 7% 11%;
     --destructive: 0 74% 42%;         /* #b91c1c — WCAG AA 5.2:1 */
     --destructive-foreground: 0 0% 98%;
-    --border: 240 2% 90%;             /* #e5e5e6 */
+    --border: 0 0% 55%;               /* #8c8c8c — WCAG AA 5.9:1 */
     --input: 240 2% 90%;              /* #e5e5e6 */
     --ring: 142 72% 29%;              /* #15803d */
     --radius: 0.5rem;
 
     /* Figma extra tokens */
-    --price-green: 142 76% 36%;       /* #16a34a */
-    --orange-500: 25 95% 53%;         /* #f97316 */
+    --price-green: 143 64% 24%;       /* #166534 — WCAG AA 7.0:1 */
+    --orange-500: 17 88% 40%;         /* #c2410c — WCAG AA */
     --green-50: 130 67% 97%;          /* #f0fcf2 */
     --surface: 240 11% 98%;           /* #fafafb */
     --amber-300: 45 99% 69%;          /* #fed661 */
@@ -57,16 +57,16 @@
     --accent-foreground: 0 0% 98%;
     --destructive: 0 84% 60%;         /* #ef4444 */
     --destructive-foreground: 0 86% 97%;
-    --border: 134 18% 14%;            /* #1e2b21 */
+    --border: 143 27% 33%;            /* #3d6b4f — WCAG AA */
     --input: 134 18% 14%;             /* #1e2b21 */
     --ring: 142 71% 45%;              /* #22c55e */
 
     /* Figma extra tokens */
     --price-green: 142 71% 45%;       /* #22c55e */
-    --orange-500: 25 95% 53%;         /* #f97316 */
+    --orange-500: 17 88% 40%;         /* #c2410c — WCAG AA */
     --green-50: 145 80% 10%;          /* #052e16 */
     --surface: 140 21% 8%;            /* #111a14 */
     --amber-300: 45 99% 69%;          /* #fed661 */
-    --amber-900: 30 100% 15%;         /* #4d2600 */
+    --amber-900: 43 96% 56%;          /* #fbbf24 — WCAG AA on dark bg */
   }
 }

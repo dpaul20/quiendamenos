@@ -76,5 +76,5 @@ export function proxy(request: NextRequest): NextResponse {
 export const middleware = proxy;
 
 export const config = {
-  matcher: ['/api/((?!health(-check)?$).*)'],
+  matcher: ['/api/((?!health(?:-check)?$).*)'],
 };

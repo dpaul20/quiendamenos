@@ -1,186 +1,211 @@
-# Scraping Electrónica
+# quiendamenos
 
-Comparador de precios de productos electrónicos. Scrapea múltiples tiendas argentinas en paralelo y presenta resultados ordenados por precio.
+Comparador de precios de electrónica para tiendas argentinas. Scrapea en paralelo Frávega, Cetrogar, Naldo, Carrefour, OnCity y MercadoLibre, cachea en Redis y sirve los resultados vía Next.js.
 
 ## Tiendas soportadas
 
 | Tienda | Método |
-| --- | --- |
+|--------|--------|
+| Frávega | VTEX IS |
+| Cetrogar | VTEX IS |
 | Naldo | VTEX IS |
 | OnCity | VTEX IS |
-| Musimundo | Custom |
-| Carrefour | VTEX |
-| *(y otras)* | Playwright / Cheerio |
+| Carrefour | VTEX IS |
+| MercadoLibre | API propia |
 
 ---
 
 ## Setup local
 
-### 1. Requisitos
+### Requisitos
 
-- Node.js 18+
+- Node.js 20.x (ver `.nvmrc`)
 - Docker (para Redis local)
 
-### 2. Instalar dependencias
+### 1. Instalar dependencias
 
 ```bash
 npm install
-npx playwright install chromium
 ```
 
-### 3. Variables de entorno
-
-Copiá `.env.example` como `.env.local`:
+### 2. Variables de entorno
 
 ```bash
 cp .env.example .env.local
 ```
 
-**Para desarrollo local** el `.env.local` debe tener:
+`.env.local` mínimo para desarrollo:
 
 ```env
-NODE_ENV=development
 REDIS_URL=127.0.0.1
 REDIS_PORT=6379
-# sin REDIS_PASSWORD — Redis local no usa auth
 ```
 
-**Para producción** (Vercel + Upstash u otro Redis cloud) usá las credenciales reales, incluyendo `REDIS_PASSWORD`.
-
-### 4. Levantar Redis local (Docker)
+### 3. Levantar Redis
 
 ```bash
-# Primera vez — crea el container
+# Primera vez
 docker run -d --name redis-local -p 6379:6379 redis:alpine
 
-# Sesiones siguientes — solo iniciarlo
+# Sesiones siguientes
 docker start redis-local
-
-# Detenerlo
-docker stop redis-local
 ```
 
-### 5. Correr el servidor
+### 4. Correr el servidor
 
 ```bash
-npm run dev
-```
-
-Abre [http://localhost:3000](http://localhost:3000).
-
----
-
-## Comandos útiles
-
-### Desarrollo
-
-```bash
-npm run dev          # servidor Next.js
-npm run build        # build de producción
-npm run lint         # ESLint
-npx tsc --noEmit     # chequeo de tipos
-```
-
-### Tests
-
-```bash
-npm test                        # todos los tests
-npm test -- --watch             # modo watch
-npm test -- --coverage          # con cobertura
-```
-
-### Redis — inspección de cache
-
-```bash
-# Ver todas las keys en cache
-docker exec redis-local redis-cli KEYS "*"
-
-# Ver el contenido de una key (resultado de búsqueda)
-docker exec redis-local redis-cli GET "q:televisor"
-
-# Ver cuántos segundos le quedan a una key
-docker exec redis-local redis-cli TTL "q:televisor"
-
-# Borrar una key específica (fuerza re-scrape en la próxima request)
-docker exec redis-local redis-cli DEL "q:televisor"
-
-# Borrar todo el cache
-docker exec redis-local redis-cli FLUSHALL
+npm run dev   # http://localhost:3000
 ```
 
 ---
 
-## Arquitectura de cache
+## Comandos
 
-El sistema usa dos niveles de cache en Redis, optimizado para el free tier (~30 MB):
-
-```text
-Request GET /api/scrape?query=televisor
-        │
-        ▼
-  getQueryCache("q:televisor")  ← TTL 1h
-        │
-   ┌────┴────┐
-   │  HIT    │  MISS
-   │         ▼
-   │   scrapeWebsite()  ← scrapea las 7 tiendas en paralelo
-   │         │
-   │   setQueryCache()  ← guarda resultado completo, TTL 1h
-   │   setStoreCacheNX() ← guarda por tienda, TTL 24h (NX: no sobreescribe)
-   │
-   ▼ (si stale: age > 45min)
-scheduleRevalidation()  ← responde inmediato + revalida en background
+```bash
+npm run dev           # Dev server
+npm run build         # Build de producción
+npm run lint          # ESLint
+npm test              # Tests unitarios (Jest)
+npm run test:coverage # Tests de componentes con coverage (Vitest + Storybook)
+npm run storybook     # Storybook en :6006
 ```
 
-**Keys:**
+Correr un test específico:
 
-- `q:{query}` — resultado completo de la búsqueda (1h)
-- `s:{store}:{query}` — resultado por tienda individual (24h)
+```bash
+npm test -- src/platform/backoff/__tests__/backoff.test.ts
+```
 
-**Stale-While-Revalidate:** cuando una key tiene más de 45 minutos (75% del TTL de 1h), se sirve el dato viejo inmediatamente y se dispara un re-scrape en background con `setImmediate`.
+### Inspección de cache Redis
 
-### Probar SWR localmente
+```bash
+docker exec redis-local redis-cli KEYS "*"           # todas las keys
+docker exec redis-local redis-cli TTL "q:televisor"  # segundos restantes
+docker exec redis-local redis-cli DEL "q:televisor"  # forzar re-scrape
+docker exec redis-local redis-cli FLUSHALL           # borrar todo el cache
+```
 
-Para forzar el path stale sin esperar 45 minutos, bajá temporalmente el ratio en `src/platform/cache/index.ts`:
+---
+
+## Arquitectura
+
+```
+GET /api/scrape?query=iphone
+  → proxy.ts (rate limiting + API key auth)
+  → /api/scrape/route.ts (cache lookup → SWR dispatch)
+  → price-search/service.ts (scrapers en paralelo)
+    → price-search/router.ts (backoff → store cache → [])
+      → scrapers/{store}/index.ts
+```
+
+### Capas principales
+
+| Capa | Ruta | Responsabilidad |
+|------|------|-----------------|
+| Middleware | `src/proxy.ts` | Rate limiting (10 req/min/IP), API key auth, security headers |
+| Infraestructura | `src/platform/` | Cache Redis, backoff exponencial, clasificación de errores, queue |
+| Dominio | `src/features/price-search/` | Orquestación de scrapers, estado cliente (Zustand) |
+| Scrapers | `src/scrapers/` | Un folder por tienda |
+| UI | `src/components/` | React + shadcn/ui + Storybook |
+
+### Caché Redis (dos niveles)
+
+- **`q:{hash}`** — resultado combinado de todas las tiendas, TTL 1h
+- **`s:{store}:{hash}`** — resultado por tienda individual, TTL 24h
+
+**SWR al 75% del TTL (45 min):** devuelve datos stale inmediatamente y revalida en background via `src/platform/queue/`.
+
+### Agregar una tienda nueva
+
+1. Crear `src/scrapers/{nombre}/index.ts` exportando `scrape{Nombre}(query: string): Promise<Product[]>`
+2. Registrarla en `src/scrapers/index.ts`
+3. Agregar el valor en `src/enums/stores.enum.ts`
+
+Las tiendas con VTEX Intelligent Search usan el factory:
 
 ```typescript
-SWR_RATIO: 0.001, // cualquier entry será stale inmediatamente
-```
-
-Hacés dos requests seguidas al mismo endpoint → la segunda sirve desde cache e imprime en consola:
-
-```text
-[queue] SWR revalidation complete for query="televisor"
+import { createVtexScraper } from "@/platform/vtex/helpers";
+export const scrapeNombre = createVtexScraper("https://www.tienda.com.ar", StoreNamesEnum.NOMBRE);
 ```
 
 ---
 
-## API
+## Variables de entorno
 
-### `GET /api/scrape?query={término}`
+| Variable | Entorno | Descripción |
+|----------|---------|-------------|
+| `REDIS_URL` | Local + Prod | Host de Redis (`127.0.0.1` local) |
+| `REDIS_PORT` | Local + Prod | Puerto de Redis (`6379` local) |
+| `REDIS_PASSWORD` | Solo prod | Omitir en local |
+| `API_SECRET_KEY` | Solo prod | Se requiere el header `x-api-key` en prod; en dev se omite |
+| `RESEND_API_KEY` | Solo prod | API key de [Resend](https://resend.com) para alertas por email |
+| `ALERT_EMAIL` | Solo prod | Email destino de las alertas de scrapers caídos |
 
-Busca productos en todas las tiendas.
+> `CRON_SECRET` y `VERCEL_PROJECT_PRODUCTION_URL` los genera Vercel automáticamente.
 
-**Parámetros:**
+---
 
-- `query` (requerido): término de búsqueda (ej: `televisor`, `heladera`)
+## Monitoring en producción
 
-**Respuesta exitosa (`200`):**
+Un Vercel Cron Job corre cada 10 minutos y ejecuta `/api/health-check`, que:
 
-```json
-[
-  {
-    "name": "Smart TV 55\"",
-    "price": 450000,
-    "url": "https://...",
-    "image": "https://...",
-    "store": "Naldo",
-    "brand": "Samsung"
-  }
-]
+1. Llama a `/api/health` — prueba cada scraper con la query `"smart tv"` (timeout 8s)
+2. Si alguno falla o se degrada → manda un email con el detalle
+
+```
+Vercel Cron (*/10 * * * *)
+  → GET /api/health-check
+    → GET /api/health
+      → status !== "ok" → email a ALERT_EMAIL vía Resend
 ```
 
-**Errores:**
+### Endpoints de health
 
-- `400` — falta el parámetro `query` o es inválido
-- `500` — error interno al hacer scraping
+| Endpoint | Descripción | Auth |
+|----------|-------------|------|
+| `GET /api/health` | Estado de cada scraper en tiempo real | Pública |
+| `GET /api/health-check` | Cron: evalúa y notifica | `CRON_SECRET` (Vercel automático) |
+
+Ejemplo de respuesta de `/api/health`:
+
+```json
+{
+  "status": "degraded",
+  "stores": {
+    "fravega":  { "status": "ok",   "latency": 823,  "count": 12 },
+    "cetrogar": { "status": "down", "latency": 8001, "count": 0, "error": "timeout" }
+  },
+  "timestamp": "2026-04-20T14:30:00.000Z"
+}
+```
+
+### Setup en Vercel (una sola vez)
+
+**1.** Crear cuenta en [resend.com](https://resend.com) → API Keys → Create → copiar la key
+
+**2.** En Vercel → quiendamenos → **Settings → Environment Variables**, agregar:
+
+| Variable | Valor |
+|----------|-------|
+| `RESEND_API_KEY` | La key de Resend |
+| `ALERT_EMAIL` | Tu email |
+
+**3.** Hacer deploy — el cron se activa automáticamente al leer `vercel.json`.
+
+---
+
+## Tests
+
+| Framework | Qué testea | Config |
+|-----------|------------|--------|
+| Jest + ts-jest | `platform/` y `scrapers/` | `jest.config.js` |
+| Vitest + Playwright | Storybook component tests + coverage | `vitest.config.ts` |
+
+---
+
+## Convenciones no obvias
+
+- **`src/proxy.ts`** es el archivo de middleware de Next.js. No renombrar a `middleware.ts` — convención de Next.js 16.
+- **Los scrapers se auto-registran** en `src/scrapers/index.ts`. Agregar una tienda nueva requiere entrada ahí.
+- **La clasificación de errores HTTP** en `src/platform/errors/` determina si una falla se reintenta o no. Agregar nuevas clasificaciones ahí, no en los scrapers.
+- **Path alias `@/*` → `src/*`** configurado en `tsconfig.json` y `jest.config.js` (moduleNameMapper).

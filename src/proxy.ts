@@ -35,9 +35,11 @@ function applySecurityHeaders(response: NextResponse): NextResponse {
 }
 
 export function proxy(request: NextRequest): NextResponse {
-  const apiKey = request.headers.get('x-api-key');
-  if (!apiKey || apiKey !== process.env.API_SECRET_KEY) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  if (process.env.API_SECRET_KEY) {
+    const apiKey = request.headers.get('x-api-key');
+    if (!apiKey || apiKey !== process.env.API_SECRET_KEY) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
   }
 
   const ip = getClientIp(request);
@@ -71,6 +73,8 @@ export function proxy(request: NextRequest): NextResponse {
   return applySecurityHeaders(response);
 }
 
+export const middleware = proxy;
+
 export const config = {
-  matcher: ['/api/:path*'],
+  matcher: ['/api/((?!health(?:-check)?$).*)'],
 };

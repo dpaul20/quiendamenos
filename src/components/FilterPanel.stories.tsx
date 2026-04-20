@@ -23,9 +23,9 @@ const BASE_STATE = {
   brands: ["Todas", "Samsung", "LG"],
   selectedBrand: "Todas",
   selectedStore: "Todas",
-  priceMin: null,
-  priceMax: null,
-  selectedCSI: null,
+  priceMin: null as number | null,
+  priceMax: null as number | null,
+  selectedCSI: null as number | null,
   sortBy: "price_asc" as const,
 };
 

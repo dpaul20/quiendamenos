@@ -11,6 +11,7 @@ const redis = new Redis({
   host: process.env.REDIS_URL ?? "127.0.0.1",
   port: parseInt(process.env.REDIS_PORT ?? "6379", 10),
   password: process.env.REDIS_PASSWORD,
+  lazyConnect: true,
   maxRetriesPerRequest: 5,
   retryStrategy: (times) => {
     // Estrategia de reintento exponencial

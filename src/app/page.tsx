@@ -2,7 +2,7 @@ import Disclaimer from "../components/Disclaimer";
 import ProductList from "@/components/ProductList";
 import { Footer } from "@/components/Footer";
 import { StoresList } from "@/components/StoresList";
-import { FilterPanel } from "@/components/FilterPanel";
+import { StoreFilter } from "@/components/StoreFilter";
 import SearchRow from "@/components/SearchRow";
 import { Header } from "@/components/Header";
 
@@ -30,7 +30,7 @@ export default async function Home() {
 
         <Disclaimer />
 
-        <FilterPanel />
+        <StoreFilter />
         <StoresList />
         <ProductList />
       </div>

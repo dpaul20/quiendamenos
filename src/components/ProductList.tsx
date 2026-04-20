@@ -31,6 +31,7 @@ export default function ProductList() {
   const products = useProductsStore((s) => s.products);
   const filteredProducts = useProductsStore((s) => s.filteredProducts);
   const isLoading = useProductsStore((s) => s.isLoading);
+  const error = useProductsStore((s) => s.error);
 
   const [loadingMessage, setLoadingMessage] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -74,6 +75,10 @@ export default function ProductList() {
         </div>
       </div>
     );
+  }
+
+  if (error && products.length === 0) {
+    return <ErrorAlert />;
   }
 
   if (visible.length === 0 && products.length > 0) {

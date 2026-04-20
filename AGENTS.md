@@ -69,3 +69,5 @@ export const Default: Story = {};
 | SearchForm      | SearchForm.stories.tsx                  | Sí                |
 | SearchRow       | SearchRow.stories.tsx                   | Sí                |
 | ProductList     | ProductList.stories.tsx                 | Sí                |
+| ResultsHeader   | ResultsHeader.stories.tsx               | Sí                |
+| ErrorAlert      | ErrorAlert.stories.tsx                  | Sí                |

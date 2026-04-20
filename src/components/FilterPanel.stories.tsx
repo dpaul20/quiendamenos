@@ -55,3 +55,15 @@ export const Desktop: Story = {
 export const WithActiveFilters: Story = {
   decorators: [withProducts({ priceMin: 100_000, priceMax: 200_000, selectedCSI: 12 })],
 };
+
+/** Modo oscuro */
+export const Dark: Story = {
+  decorators: [
+    withProducts(),
+    (Story) => (
+      <div className="dark bg-background p-4 text-foreground">
+        <Story />
+      </div>
+    ),
+  ],
+};

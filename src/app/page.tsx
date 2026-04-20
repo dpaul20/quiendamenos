@@ -5,6 +5,7 @@ import { StoresList } from "@/components/StoresList";
 import { StoreFilter } from "@/components/StoreFilter";
 import SearchRow from "@/components/SearchRow";
 import { Header } from "@/components/Header";
+import { ResultsHeader } from "@/components/ResultsHeader";
 
 export default async function Home() {
   return (
@@ -32,6 +33,7 @@ export default async function Home() {
 
         <StoreFilter />
         <StoresList />
+        <ResultsHeader />
         <ProductList />
       </div>
 

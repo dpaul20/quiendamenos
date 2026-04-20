@@ -6,17 +6,11 @@ import { useProductsStore } from "@/features/price-search/hooks/useProductsStore
 import { loadingMessages } from "@/features/price-search/loading-messages";
 import { useEffect, useState } from "react";
 import { EmptyState } from "./EmptyState";
+import { ErrorAlert } from "./ErrorAlert";
 
 const ITEMS_PER_PAGE = 12;
 
 const SKELETON_KEYS = ["s0", "s1", "s2", "s3", "s4", "s5", "s6", "s7"] as const;
-
-const SORT_LABELS: Record<string, string> = {
-  price_asc: "Menor precio",
-  price_desc: "Mayor precio",
-  installments_desc: "Más cuotas",
-  best_installment: "Mejor cuota",
-};
 
 function SkeletonCard() {
   return (
@@ -37,17 +31,14 @@ export default function ProductList() {
   const products = useProductsStore((s) => s.products);
   const filteredProducts = useProductsStore((s) => s.filteredProducts);
   const isLoading = useProductsStore((s) => s.isLoading);
-  const sortBy = useProductsStore((s) => s.sortBy);
 
   const [loadingMessage, setLoadingMessage] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const [prevSortBy, setPrevSortBy] = useState(sortBy);
   const [prevProductsRef, setPrevProductsRef] = useState(products);
 
   const visible = filteredProducts();
 
-  if (prevSortBy !== sortBy || prevProductsRef !== products) {
-    setPrevSortBy(sortBy);
+  if (prevProductsRef !== products) {
     setPrevProductsRef(products);
     setCurrentPage(1);
   }
@@ -93,15 +84,7 @@ export default function ProductList() {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex items-center justify-between">
-        <span className="text-xs sm:text-sm font-medium text-foreground">
-          {visible.length} resultado{visible.length === 1 ? "" : "s"}
-        </span>
-        <span className="text-xs sm:text-sm font-normal text-muted-foreground">
-          <span className="sm:hidden">Precio ↕</span>
-          <span className="hidden sm:inline">Ordenar: {SORT_LABELS[sortBy]} ↕</span>
-        </span>
-      </div>
+      <ErrorAlert />
 
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-5">
         {paginatedProducts.map((product) => {

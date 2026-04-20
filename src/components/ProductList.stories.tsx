@@ -301,3 +301,20 @@ export const FilteredNoResults: Story = {
     }),
   ],
 };
+
+/** Modo oscuro con resultados */
+export const Dark: Story = {
+  decorators: [
+    ProductListDecorator({
+      products: MOCK_PRODUCTS,
+      selectedBrand: ALL,
+      selectedStore: ALL,
+      isLoading: false,
+    }),
+    (Story) => (
+      <div className="dark bg-background p-4 text-foreground">
+        <Story />
+      </div>
+    ),
+  ],
+};

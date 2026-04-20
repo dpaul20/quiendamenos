@@ -18,3 +18,14 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {};
+
+/** Modo oscuro */
+export const Dark: Story = {
+  decorators: [
+    (Story) => (
+      <div className="dark bg-background text-foreground">
+        <Story />
+      </div>
+    ),
+  ],
+};

@@ -21,6 +21,8 @@ interface State {
   setIsLoading: (loading: boolean) => void;
   setStores: () => void;
   stores: StoreNamesEnum[];
+  error: string | null;
+  setError: (msg: string | null) => void;
   priceMin: number | null;
   priceMax: number | null;
   selectedCSI: number | null;
@@ -40,28 +42,39 @@ export const useProductsStore = create<State>((set, get) => ({
   selectedBrand: ALL,
   isLoading: false,
   setIsLoading: (loading: boolean) => set({ isLoading: loading }),
+  error: null,
+  setError: (msg) => set({ error: msg }),
   getProducts: async (productName: string) => {
-    const products = await getProduct(productName);
-    const productsUpdated = updateUnknownBrands(products);
-    productsUpdated.sort((a: Product, b: Product) => {
-      const priceA = a.price ?? Infinity;
-      const priceB = b.price ?? Infinity;
-      return priceA - priceB;
-    });
+    set({ error: null });
+    try {
+      const products = await getProduct(productName);
+      const productsUpdated = updateUnknownBrands(products);
+      productsUpdated.sort((a: Product, b: Product) => {
+        const priceA = a.price ?? Infinity;
+        const priceB = b.price ?? Infinity;
+        return priceA - priceB;
+      });
 
-    const brands = productsUpdated.map((product: Product) =>
-      capitalize(product.brand)
-    );
-    const uniqueBrands = Array.from(new Set(brands));
-    uniqueBrands.sort((a, b) => a.localeCompare(b));
-    uniqueBrands.unshift(ALL);
+      const brands = productsUpdated.map((product: Product) =>
+        capitalize(product.brand)
+      );
+      const uniqueBrands = Array.from(new Set(brands));
+      uniqueBrands.sort((a, b) => a.localeCompare(b));
+      uniqueBrands.unshift(ALL);
 
-    set(() => ({
-      products: productsUpdated,
-      productSearched: productName,
-      brands: uniqueBrands,
-      isLoading: false,
-    }));
+      set(() => ({
+        products: productsUpdated,
+        productSearched: productName,
+        brands: uniqueBrands,
+        isLoading: false,
+        error: null,
+      }));
+    } catch {
+      set({
+        isLoading: false,
+        error: "No se pudo conectar. Verificá tu conexión e intentá de nuevo.",
+      });
+    }
   },
   setSelectedBrand: (brand: string) => set({ selectedBrand: brand }),
   selectedStore: ALL,
@@ -86,7 +99,7 @@ export const useProductsStore = create<State>((set, get) => ({
   setSelectedCSI: (v) => set({ selectedCSI: v }),
   setSortBy: (v) => set({ sortBy: v }),
   clearFilters: () =>
-    set({ priceMin: null, priceMax: null, selectedCSI: null, sortBy: "price_asc" }),
+    set({ priceMin: null, priceMax: null, selectedCSI: null, sortBy: "price_asc", error: null }),
   filteredProducts: () => {
     const { products, selectedBrand, selectedStore, priceMin, priceMax, selectedCSI, sortBy } = get();
 

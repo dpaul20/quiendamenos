@@ -1,12 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-if (
-  process.env.NODE_ENV === 'production' &&
-  !process.env.API_SECRET_KEY
-) {
-  throw new Error('FATAL: API_SECRET_KEY environment variable is required in production');
-}
-
 interface RateLimitBucket {
   tokens: number;
   lastRefill: number;

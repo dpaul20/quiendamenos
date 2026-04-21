@@ -8,17 +8,40 @@ export type VtexInstallment =
   vtexProduct["items"][number]["sellers"][number]["commertialOffer"]["Installments"][number];
 
 /**
- * Devuelve la mayor cantidad de cuotas sin interés disponibles.
+ * Devuelve la CSI representativa: la moda del máximo sin interés por medio de pago.
+ * Excluye cuotas de 1 (siempre 0%) y promos bancarias que inflan el máximo absoluto
+ * (ej: Ahora 20 de un solo banco cuando el resto de los medios ofrece 12).
+ * En empate de frecuencia gana el valor más bajo (más conservador).
  */
 export function getMaxFreeInstallments(
   installments: VtexInstallment[],
 ): number {
-  return installments
-    .filter((i) => i.InterestRate === 0)
-    .reduce(
-      (max, i) => Math.max(max, i.NumberOfInstallments),
-      0,
-    );
+  const maxPerSystem = new Map<string, number>();
+  for (const i of installments) {
+    if (i.InterestRate !== 0 || i.NumberOfInstallments <= 1) continue;
+    const cur = maxPerSystem.get(i.PaymentSystemName) ?? 0;
+    if (i.NumberOfInstallments > cur) {
+      maxPerSystem.set(i.PaymentSystemName, i.NumberOfInstallments);
+    }
+  }
+
+  if (maxPerSystem.size === 0) return 0;
+
+  const freq = new Map<number, number>();
+  for (const v of maxPerSystem.values()) {
+    freq.set(v, (freq.get(v) ?? 0) + 1);
+  }
+
+  let result = 0;
+  let topFreq = 0;
+  for (const [value, count] of freq) {
+    if (count > topFreq || (count === topFreq && value < result)) {
+      result = value;
+      topFreq = count;
+    }
+  }
+
+  return result;
 }
 
 /**

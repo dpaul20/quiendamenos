@@ -17,14 +17,14 @@ export default function SearchForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-1 gap-2 items-center h-[46px]">
-      <div className="flex flex-1 items-center gap-2 bg-card border border-border rounded-lg px-3 h-full">
+    <form onSubmit={handleSubmit} className="flex w-full gap-2 items-center h-[46px]">
+      <div className="flex flex-1 items-center gap-2 bg-card border border-border rounded-lg px-3 h-full overflow-hidden min-w-0">
         <Search className="h-4 w-4 text-muted-foreground shrink-0" />
         <input
           type="text"
           placeholder="Nombre del producto..."
           required
-          className="flex-1 text-base bg-transparent outline-none text-foreground placeholder:text-muted-foreground min-w-0"
+          className="flex-1 text-base bg-transparent outline-none text-foreground placeholder:text-muted-foreground min-w-0 w-full"
         />
       </div>
       <button

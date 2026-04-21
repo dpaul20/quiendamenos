@@ -56,17 +56,17 @@ export function FilterPanel() {
 
   return (
     <>
-      {/* Desktop / Tablet — stores (flex-1) | FiltersBar unificado (shrink-0) */}
+      {/* Desktop / Tablet — stores (shrink-0) | FiltersBar (flex-1) */}
       <div className="hidden sm:flex items-center gap-2 h-14 py-2">
-        <div className="flex flex-1 items-center gap-1.5 overflow-hidden min-w-0">
+        <div className="flex shrink-0 items-center gap-1.5 overflow-hidden">
           <StoreFilter />
         </div>
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex flex-1 items-center justify-end gap-2 min-w-0">
           <FiltersBar />
           {activeCount > 0 && (
             <button
               onClick={clearFilters}
-              className="text-sm text-muted-foreground underline hover:text-foreground transition-colors whitespace-nowrap"
+              className="text-sm text-muted-foreground underline hover:text-foreground transition-colors whitespace-nowrap shrink-0"
             >
               Limpiar ({activeCount})
             </button>

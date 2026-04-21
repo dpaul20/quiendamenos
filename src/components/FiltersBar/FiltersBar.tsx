@@ -3,7 +3,7 @@ import React, { useMemo } from "react";
 import { useProductsStore } from "@/store/productsStore";
 import { getAvailableCSI } from "@/store/selectors";
 import { cn } from "@/lib/utils";
-import { CaretSortIcon, CheckIcon } from "@radix-ui/react-icons";
+import { CheckIcon, ChevronDownIcon } from "@radix-ui/react-icons";
 import { ALL } from "@/features/price-search/constants";
 import {
   Command,
@@ -40,7 +40,7 @@ export function FiltersBar() {
   const csiOptions = useMemo(() => getAvailableCSI(products), [products]);
 
   return (
-    <div className="h-[46px] bg-muted border border-border rounded-xl flex items-center overflow-hidden shrink-0">
+    <div className="h-[46px] bg-muted border border-border rounded-xl flex items-center overflow-hidden flex-1 min-w-0">
       {/* Marca */}
       <Popover open={brandOpen} onOpenChange={setBrandOpen}>
         <PopoverTrigger asChild>
@@ -49,18 +49,15 @@ export function FiltersBar() {
             aria-haspopup="listbox"
             aria-expanded={brandOpen}
             aria-label="Seleccionar marca"
-            className="flex flex-col gap-0.5 px-3 py-1.5 min-w-[80px] h-full text-left hover:bg-accent transition-colors"
+            className="flex items-center gap-1.5 px-3 h-full hover:bg-accent transition-colors shrink-0"
           >
-            <span className="text-[10px] text-muted-foreground leading-none">Marca</span>
-            <div className="flex items-center gap-1">
-              <span className={cn(
-                "text-sm font-medium leading-none",
-                selectedBrand === ALL ? "text-muted-foreground" : "text-foreground"
-              )}>
-                {selectedBrand === ALL ? "Todas" : selectedBrand}
-              </span>
-              <CaretSortIcon className="h-2 w-2.5 shrink-0 opacity-70" />
-            </div>
+            <span className={cn(
+              "text-sm leading-none whitespace-nowrap",
+              selectedBrand === ALL ? "text-muted-foreground" : "text-foreground font-medium"
+            )}>
+              {selectedBrand === ALL ? "Marca" : selectedBrand}
+            </span>
+            <ChevronDownIcon className="h-3 w-3 shrink-0 text-primary" />
           </button>
         </PopoverTrigger>
         <PopoverContent className="p-0 w-[200px]" align="start">

@@ -51,28 +51,40 @@ describe("getMaxFreeInstallments", () => {
     expect(getMaxFreeInstallments(installments)).toBe(12);
   });
 
-  it("un medio de pago con promo bancaria mayor → devuelve la moda (valor común)", () => {
-    // OnCity Oster: AmEx=12, Visa=15, Mastercard=20 (promo bancaria), Cabal=12, Naranja=12
+  it("devuelve el máximo global aunque sea de un solo medio de pago", () => {
+    // OnCity Oster: AmEx=12, Visa=15, Mastercard=20, Cabal=12, Naranja=12 → max=20
     const installments = [
       inst("American Express", 1, 0),
       inst("American Express", 12, 0),
       inst("Visa", 1, 0),
       inst("Visa", 15, 0),
       inst("Mastercard", 1, 0),
-      inst("Mastercard", 20, 0),  // promo bancaria
+      inst("Mastercard", 20, 0),
       inst("Cabal", 1, 0),
       inst("Cabal", 12, 0),
       inst("Naranja", 1, 0),
       inst("Naranja", 12, 0),
     ];
-    expect(getMaxFreeInstallments(installments)).toBe(12);
+    expect(getMaxFreeInstallments(installments)).toBe(20);
   });
 
-  it("empate en frecuencia → devuelve el valor más bajo", () => {
-    // Visa=6, Mastercard=12 → empate 1 vs 1, gana el menor
+  it("dos medios de pago con distintos máximos → devuelve el mayor", () => {
+    // Visa=6, Mastercard=12 → max=12
     const installments = [
       inst("Visa", 6, 0),
       inst("Mastercard", 12, 0),
+    ];
+    expect(getMaxFreeInstallments(installments)).toBe(12);
+  });
+
+  it("Naldo: Visa=3, Mastercard=3, Naranja=6 → devuelve 6", () => {
+    const installments = [
+      inst("Visa", 1, 0),
+      inst("Visa", 3, 0),
+      inst("Mastercard", 1, 0),
+      inst("Mastercard", 3, 0),
+      inst("Naranja", 1, 0),
+      inst("Naranja", 6, 0),
     ];
     expect(getMaxFreeInstallments(installments)).toBe(6);
   });

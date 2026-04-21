@@ -11,10 +11,8 @@ export default function Cafecito() {
         <Image
           src="https://cdn.cafecito.app/imgs/buttons/button_4.png"
           alt="Invitame un café en cafecito.app"
-          width={150}
-          height={35}
-          sizes="(max-width: 600px) 100vw, 150px"
-          style={{ height: "auto", width: "auto" }}
+          width={192}
+          height={40}
           priority
         />
       </a>

@@ -4,7 +4,7 @@ import { StoreNamesEnum } from "@/enums/stores.enum";
 
 const base: Omit<Product, "brand" | "name"> = {
   price: 100,
-  from: StoreNamesEnum.Carrefour,
+  from: StoreNamesEnum.CARREFOUR,
   image: "",
   url: "",
   installment: 0,

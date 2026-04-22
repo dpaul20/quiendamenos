@@ -1,35 +1,15 @@
-import Redis from "ioredis";
+import { Redis } from "@upstash/redis";
 
 if (
   process.env.NODE_ENV === 'production' &&
-  (process.env.REDIS_PASSWORD === undefined || process.env.REDIS_PASSWORD === '')
+  !process.env.UPSTASH_REDIS_REST_TOKEN
 ) {
-  throw new Error('FATAL: REDIS_PASSWORD environment variable is required in production');
+  throw new Error('FATAL: UPSTASH_REDIS_REST_TOKEN environment variable is required in production');
 }
 
 const redis = new Redis({
-  host: process.env.REDIS_URL ?? "127.0.0.1",
-  port: parseInt(process.env.REDIS_PORT ?? "6379", 10),
-  password: process.env.REDIS_PASSWORD,
-  lazyConnect: true,
-  maxRetriesPerRequest: 5,
-  retryStrategy: (times) => {
-    // Estrategia de reintento exponencial
-    const delay = Math.min(times * 50, 2000);
-    return delay;
-  },
-  reconnectOnError: (err) => {
-    const targetError = "READONLY";
-    if (err.message.includes(targetError)) {
-      // Solo reconectar en errores específicos
-      return true;
-    }
-    return false;
-  },
-});
-
-redis.on("error", (err) => {
-  console.error("Redis connection error:", err);
+  url: process.env.UPSTASH_REDIS_REST_URL ?? "",
+  token: process.env.UPSTASH_REDIS_REST_TOKEN ?? "",
 });
 
 export default redis;

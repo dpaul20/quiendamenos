@@ -1,8 +1,6 @@
-jest.mock('ioredis', () => {
-  return jest.fn().mockImplementation(() => ({
-    on: jest.fn(),
-  }));
-});
+jest.mock('@upstash/redis', () => ({
+  Redis: jest.fn().mockImplementation(() => ({})),
+}));
 
 function loadRedis(): Promise<void> {
   return new Promise((resolve, reject) => {
@@ -31,33 +29,28 @@ describe('Redis fail-fast in production', () => {
     process.env = originalEnv;
   });
 
-  it('throws when NODE_ENV=production and REDIS_PASSWORD is not set', async () => {
+  it('throws when NODE_ENV=production and UPSTASH_REDIS_REST_TOKEN is not set', async () => {
     (process.env as MutableEnv).NODE_ENV = 'production';
-    delete (process.env as MutableEnv).REDIS_PASSWORD;
-    await expect(loadRedis()).rejects.toThrow(/REDIS_PASSWORD/);
+    delete (process.env as MutableEnv).UPSTASH_REDIS_REST_TOKEN;
+    await expect(loadRedis()).rejects.toThrow(/UPSTASH_REDIS_REST_TOKEN/);
   });
 
-  it('throws when NODE_ENV=production and REDIS_PASSWORD is empty string', async () => {
+  it('does NOT throw when NODE_ENV=production and UPSTASH_REDIS_REST_TOKEN is set', async () => {
     (process.env as MutableEnv).NODE_ENV = 'production';
-    (process.env as MutableEnv).REDIS_PASSWORD = '';
-    await expect(loadRedis()).rejects.toThrow(/REDIS_PASSWORD/);
-  });
-
-  it('does NOT throw when NODE_ENV=production and REDIS_PASSWORD is set', async () => {
-    (process.env as MutableEnv).NODE_ENV = 'production';
-    (process.env as MutableEnv).REDIS_PASSWORD = 's3cr3t';
+    (process.env as MutableEnv).UPSTASH_REDIS_REST_TOKEN = 's3cr3t';
+    (process.env as MutableEnv).UPSTASH_REDIS_REST_URL = 'https://example.upstash.io';
     await expect(loadRedis()).resolves.toBeUndefined();
   });
 
-  it('does NOT throw when NODE_ENV=development and REDIS_PASSWORD is not set', async () => {
+  it('does NOT throw when NODE_ENV=development and UPSTASH_REDIS_REST_TOKEN is not set', async () => {
     (process.env as MutableEnv).NODE_ENV = 'development';
-    delete (process.env as MutableEnv).REDIS_PASSWORD;
+    delete (process.env as MutableEnv).UPSTASH_REDIS_REST_TOKEN;
     await expect(loadRedis()).resolves.toBeUndefined();
   });
 
-  it('does NOT throw when NODE_ENV=test and REDIS_PASSWORD is not set', async () => {
+  it('does NOT throw when NODE_ENV=test and UPSTASH_REDIS_REST_TOKEN is not set', async () => {
     (process.env as MutableEnv).NODE_ENV = 'test';
-    delete (process.env as MutableEnv).REDIS_PASSWORD;
+    delete (process.env as MutableEnv).UPSTASH_REDIS_REST_TOKEN;
     await expect(loadRedis()).resolves.toBeUndefined();
   });
 });

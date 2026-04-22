@@ -43,8 +43,15 @@ function extraerMarcasDesdeNextData(
   return marcasPorId;
 }
 
+function buildFravegaUrl(query: string): string {
+  const target = `https://www.fravega.com/l/?keyword=${encodeURIComponent(query)}`;
+  const apiKey = process.env.SCRAPER_API_KEY;
+  if (!apiKey) return target;
+  return `https://api.scraperapi.com?api_key=${apiKey}&url=${encodeURIComponent(target)}`;
+}
+
 export async function scrapeFravega(query: string): Promise<Product[]> {
-  const url = `https://www.fravega.com/l/?keyword=${encodeURIComponent(query)}`;
+  const url = buildFravegaUrl(query);
   try {
     const { data } = await httpClient.get<string>(url, {
       headers: {

@@ -7,18 +7,12 @@ import { httpClient } from "@/platform/http";
 export type VtexInstallment =
   vtexProduct["items"][number]["sellers"][number]["commertialOffer"]["Installments"][number];
 
-/**
- * Devuelve la mayor cantidad de cuotas sin interés disponibles.
- */
 export function getMaxFreeInstallments(
   installments: VtexInstallment[],
 ): number {
   return installments
-    .filter((i) => i.InterestRate === 0)
-    .reduce(
-      (max, i) => Math.max(max, i.NumberOfInstallments),
-      0,
-    );
+    .filter((i) => i.InterestRate === 0 && i.NumberOfInstallments > 1)
+    .reduce((max, i) => Math.max(max, i.NumberOfInstallments), 0);
 }
 
 /**

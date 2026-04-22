@@ -43,7 +43,7 @@ export async function getQueryCache(
   key: string,
 ): Promise<{ data: unknown; stale: boolean } | null> {
   try {
-    const raw = await redis.get(key);
+    const raw = await redis.get<string>(key);
     if (!raw) return null;
     const entry = JSON.parse(raw) as CacheEntry<unknown>;
     return { data: entry.data, stale: isSwr(entry.createdAt) };
@@ -91,7 +91,7 @@ export async function setStoreCacheNX(
  */
 export async function getCachedData(key: string): Promise<unknown> {
   try {
-    const raw = await redis.get(key);
+    const raw = await redis.get<string>(key);
     return raw ? JSON.parse(raw) : null;
   } catch {
     return null;

@@ -7,23 +7,21 @@ if (
   throw new Error('FATAL: REDIS_PASSWORD environment variable is required in production');
 }
 
+const isUpstash = (process.env.REDIS_URL ?? "").includes("upstash.io");
+
 const redis = new Redis({
   host: process.env.REDIS_URL ?? "127.0.0.1",
   port: parseInt(process.env.REDIS_PORT ?? "6379", 10),
   password: process.env.REDIS_PASSWORD,
+  tls: isUpstash ? {} : undefined,
   lazyConnect: true,
   maxRetriesPerRequest: 5,
   retryStrategy: (times) => {
-    // Estrategia de reintento exponencial
     const delay = Math.min(times * 50, 2000);
     return delay;
   },
   reconnectOnError: (err) => {
-    const targetError = "READONLY";
-    if (err.message.includes(targetError)) {
-      // Solo reconectar en errores específicos
-      return true;
-    }
+    if (err.message.includes("READONLY")) return true;
     return false;
   },
 });

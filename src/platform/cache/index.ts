@@ -59,7 +59,7 @@ export async function getQueryCache(
 export async function setQueryCache(key: string, data: unknown): Promise<void> {
   try {
     const entry: CacheEntry<unknown> = { data, createdAt: Date.now() };
-    await redis.set(key, JSON.stringify(entry), "EX", TTL.QUERY);
+    await redis.set(key, JSON.stringify(entry), { ex: TTL.QUERY });
   } catch (error) {
     console.error("[cache] setQueryCache error:", error);
   }
@@ -77,7 +77,7 @@ export async function setStoreCacheNX(
   try {
     const pipeline = redis.pipeline();
     for (const { key, data } of entries) {
-      pipeline.set(key, JSON.stringify(data), "EX", TTL.STORE, "NX");
+      pipeline.set(key, JSON.stringify(data), { ex: TTL.STORE, nx: true });
     }
     await pipeline.exec();
   } catch (error) {

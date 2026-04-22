@@ -89,7 +89,7 @@ export function FiltersBar() {
       <Divider />
 
       {/* Precio — Desde */}
-      <label className="flex flex-col gap-0.5 px-3 py-1.5 min-w-[80px]">
+      <label className="flex flex-col gap-0.5 px-3 py-1.5 shrink-0">
         <span className="text-[10px] text-muted-foreground leading-none whitespace-nowrap">Desde</span>
         <input
           type="number"
@@ -97,7 +97,7 @@ export function FiltersBar() {
           value={priceMin ?? ""}
           onChange={(e) => setPriceMin(e.target.value ? Number(e.target.value) : null)}
           placeholder="$ 0"
-          className="text-sm font-medium text-foreground leading-none bg-transparent outline-none w-full placeholder:text-muted-foreground [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+          className="text-sm font-medium text-foreground leading-none bg-transparent outline-none w-[60px] placeholder:text-muted-foreground [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
           aria-label="Precio mínimo"
         />
       </label>
@@ -105,7 +105,7 @@ export function FiltersBar() {
       <Divider />
 
       {/* Precio — Hasta */}
-      <label className="flex flex-col gap-0.5 px-3 py-1.5 min-w-[80px]">
+      <label className="flex flex-col gap-0.5 px-3 py-1.5 shrink-0">
         <span className="text-[10px] text-muted-foreground leading-none whitespace-nowrap">Hasta</span>
         <input
           type="number"
@@ -113,7 +113,7 @@ export function FiltersBar() {
           value={priceMax ?? ""}
           onChange={(e) => setPriceMax(e.target.value ? Number(e.target.value) : null)}
           placeholder="$ ∞"
-          className="text-sm font-medium text-foreground leading-none bg-transparent outline-none w-full placeholder:text-muted-foreground [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+          className="text-sm font-medium text-foreground leading-none bg-transparent outline-none w-[60px] placeholder:text-muted-foreground [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
           aria-label="Precio máximo"
         />
       </label>
@@ -122,11 +122,11 @@ export function FiltersBar() {
         <>
           <Divider />
           <div
-            className="flex flex-col gap-0.5 px-3 py-1.5"
+            className="flex flex-col gap-0.5 px-3 py-1.5 shrink-0"
             role="group"
             aria-label="Cuotas sin interés"
           >
-            <span className="text-[10px] text-muted-foreground leading-none">Cuotas</span>
+            <span className="text-[10px] text-muted-foreground leading-none whitespace-nowrap">Cuotas</span>
             <div className="flex items-center gap-2.5">
               {csiOptions.map(({ label, value }) => {
                 const active = selectedCSI === value;
@@ -135,7 +135,7 @@ export function FiltersBar() {
                     key={label}
                     onClick={() => setSelectedCSI(value)}
                     className={cn(
-                      "text-sm leading-none transition-colors",
+                      "text-sm leading-none transition-colors whitespace-nowrap",
                       active ? "text-primary font-medium" : "text-muted-foreground hover:text-foreground"
                     )}
                     aria-pressed={active}

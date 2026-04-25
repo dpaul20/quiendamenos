@@ -1,4 +1,5 @@
 import { batchInsertSnapshots } from "../insert";
+import { StoreNamesEnum } from "@/enums/stores.enum";
 
 const mockInsert = jest.fn().mockResolvedValue({ error: null });
 const mockFrom = jest.fn().mockReturnValue({ insert: mockInsert });
@@ -11,7 +12,7 @@ import { getSupabaseClient } from "@/platform/supabase";
 const mockGetClient = getSupabaseClient as jest.Mock;
 
 const product = {
-  from: "Fravega",
+  from: StoreNamesEnum.FRAVEGA,
   name: "iPhone 15",
   price: 1200.5,
   url: "https://fravega.com/p/iphone",

@@ -6,10 +6,10 @@ Every component **must** live inside a section — never at the page root.
 
 ## Sections
 
-| Section | ID | Contains |
-|---------|----|---------|
-| `ATOMS` | `130:2` | StoreChip, Badge — single-purpose UI pieces |
-| `MOLECULES` | `130:3` | SearchBar, BrandFilter, SearchRow, Pagination, MissionModal/Trigger |
+| Section     | ID      | Contains                                                                                                                                |
+| ----------- | ------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| `ATOMS`     | `130:2` | StoreChip, Badge — single-purpose UI pieces                                                                                             |
+| `MOLECULES` | `130:3` | SearchBar, BrandFilter, SearchRow, Pagination, MissionModal/Trigger                                                                     |
 | `ORGANISMS` | `151:2` | Header, MobileHeader, Footer, ProductCard, ProductGrid, EmptyState, ErrorAlert, Disclaimer, StoresList, FiltersRow, MissionModal/Dialog |
 
 ## Type Groups Within Sections
@@ -17,10 +17,12 @@ Every component **must** live inside a section — never at the page root.
 Components are grouped by **semantic domain**. Use within-group gaps for adjacent items, between-group gaps when the domain changes.
 
 **MOLECULES** (top → bottom):
+
 1. **Search** — SearchBar + BrandFilter (same row) → SearchRow (row below)
 2. **Actions/Nav** — MissionModal/Trigger + Pagination (same row)
 
 **ORGANISMS** (top → bottom):
+
 1. **Header/Nav** — Header → MobileHeader (vertical stack)
 2. **Footer** — Footer
 3. **Products** — ProductCard + SkeletonCard + ProductGrid/2col (same row) → ProductGrid → ProductGrid/Loading
@@ -33,15 +35,15 @@ Components are grouped by **semantic domain**. Use within-group gaps for adjacen
 
 Be **generous** — tight layouts are hard to scan.
 
-| Context | Gap |
-|---------|-----|
-| Items in the same row (x-axis) | **24px** |
+| Context                                  | Gap      |
+| ---------------------------------------- | -------- |
+| Items in the same row (x-axis)           | **24px** |
 | Rows within the same type group (y-axis) | **40px** |
-| Between type groups (y-axis) | **80px** |
-| Section top → first item (`y`) | **96px** |
-| Section bottom padding | **48px** |
-| Between sections on the page | **80px** |
-| First item left margin (`x`) | **40px** |
+| Between type groups (y-axis)             | **80px** |
+| Section top → first item (`y`)           | **96px** |
+| Section bottom padding                   | **48px** |
+| Between sections on the page             | **80px** |
+| First item left margin (`x`)             | **40px** |
 
 ## Positioning Rules
 

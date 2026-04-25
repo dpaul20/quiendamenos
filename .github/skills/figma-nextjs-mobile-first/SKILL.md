@@ -1,6 +1,6 @@
 ---
 name: figma-nextjs-mobile-first
-description: "Implement Figma designs into Next.js + Tailwind CSS with mobile-first discipline. Enforces node discovery, breakpoint-ordered implementation (mobile → desktop), and codebase-first analysis before edits. WHEN: \"implement from Figma\", \"tomar desde figma\", \"implementar pantalla\", \"hay inconsistencias con figma\", \"mobile first\", \"comparar con figma\", \"fix Figma\", \"implementing a screen\", \"converting Figma frames\"."
+description: 'Implement Figma designs into Next.js + Tailwind CSS with mobile-first discipline. Enforces node discovery, breakpoint-ordered implementation (mobile → desktop), and codebase-first analysis before edits. WHEN: "implement from Figma", "tomar desde figma", "implementar pantalla", "hay inconsistencias con figma", "mobile first", "comparar con figma", "fix Figma", "implementing a screen", "converting Figma frames".'
 argument-hint: "Figma URL or node-id to implement, or 'compare' to diff live app vs Figma"
 ---
 
@@ -62,12 +62,12 @@ Prioritize layout divergences (height, width, order) over cosmetic ones (color, 
 Core pattern — mobile values first, overrides scale up:
 
 ```tsx
-className="flex lg:hidden"                               // mobile-only
-className="w-full sm:w-auto"                             // full mobile, shrink desktop
-className="h-14 sm:h-10"                                 // taller mobile, shorter desktop
-className="px-4 sm:px-10 lg:px-20"
-className="grid-cols-2 sm:grid-cols-3 lg:grid-cols-4"
-className="flex flex-col sm:flex-row gap-3"              // SearchRow: stack → side-by-side
+className = "flex lg:hidden"; // mobile-only
+className = "w-full sm:w-auto"; // full mobile, shrink desktop
+className = "h-14 sm:h-10"; // taller mobile, shorter desktop
+className = "px-4 sm:px-10 lg:px-20";
+className = "grid-cols-2 sm:grid-cols-3 lg:grid-cols-4";
+className = "flex flex-col sm:flex-row gap-3"; // SearchRow: stack → side-by-side
 ```
 
 See [Tailwind Mappings](references/tailwind-mappings.md) for Figma px conversions and component-specific patterns.
@@ -94,12 +94,12 @@ When a change request is ambiguous about **where** the fix should happen, **ask 
 
 ### Common ambiguous phrases
 
-| User says | Could mean |
-|-----------|-----------|
-| "el logo le falta la inclinación" | Rotate in Figma **OR** add `-rotate-X` in code |
-| "el color no coincide" | Fix design token in Figma **OR** fix Tailwind class in code |
-| "falta el borde" | Add border node in Figma **OR** add `border` class in code |
-| "el texto no va" | Remove text node in Figma **OR** remove JSX text in code |
+| User says                         | Could mean                                                  |
+| --------------------------------- | ----------------------------------------------------------- |
+| "el logo le falta la inclinación" | Rotate in Figma **OR** add `-rotate-X` in code              |
+| "el color no coincide"            | Fix design token in Figma **OR** fix Tailwind class in code |
+| "falta el borde"                  | Add border node in Figma **OR** add `border` class in code  |
+| "el texto no va"                  | Remove text node in Figma **OR** remove JSX text in code    |
 
 ### Rule
 
@@ -129,12 +129,9 @@ See [Components Page](references/components-page.md) for section IDs, type group
 
 ---
 
-## Project Context (scraping-electronica)
+## Project Context (quiendamenos)
 
 - **Figma fileKey**: `YTsPttJTYUclnJIkAUZ9fj` · **Screens page**: `5:3`
 - **Stack**: Next.js App Router + TypeScript + Tailwind CSS v3 + shadcn/ui
 - **Design tokens**: `src/app/globals.css` · **Font**: Geist Sans · **Primary**: `#16a34a`
 - **All node IDs, components, screen structures**: [Node Reference](references/node-reference.md)
-
-
-

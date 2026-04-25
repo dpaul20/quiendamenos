@@ -1,6 +1,7 @@
 "use client";
 import Image from "next/image";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { imageLoader } from "@/features/price-search/image-loader";
 import { useProductsStore } from "@/store/productsStore";
 import { loadingMessages } from "@/features/price-search/loading-messages";
@@ -8,6 +9,10 @@ import { useEffect, useState } from "react";
 import { useShallow } from "zustand/react/shallow";
 import { EmptyState } from "@/components/EmptyState";
 import { ErrorAlert } from "@/components/ErrorAlert";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
+import { fetchTrendMap } from "@/features/price-history/trend";
+import type { TrendMap } from "@/features/price-history/types";
 
 const ITEMS_PER_PAGE = 12;
 
@@ -15,14 +20,17 @@ const SKELETON_KEYS = ["s0", "s1", "s2", "s3", "s4", "s5", "s6", "s7"] as const;
 
 function SkeletonCard() {
   return (
-    <div className="bg-card border border-border rounded-xl flex flex-col overflow-hidden animate-pulse">
-      <div className="bg-muted h-[140px] w-full shrink-0" />
-      <div className="flex flex-col gap-[10px] p-3 w-full">
-        <div className="bg-muted h-[10px] w-[80px] rounded-sm" />
-        <div className="bg-muted h-[10px] w-full rounded-sm" />
-        <div className="bg-muted h-[10px] w-3/4 rounded-sm" />
-        <div className="bg-muted h-[24px] w-[60px] rounded-sm" />
-        <div className="bg-muted h-[18px] w-[100px] rounded-sm" />
+    <div
+      data-testid="skeleton-card"
+      className="flex animate-pulse flex-col overflow-hidden rounded-xl border border-border bg-card"
+    >
+      <div className="h-[140px] w-full shrink-0 bg-muted" />
+      <div className="flex w-full flex-col gap-[10px] p-3">
+        <div className="h-[10px] w-[80px] rounded-sm bg-muted" />
+        <div className="h-[10px] w-full rounded-sm bg-muted" />
+        <div className="h-[10px] w-3/4 rounded-sm bg-muted" />
+        <div className="h-[24px] w-[60px] rounded-sm bg-muted" />
+        <div className="h-[18px] w-[100px] rounded-sm bg-muted" />
       </div>
     </div>
   );
@@ -33,10 +41,12 @@ export default function ProductList() {
   const isLoading = useProductsStore((s) => s.isLoading);
   const error = useProductsStore((s) => s.error);
   const visible = useProductsStore(useShallow((s) => s.filteredProducts()));
+  const searchParams = useSearchParams();
 
   const [loadingMessage, setLoadingMessage] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [prevProductsRef, setPrevProductsRef] = useState(products);
+  const [trendMap, setTrendMap] = useState<TrendMap>({});
 
   if (prevProductsRef !== products) {
     setPrevProductsRef(products);
@@ -55,6 +65,15 @@ export default function ProductList() {
     }
   }, [isLoading]);
 
+  useEffect(() => {
+    if (products.length === 0) return;
+    const query = searchParams.get("q") ?? searchParams.get("query") ?? "";
+    if (!query) return;
+    fetchTrendMap(query)
+      .then(setTrendMap)
+      .catch(() => {});
+  }, [products, searchParams]);
+
   const totalPages = Math.ceil(visible.length / ITEMS_PER_PAGE);
   const paginatedProducts = visible.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
@@ -67,7 +86,7 @@ export default function ProductList() {
         {loadingMessage && (
           <p className="text-xs text-muted-foreground">{loadingMessage}</p>
         )}
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-5">
+        <div className="grid grid-cols-2 gap-5 sm:grid-cols-3 md:grid-cols-4">
           {SKELETON_KEYS.map((id) => (
             <SkeletonCard key={id} />
           ))}
@@ -90,7 +109,7 @@ export default function ProductList() {
     <div className="flex flex-col gap-4">
       <ErrorAlert />
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-5">
+      <div className="grid grid-cols-2 gap-5 sm:grid-cols-3 md:grid-cols-4">
         {paginatedProducts.map((product) => {
           if (!product.price || !product.name || !product.url) return null;
           return (
@@ -98,9 +117,10 @@ export default function ProductList() {
               key={product.url}
               href={product.url}
               target="_blank"
-              className="rounded-xl bg-card border border-border flex flex-col items-center overflow-hidden hover:border-primary/40 transition-colors"
+              data-testid="product-card"
+              className="flex flex-col items-center overflow-hidden rounded-xl border border-border bg-card transition-colors hover:border-primary/40"
             >
-              <div className="w-full h-[140px] bg-surface relative overflow-hidden">
+              <div className="relative h-[140px] w-full overflow-hidden bg-surface">
                 <Image
                   loader={imageLoader}
                   src={product.image}
@@ -109,29 +129,49 @@ export default function ProductList() {
                   sizes="(min-width: 768px) 25vw, (min-width: 640px) 33vw, 50vw"
                   className="object-contain p-3"
                 />
-                <div className="absolute bottom-2 right-2 bg-card/90 px-2 py-[3px] rounded-[4px]">
-                  <span className="text-xs font-medium text-secondary-foreground whitespace-nowrap">
+                <div className="absolute bottom-2 right-2 rounded-[4px] bg-card/90 px-2 py-[3px]">
+                  <span className="whitespace-nowrap text-xs font-medium text-secondary-foreground">
                     {product.from}
                   </span>
                 </div>
               </div>
 
-              <div className="w-full p-3 flex flex-col gap-[6px]">
-                <h3 className="text-sm font-normal text-muted-foreground line-clamp-2">
+              <div className="flex w-full flex-col gap-[6px] p-3">
+                <h3 className="line-clamp-2 text-sm font-normal text-muted-foreground">
                   {product.name}
                 </h3>
-                <p className="text-2xl font-bold text-price-green">
+                <p
+                  data-testid="product-price"
+                  className="text-2xl font-bold text-price-green"
+                >
                   {product.price.toLocaleString("es-AR", {
                     style: "currency",
                     currency: "ARS",
                   })}
                 </p>
-                <div className="flex gap-[6px] items-start flex-wrap">
-                  <span className="text-xs font-medium text-muted-foreground uppercase">
+                {trendMap["__global__"] && (
+                  <Badge
+                    variant="outline"
+                    className={cn(
+                      "w-fit text-xs font-medium",
+                      trendMap["__global__"].direction === "down"
+                        ? "border-green-200 bg-green-500/10 text-green-700 dark:border-green-800 dark:bg-green-500/10 dark:text-green-400"
+                        : "border-red-200 bg-red-500/10 text-red-700 dark:border-red-900 dark:bg-red-500/10 dark:text-red-400",
+                    )}
+                  >
+                    {trendMap["__global__"].direction === "down" ? "↓" : "↑"}{" "}
+                    {trendMap["__global__"].delta}% vs ayer
+                  </Badge>
+                )}
+                <div className="flex flex-wrap items-start gap-[6px]">
+                  <span className="text-xs font-medium uppercase text-muted-foreground">
                     {product.brand}
                   </span>
                   {product.installment ? (
-                    <span className="bg-orange-500 rounded-md px-2 py-[3px] text-xs font-medium text-white">
+                    <span
+                      data-testid="product-installment"
+                      className="rounded-md bg-orange-500 px-2 py-[3px] text-xs font-medium text-white"
+                    >
                       {product.installment} CSI
                     </span>
                   ) : null}
@@ -143,13 +183,14 @@ export default function ProductList() {
       </div>
 
       {totalPages > 1 && (
-        <div className="flex gap-1 items-center justify-center px-1 py-2 mt-2">
+        <div className="mt-2 flex items-center justify-center gap-1 px-1 py-2">
           <button
             onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
             disabled={currentPage === 1}
-            className="border border-border rounded-md h-[36px] flex-1 sm:flex-none sm:w-[120px] px-3 text-sm text-foreground disabled:opacity-40"
+            className="h-[36px] flex-1 rounded-md border border-border px-3 text-sm text-foreground disabled:opacity-40 sm:w-[120px] sm:flex-none"
           >
-            ← <span className="hidden sm:inline">Anterior</span><span className="sm:hidden">Ant.</span>
+            ← <span className="hidden sm:inline">Anterior</span>
+            <span className="sm:hidden">Ant.</span>
           </button>
 
           {Array.from({ length: totalPages }, (_, i) => i + 1)
@@ -171,7 +212,7 @@ export default function ProductList() {
               item === "ellipsis" ? (
                 <span
                   key={`ellipsis-${arr[i - 1]}-${arr[i + 1]}`}
-                  className="size-[36px] flex items-center justify-center text-xs text-muted-foreground select-none"
+                  className="flex size-[36px] select-none items-center justify-center text-xs text-muted-foreground"
                 >
                   •••
                 </span>
@@ -181,8 +222,8 @@ export default function ProductList() {
                   onClick={() => setCurrentPage(item)}
                   className={
                     item === currentPage
-                      ? "bg-primary rounded-md size-[36px] text-sm font-medium text-primary-foreground"
-                      : "border border-border rounded-md size-[36px] text-sm text-foreground"
+                      ? "size-[36px] rounded-md bg-primary text-sm font-medium text-primary-foreground"
+                      : "size-[36px] rounded-md border border-border text-sm text-foreground"
                   }
                 >
                   {item}
@@ -193,9 +234,10 @@ export default function ProductList() {
           <button
             onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
             disabled={currentPage === totalPages}
-            className="border border-border rounded-md h-[36px] flex-1 sm:flex-none sm:w-[120px] px-3 text-sm text-foreground disabled:opacity-40"
+            className="h-[36px] flex-1 rounded-md border border-border px-3 text-sm text-foreground disabled:opacity-40 sm:w-[120px] sm:flex-none"
           >
-            <span className="hidden sm:inline">Siguiente</span><span className="sm:hidden">Sig.</span> →
+            <span className="hidden sm:inline">Siguiente</span>
+            <span className="sm:hidden">Sig.</span> →
           </button>
         </div>
       )}

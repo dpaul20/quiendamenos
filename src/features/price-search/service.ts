@@ -3,6 +3,7 @@ import { scrapers } from "@/scrapers";
 import { getAllStores } from "@/scrapers/registry";
 import { scrapeWithFallback } from "./router";
 import { cacheKey, setStoreCacheNX } from "@/platform/cache";
+import { batchInsertSnapshots } from "@/features/price-history/insert";
 
 export async function scrapeWebsite(query: string): Promise<Product[]> {
   try {
@@ -23,12 +24,12 @@ export async function scrapeWebsite(query: string): Promise<Product[]> {
 
     settled
       .filter((r) => r.status === "rejected")
-      .forEach((r) =>
-        console.error("[scrape] tienda falló:", r.reason),
-      );
+      .forEach((r) => console.error("[scrape] tienda falló:", r.reason));
 
     const exitosos = settled.filter(
-      (r): r is PromiseFulfilledResult<{ store: string; products: Product[] }> =>
+      (
+        r,
+      ): r is PromiseFulfilledResult<{ store: string; products: Product[] }> =>
         r.status === "fulfilled",
     );
 
@@ -44,7 +45,13 @@ export async function scrapeWebsite(query: string): Promise<Product[]> {
       console.error("[cache] pipeline write failed:", err),
     );
 
-    return exitosos.flatMap(({ value: { products } }) => products);
+    const allProducts = exitosos.flatMap(({ value: { products } }) => products);
+
+    setImmediate(() => {
+      batchInsertSnapshots(allProducts, query).catch(() => {});
+    });
+
+    return allProducts;
   } catch (error) {
     console.error("Error scraping website:", error);
     return [];

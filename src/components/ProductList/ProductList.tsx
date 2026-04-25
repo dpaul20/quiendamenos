@@ -1,7 +1,6 @@
 "use client";
 import Image from "next/image";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
 import { imageLoader } from "@/features/price-search/image-loader";
 import { useProductsStore } from "@/store/productsStore";
 import { loadingMessages } from "@/features/price-search/loading-messages";
@@ -41,7 +40,7 @@ export default function ProductList() {
   const isLoading = useProductsStore((s) => s.isLoading);
   const error = useProductsStore((s) => s.error);
   const visible = useProductsStore(useShallow((s) => s.filteredProducts()));
-  const searchParams = useSearchParams();
+  const currentQuery = useProductsStore((s) => s.productSearched);
 
   const [loadingMessage, setLoadingMessage] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -66,13 +65,11 @@ export default function ProductList() {
   }, [isLoading]);
 
   useEffect(() => {
-    if (products.length === 0) return;
-    const query = searchParams.get("q") ?? searchParams.get("query") ?? "";
-    if (!query) return;
-    fetchTrendMap(query)
+    if (products.length === 0 || !currentQuery) return;
+    fetchTrendMap(currentQuery)
       .then(setTrendMap)
       .catch(() => {});
-  }, [products, searchParams]);
+  }, [products, currentQuery]);
 
   const totalPages = Math.ceil(visible.length / ITEMS_PER_PAGE);
   const paginatedProducts = visible.slice(

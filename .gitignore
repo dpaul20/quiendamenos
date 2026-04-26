@@ -38,5 +38,14 @@ next-env.d.ts
 *storybook.log
 storybook-static
 
+# Playwright
+test-results/
+playwright-report/
+blob-report/
+.playwright/
+
 # SDD
 .atl/
+
+# Claude Code — local personal settings (no commitear)
+.claude/settings.local.json

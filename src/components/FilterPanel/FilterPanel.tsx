@@ -21,14 +21,22 @@ function useActiveFilterCount() {
   const priceMax = useProductsStore((s) => s.priceMax);
   const selectedCSI = useProductsStore((s) => s.selectedCSI);
 
-  return countActiveFilters({ selectedStores, selectedBrand, priceMin, priceMax, selectedCSI });
+  return countActiveFilters({
+    selectedStores,
+    selectedBrand,
+    priceMin,
+    priceMax,
+    selectedCSI,
+  });
 }
 
 function FiltersContent() {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-col gap-1.5">
-        <span className="text-xs font-medium text-muted-foreground">Tienda</span>
+        <span className="text-xs font-medium text-muted-foreground">
+          Tienda
+        </span>
         <StoreFilter />
       </div>
       <div className="flex flex-col gap-1.5">
@@ -36,11 +44,15 @@ function FiltersContent() {
         <BrandFilter />
       </div>
       <div className="flex flex-col gap-1.5">
-        <span className="text-xs font-medium text-muted-foreground">Precio</span>
+        <span className="text-xs font-medium text-muted-foreground">
+          Precio
+        </span>
         <PriceRangeFilter />
       </div>
       <div className="flex flex-col gap-1.5">
-        <span className="text-xs font-medium text-muted-foreground">Cuotas sin interés</span>
+        <span className="text-xs font-medium text-muted-foreground">
+          Cuotas sin interés
+        </span>
         <CSIFilter />
       </div>
     </div>
@@ -57,16 +69,16 @@ export function FilterPanel() {
   return (
     <>
       {/* Desktop / Tablet — stores (shrink-0) | FiltersBar (flex-1) */}
-      <div className="hidden sm:flex items-center gap-2 h-14 py-2">
+      <div className="hidden h-14 items-center gap-2 py-2 sm:flex">
         <div className="flex shrink-0 items-center gap-1.5 overflow-hidden">
           <StoreFilter />
         </div>
-        <div className="flex flex-1 items-center justify-end gap-2 min-w-0">
+        <div className="flex min-w-0 flex-1 items-center justify-end gap-2">
           <FiltersBar />
           {activeCount > 0 && (
             <button
               onClick={clearFilters}
-              className="text-sm text-muted-foreground underline hover:text-foreground transition-colors whitespace-nowrap shrink-0"
+              className="shrink-0 whitespace-nowrap text-sm text-muted-foreground underline transition-colors hover:text-foreground"
             >
               Limpiar ({activeCount})
             </button>
@@ -75,13 +87,16 @@ export function FilterPanel() {
       </div>
 
       {/* Mobile — trigger bottom sheet */}
-      <div className="sm:hidden flex items-center gap-2">
+      <div className="flex items-center gap-2 sm:hidden">
         <Dialog>
           <DialogTrigger asChild>
-            <button className="h-9 px-4 text-sm rounded-full border border-border bg-background text-foreground flex items-center gap-2">
+            <button className="flex h-9 items-center gap-2 rounded-full border border-border bg-background px-4 text-sm text-foreground">
               Filtros
               {activeCount > 0 && (
-                <span className="flex items-center justify-center size-5 rounded-full bg-primary text-primary-foreground text-xs font-bold">
+                <span
+                  data-testid="active-filters-count"
+                  className="flex size-5 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground"
+                >
                   {activeCount}
                 </span>
               )}
@@ -95,7 +110,7 @@ export function FilterPanel() {
             {activeCount > 0 && (
               <button
                 onClick={clearFilters}
-                className="mt-2 text-sm text-muted-foreground underline hover:text-foreground transition-colors"
+                className="mt-2 text-sm text-muted-foreground underline transition-colors hover:text-foreground"
               >
                 Limpiar filtros ({activeCount})
               </button>

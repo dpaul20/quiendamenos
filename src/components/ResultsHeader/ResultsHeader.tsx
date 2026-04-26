@@ -10,7 +10,10 @@ export function ResultsHeader() {
 
   return (
     <div className="flex items-center justify-between gap-4">
-      <span className="text-xs sm:text-sm font-medium text-foreground">
+      <span
+        data-testid="results-count"
+        className="text-xs font-medium text-foreground sm:text-sm"
+      >
         {count} resultado{count === 1 ? "" : "s"}
       </span>
       <SortControl />

@@ -1,5 +1,4 @@
 import { test, expect } from "@playwright/test";
-import { buildProducts } from "./fixtures/products";
 import { StoreNamesEnum } from "@/enums/stores.enum";
 import {
   gotoAndWaitReady,

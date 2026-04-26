@@ -102,7 +102,6 @@ test.describe("SPEC-38: ellipsis '•••' con 60 resultados (5 páginas)", ()
   test("muestra ellipsis en paginación con 5 páginas", async ({ page }) => {
     await mockScrapeApi(page, buildProducts(60));
     await gotoAndWaitReady(page);
-    const sel = getSelectors(page);
 
     await submitSearchAndWait(page, "samsung");
 

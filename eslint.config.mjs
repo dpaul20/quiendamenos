@@ -13,6 +13,10 @@ const eslintConfig = [
   {
     ...playwright.configs["flat/recommended"],
     files: ["e2e/**/*.ts"],
+    rules: {
+      ...playwright.configs["flat/recommended"].rules,
+      "playwright/prefer-locator": "off",
+    },
   },
 ];
 

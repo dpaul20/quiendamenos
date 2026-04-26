@@ -66,7 +66,6 @@ test.describe("SPEC-41: texto largo truncado con line-clamp-2", () => {
     ];
     await mockScrapeApi(page, products);
     await gotoAndWaitReady(page);
-    const sel = getSelectors(page);
 
     await submitSearchAndWait(page, "samsung");
 

@@ -67,14 +67,22 @@ const config: Config = {
       },
       keyframes: {
         bell: {
-          '0%, 100%': { transform: 'rotate(0deg)' },
-          '25%': { transform: 'rotate(30deg)' },
-          '75%': { transform: 'rotate(-30deg)' },
+          "0%, 100%": { transform: "rotate(0deg)" },
+          "25%": { transform: "rotate(30deg)" },
+          "75%": { transform: "rotate(-30deg)" },
         },
       },
       animation: {
-        bell: 'bell 1s ease-in-out infinite',
-      }
+        bell: "bell 1s ease-in-out infinite",
+      },
+      fontFamily: {
+        display: ["var(--font-display)", "system-ui", "sans-serif"],
+        sans: ["var(--font-sans)", "system-ui", "sans-serif"],
+      },
+      boxShadow: {
+        pop: "0 8px 24px -6px rgba(0,0,0,0.12), 0 2px 6px -2px rgba(0,0,0,0.08)",
+        card: "0 1px 2px 0 rgba(0,0,0,0.05)",
+      },
     },
   },
   plugins: [tailwindcssAnimate],

@@ -4,7 +4,9 @@
 
 @layer base {
   body {
-    font-family: var(--font-geist-sans), sans-serif;
+    --font-sans:    var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-display: var(--font-geist-sans), -apple-system, BlinkMacSystemFont, sans-serif;
+    font-family: var(--font-sans), sans-serif;
   }
 
   :root {
@@ -17,56 +19,99 @@
     --popover-foreground: 240 26% 5%;
     --primary: 142 72% 29%;            /* #15803d — WCAG AA 4.6:1 */
     --primary-foreground: 0 0% 100%;   /* #ffffff — WCAG AA */
-    --secondary: 240 5% 96%;          /* #f4f4f5 */
+    --secondary: 240 5% 96%;           /* #f4f4f5 */
     --secondary-foreground: 255 7% 11%; /* #1a191d */
-    --muted: 240 5% 96%;              /* #f4f4f5 */
-    --muted-foreground: 240 0% 44%;   /* #707070 — WCAG AA 4.7:1 */
+    --muted: 240 5% 96%;               /* #f4f4f5 */
+    --muted-foreground: 0 0% 39%;      /* #646464 — WCAG AA 5.7:1 */
     --accent: 240 5% 96%;
     --accent-foreground: 255 7% 11%;
-    --destructive: 0 74% 42%;         /* #b91c1c — WCAG AA 5.2:1 */
+    --destructive: 0 74% 42%;          /* #b91c1c — WCAG AA 5.2:1 */
     --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 55%;               /* #8c8c8c — WCAG AA 5.9:1 */
-    --input: 240 2% 90%;              /* #e5e5e6 */
-    --ring: 142 72% 29%;              /* #15803d */
+    --border: 240 1% 85%;              /* #d7d7db — soft hairline */
+    --input: 240 2% 90%;               /* #e5e5e6 */
+    --ring: 142 72% 29%;               /* #15803d */
     --radius: 0.5rem;
 
-    /* Figma extra tokens */
-    --price-green: 143 64% 24%;       /* #166534 — WCAG AA 7.0:1 */
-    --orange-500: 17 88% 40%;         /* #c2410c — WCAG AA */
-    --green-50: 130 67% 97%;          /* #f0fcf2 */
-    --surface: 240 11% 98%;           /* #fafafb */
-    --amber-300: 45 99% 69%;          /* #fed661 */
-    --amber-900: 30 100% 15%;         /* #4d2600 */
+    /* Figma extra tokens (HSL for Tailwind) */
+    --price-green: 143 64% 24%;        /* #166534 — WCAG AA 7.0:1 */
+    --orange-500: 17 88% 40%;          /* #c2410c */
+    --green-50: 130 67% 97%;           /* #f0fcf2 */
+    --surface: 240 11% 98%;            /* #fafafb */
+    --amber-300: 45 99% 69%;           /* #fed661 */
+    --amber-900: 30 100% 15%;          /* #4d2600 */
+
+    /* Design-system supplement (direct values for non-Tailwind usage) */
+    --shadow-header: 0 1px 4px 0 rgba(0, 0, 0, 0.05);
+    --shadow-card:   0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-pop:    0 8px 24px -6px rgba(0, 0, 0, 0.12), 0 2px 6px -2px rgba(0, 0, 0, 0.08);
+
+    --radius-sm:   4px;
+    --radius-md:   6px;
+    --radius-lg:   8px;
+    --radius-xl:   12px;
+    --radius-2xl:  16px;
+    --radius-full: 9999px;
+
+    --price:            hsl(var(--price-green));
+    --price-down:       hsl(var(--price-green));
+    --price-down-bg:    hsl(var(--green-50));
+    --price-up:         hsl(var(--destructive));
+    --price-up-bg:      rgba(0, 0, 0, 0.08);
+    --installment:      hsl(var(--orange-500));
+    --info-bg:          hsl(var(--amber-300));
+    --info-foreground:  hsl(var(--amber-900));
+    --error-bg:         hsl(var(--destructive) / 0.06);
   }
 
   .dark {
     /* === Figma Design Tokens — Dark Mode === */
-    --background: 144 20% 5%;         /* #0a0f0c */
-    --foreground: 0 0% 98%;           /* #fafafa */
-    --card: 140 21% 8%;               /* #111a14 */
-    --card-foreground: 0 0% 98%;      /* #fafafa */
+    --background: 144 20% 5%;          /* #0a0f0c */
+    --foreground: 0 0% 98%;            /* #fafafa */
+    --card: 140 21% 8%;                /* #111a14 */
+    --card-foreground: 0 0% 98%;       /* #fafafa */
     --popover: 140 21% 8%;
     --popover-foreground: 0 0% 98%;
-    --primary: 142 71% 45%;           /* #22c55e */
+    --primary: 142 71% 45%;            /* #22c55e */
     --primary-foreground: 145 80% 10%; /* #052e16 */
-    --secondary: 145 17% 14%;         /* #1d2922 */
-    --secondary-foreground: 0 0% 98%; /* #fafafa */
-    --muted: 145 17% 14%;             /* #1d2922 */
-    --muted-foreground: 135 8% 63%;   /* #98a89c */
+    --secondary: 145 17% 14%;          /* #1d2922 */
+    --secondary-foreground: 0 0% 98%;  /* #fafafa */
+    --muted: 145 17% 14%;              /* #1d2922 */
+    --muted-foreground: 135 8% 63%;    /* #98a89c */
     --accent: 145 17% 14%;
     --accent-foreground: 0 0% 98%;
-    --destructive: 0 84% 60%;         /* #ef4444 */
+    --destructive: 0 84% 60%;          /* #ef4444 */
     --destructive-foreground: 0 86% 97%;
-    --border: 143 27% 33%;            /* #3d6b4f — WCAG AA */
-    --input: 134 18% 14%;             /* #1e2b21 */
-    --ring: 142 71% 45%;              /* #22c55e */
+    --border: 146 28% 22%;             /* #2c4537 — dark hairline */
+    --input: 134 18% 14%;              /* #1e2b21 */
+    --ring: 142 71% 45%;               /* #22c55e */
 
-    /* Figma extra tokens */
-    --price-green: 142 71% 45%;       /* #22c55e */
-    --orange-500: 17 88% 40%;         /* #c2410c — WCAG AA */
-    --green-50: 145 80% 10%;          /* #052e16 */
-    --surface: 140 21% 8%;            /* #111a14 */
-    --amber-300: 45 99% 69%;          /* #fed661 */
-    --amber-900: 43 96% 56%;          /* #fbbf24 — WCAG AA on dark bg */
+    /* Figma extra tokens (HSL for Tailwind) */
+    --price-green: 142 71% 45%;        /* #22c55e */
+    --orange-500: 17 88% 40%;          /* #c2410c */
+    --green-50: 145 80% 10%;           /* #052e16 */
+    --surface: 140 21% 8%;             /* #111a14 */
+    --amber-300: 45 99% 69%;           /* #fed661 — stays light (banner bg) */
+    /* --amber-900 intentionally NOT overridden: banner text stays dark #4d2600 */
+
+    /* Design-system supplement overrides */
+    --price-up-bg: rgba(255, 255, 255, 0.10);
+    --error-bg:    rgba(185, 28, 28, 0.12);
   }
+}
+
+@keyframes se-shimmer {
+  0%   { background-position: 100% 0; }
+  100% { background-position: 0 0; }
+}
+
+.se-shimmer,
+.se-shimmer-line {
+  background: linear-gradient(
+    90deg,
+    hsl(var(--muted)) 25%,
+    hsl(var(--surface)) 37%,
+    hsl(var(--muted)) 63%
+  );
+  background-size: 400% 100%;
+  animation: se-shimmer 1.4s ease-in-out infinite;
 }

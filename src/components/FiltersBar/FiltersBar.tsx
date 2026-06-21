@@ -19,10 +19,6 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 
-function Divider() {
-  return <div className="w-px h-7 bg-border shrink-0" />;
-}
-
 export function FiltersBar() {
   const [brandOpen, setBrandOpen] = React.useState(false);
 
@@ -40,8 +36,8 @@ export function FiltersBar() {
   const csiOptions = useMemo(() => getAvailableCSI(products), [products]);
 
   return (
-    <div className="h-[46px] bg-muted border border-border rounded-xl flex items-center overflow-hidden flex-1 min-w-0">
-      {/* Marca */}
+    <div className="flex flex-wrap items-center gap-2">
+      {/* Brand pill */}
       <Popover open={brandOpen} onOpenChange={setBrandOpen}>
         <PopoverTrigger asChild>
           <button
@@ -49,18 +45,22 @@ export function FiltersBar() {
             aria-haspopup="listbox"
             aria-expanded={brandOpen}
             aria-label="Seleccionar marca"
-            className="flex items-center gap-1.5 px-3 h-full hover:bg-accent transition-colors shrink-0"
+            className="flex h-[40px] shrink-0 items-center gap-1.5 rounded-lg border border-border bg-background px-3 text-sm transition-colors hover:bg-muted"
           >
-            <span className={cn(
-              "text-sm leading-none whitespace-nowrap",
-              selectedBrand === ALL ? "text-muted-foreground" : "text-foreground font-medium"
-            )}>
+            <span
+              className={cn(
+                "whitespace-nowrap leading-none",
+                selectedBrand === ALL
+                  ? "text-muted-foreground"
+                  : "font-medium text-foreground",
+              )}
+            >
               {selectedBrand === ALL ? "Marca" : selectedBrand}
             </span>
-            <ChevronDownIcon className="h-3 w-3 shrink-0 text-primary" />
+            <ChevronDownIcon className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
           </button>
         </PopoverTrigger>
-        <PopoverContent className="p-0 w-[200px]" align="start">
+        <PopoverContent className="w-[200px] p-0" align="start">
           <Command>
             <CommandInput placeholder="Buscar marca..." className="h-9" />
             <CommandList>
@@ -71,13 +71,23 @@ export function FiltersBar() {
                     key={brand}
                     value={brand}
                     onSelect={(value) => {
-                      const matched = brands.find((b) => b.toLowerCase() === value.toLowerCase()) ?? ALL;
-                      setSelectedBrand(selectedBrand === matched ? ALL : matched);
+                      const matched =
+                        brands.find(
+                          (b) => b.toLowerCase() === value.toLowerCase(),
+                        ) ?? ALL;
+                      setSelectedBrand(
+                        selectedBrand === matched ? ALL : matched,
+                      );
                       setBrandOpen(false);
                     }}
                   >
                     {brand}
-                    <CheckIcon className={cn("ml-auto h-4 w-4", selectedBrand === brand ? "opacity-100" : "opacity-0")} />
+                    <CheckIcon
+                      className={cn(
+                        "ml-auto h-4 w-4",
+                        selectedBrand === brand ? "opacity-100" : "opacity-0",
+                      )}
+                    />
                   </CommandItem>
                 ))}
               </CommandGroup>
@@ -86,67 +96,57 @@ export function FiltersBar() {
         </PopoverContent>
       </Popover>
 
-      <Divider />
-
-      {/* Precio — Desde */}
-      <label className="flex flex-col gap-0.5 px-3 py-1.5 shrink-0">
-        <span className="text-[10px] text-muted-foreground leading-none whitespace-nowrap">Desde</span>
+      {/* Price pill */}
+      <div className="flex h-[40px] shrink-0 items-center gap-2 rounded-lg border border-border bg-background px-3 text-sm">
+        <span className="shrink-0 text-muted-foreground">$</span>
         <input
           type="number"
           min={0}
           value={priceMin ?? ""}
-          onChange={(e) => setPriceMin(e.target.value ? Number(e.target.value) : null)}
-          placeholder="$ 0"
-          className="text-sm font-medium text-foreground leading-none bg-transparent outline-none w-[60px] placeholder:text-muted-foreground [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+          onChange={(e) =>
+            setPriceMin(e.target.value ? Number(e.target.value) : null)
+          }
+          placeholder="desde"
+          className="w-[52px] bg-transparent text-sm font-medium leading-none text-foreground outline-none [appearance:textfield] placeholder:text-muted-foreground [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
           aria-label="Precio mínimo"
         />
-      </label>
-
-      <Divider />
-
-      {/* Precio — Hasta */}
-      <label className="flex flex-col gap-0.5 px-3 py-1.5 shrink-0">
-        <span className="text-[10px] text-muted-foreground leading-none whitespace-nowrap">Hasta</span>
+        <span className="shrink-0 text-muted-foreground">–</span>
         <input
           type="number"
           min={0}
           value={priceMax ?? ""}
-          onChange={(e) => setPriceMax(e.target.value ? Number(e.target.value) : null)}
-          placeholder="$ ∞"
-          className="text-sm font-medium text-foreground leading-none bg-transparent outline-none w-[60px] placeholder:text-muted-foreground [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+          onChange={(e) =>
+            setPriceMax(e.target.value ? Number(e.target.value) : null)
+          }
+          placeholder="hasta"
+          className="w-[52px] bg-transparent text-sm font-medium leading-none text-foreground outline-none [appearance:textfield] placeholder:text-muted-foreground [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
           aria-label="Precio máximo"
         />
-      </label>
+      </div>
 
+      {/* Cuotas segmented control */}
       {csiOptions.length > 1 && (
-        <>
-          <Divider />
-          <div
-            className="flex flex-col gap-0.5 px-3 py-1.5 shrink-0"
-            role="group"
-            aria-label="Cuotas sin interés"
-          >
-            <span className="text-[10px] text-muted-foreground leading-none whitespace-nowrap">Cuotas</span>
-            <div className="flex items-center gap-2.5">
-              {csiOptions.map(({ label, value }) => {
-                const active = selectedCSI === value;
-                return (
-                  <button
-                    key={label}
-                    onClick={() => setSelectedCSI(value)}
-                    className={cn(
-                      "text-sm leading-none transition-colors whitespace-nowrap",
-                      active ? "text-primary font-medium" : "text-muted-foreground hover:text-foreground"
-                    )}
-                    aria-pressed={active}
-                  >
-                    {label}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        </>
+        <fieldset className="m-0 flex shrink-0 items-center gap-0.5 rounded-full border-0 bg-secondary p-1">
+          <legend className="sr-only">Cuotas sin interés</legend>
+          {csiOptions.map(({ label, value }) => {
+            const active = selectedCSI === value;
+            return (
+              <button
+                key={label}
+                onClick={() => setSelectedCSI(value)}
+                aria-pressed={active}
+                className={cn(
+                  "h-8 whitespace-nowrap rounded-full px-3 text-xs font-medium transition-colors",
+                  active
+                    ? "bg-card text-foreground shadow-card"
+                    : "text-muted-foreground hover:text-foreground",
+                )}
+              >
+                {label}
+              </button>
+            );
+          })}
+        </fieldset>
       )}
     </div>
   );

@@ -2,7 +2,7 @@ import Cafecito from "@/components/Cafecito";
 
 export function Footer() {
   return (
-    <footer className="w-full bg-green-50 dark:bg-card h-[64px] flex items-center justify-end px-6 overflow-hidden shrink-0">
+    <footer className="flex h-[64px] w-full shrink-0 items-center justify-end overflow-hidden bg-green-50 px-6">
       <Cafecito />
     </footer>
   );

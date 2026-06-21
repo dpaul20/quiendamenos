@@ -7,11 +7,13 @@ export default function Disclaimer() {
   if (!visible) return null;
 
   return (
-    <div className="bg-amber-300/10 border border-amber-300/20 rounded-lg p-4 flex gap-3 items-start w-full">
-      <div className="text-amber-900 flex items-center justify-center shrink-0 size-5">
-        <span className="font-bold text-base leading-none select-none">ℹ</span>
+    <div className="flex w-full items-start gap-3 rounded-lg bg-amber-300 p-4">
+      <div className="flex size-5 shrink-0 items-center justify-center text-amber-900">
+        <span className="select-none text-base font-bold italic leading-none">
+          i
+        </span>
       </div>
-      <div className="flex flex-col gap-1 flex-1 min-w-0">
+      <div className="flex min-w-0 flex-1 flex-col gap-1">
         <p className="text-base font-bold text-amber-900">¿Cómo funciona?</p>
         <p className="text-sm font-normal leading-5 text-amber-900">
           Los precios se actualizan en cada búsqueda y pueden variar al momento
@@ -19,11 +21,11 @@ export default function Disclaimer() {
         </p>
       </div>
       <button
-        className="min-w-[44px] min-h-[44px] flex items-center justify-center text-amber-900 shrink-0 hover:bg-amber-300/20 rounded transition-colors"
+        className="flex min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded text-amber-900 transition-colors hover:bg-amber-300/20"
         onClick={() => setVisible(false)}
         aria-label="Cerrar aviso"
       >
-        <span className="text-base leading-none select-none">×</span>
+        <span className="select-none text-base leading-none">×</span>
       </button>
     </div>
   );

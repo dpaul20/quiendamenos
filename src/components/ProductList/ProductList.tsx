@@ -21,15 +21,15 @@ function SkeletonCard() {
   return (
     <div
       data-testid="skeleton-card"
-      className="flex animate-pulse flex-col overflow-hidden rounded-xl border border-border bg-card"
+      className="flex flex-col overflow-hidden rounded-xl border border-border bg-card"
     >
-      <div className="h-[140px] w-full shrink-0 bg-muted" />
+      <div className="se-shimmer h-[140px] w-full shrink-0" />
       <div className="flex w-full flex-col gap-[10px] p-3">
-        <div className="h-[10px] w-[80px] rounded-sm bg-muted" />
-        <div className="h-[10px] w-full rounded-sm bg-muted" />
-        <div className="h-[10px] w-3/4 rounded-sm bg-muted" />
-        <div className="h-[24px] w-[60px] rounded-sm bg-muted" />
-        <div className="h-[18px] w-[100px] rounded-sm bg-muted" />
+        <div className="se-shimmer h-[10px] w-[80px] rounded-sm" />
+        <div className="se-shimmer h-[10px] w-full rounded-sm" />
+        <div className="se-shimmer h-[10px] w-3/4 rounded-sm" />
+        <div className="se-shimmer h-[24px] w-[60px] rounded-sm" />
+        <div className="se-shimmer h-[18px] w-[100px] rounded-sm" />
       </div>
     </div>
   );
@@ -115,7 +115,7 @@ export default function ProductList() {
               href={product.url}
               target="_blank"
               data-testid="product-card"
-              className="flex flex-col items-center overflow-hidden rounded-xl border border-border bg-card transition-colors hover:border-primary/40"
+              className="flex flex-col overflow-hidden rounded-xl border border-border bg-card transition-all duration-150 hover:-translate-y-[3px] hover:border-transparent hover:shadow-pop"
             >
               <div className="relative h-[140px] w-full overflow-hidden bg-surface">
                 <Image
@@ -126,20 +126,21 @@ export default function ProductList() {
                   sizes="(min-width: 768px) 25vw, (min-width: 640px) 33vw, 50vw"
                   className="object-contain p-3"
                 />
-                <div className="absolute bottom-2 right-2 rounded-[4px] bg-card/90 px-2 py-[3px]">
-                  <span className="whitespace-nowrap text-xs font-medium text-secondary-foreground">
+                <div className="absolute left-[10px] top-[10px] rounded-full border border-border bg-card px-[9px] py-1">
+                  <span className="whitespace-nowrap text-[11px] font-semibold leading-none text-card-foreground">
                     {product.from}
                   </span>
                 </div>
               </div>
 
               <div className="flex w-full flex-col gap-[6px] p-3">
-                <h3 className="line-clamp-2 text-sm font-normal text-muted-foreground">
+                <h3 className="line-clamp-2 font-display text-sm font-normal text-muted-foreground">
                   {product.name}
                 </h3>
                 <p
                   data-testid="product-price"
-                  className="text-2xl font-bold text-price-green"
+                  className="font-display font-bold text-price-green"
+                  style={{ fontSize: "clamp(18px, 1.4vw + 14px, 24px)" }}
                 >
                   {product.price.toLocaleString("es-AR", {
                     style: "currency",
@@ -160,8 +161,9 @@ export default function ProductList() {
                     {trendMap["__global__"].delta}% vs ayer
                   </Badge>
                 )}
+                <div className="h-px bg-border" />
                 <div className="flex flex-wrap items-start gap-[6px]">
-                  <span className="text-xs font-medium uppercase text-muted-foreground">
+                  <span className="font-display text-xs font-semibold uppercase tracking-[0.02em] text-muted-foreground">
                     {product.brand}
                   </span>
                   {product.installment ? (
@@ -184,7 +186,7 @@ export default function ProductList() {
           <button
             onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
             disabled={currentPage === 1}
-            className="h-[36px] flex-1 rounded-md border border-border px-3 text-sm text-foreground disabled:opacity-40 sm:w-[120px] sm:flex-none"
+            className="h-[40px] flex-1 rounded-lg border border-border px-3 text-sm text-foreground disabled:opacity-40 sm:w-[120px] sm:flex-none"
           >
             ← <span className="hidden sm:inline">Anterior</span>
             <span className="sm:hidden">Ant.</span>
@@ -209,7 +211,7 @@ export default function ProductList() {
               item === "ellipsis" ? (
                 <span
                   key={`ellipsis-${arr[i - 1]}-${arr[i + 1]}`}
-                  className="flex size-[36px] select-none items-center justify-center text-xs text-muted-foreground"
+                  className="flex size-[40px] select-none items-center justify-center text-xs text-muted-foreground"
                 >
                   •••
                 </span>
@@ -219,8 +221,8 @@ export default function ProductList() {
                   onClick={() => setCurrentPage(item)}
                   className={
                     item === currentPage
-                      ? "size-[36px] rounded-md bg-primary text-sm font-medium text-primary-foreground"
-                      : "size-[36px] rounded-md border border-border text-sm text-foreground"
+                      ? "size-[40px] rounded-lg bg-primary text-sm font-medium text-primary-foreground"
+                      : "size-[40px] rounded-lg border border-border text-sm text-foreground"
                   }
                 >
                   {item}
@@ -231,7 +233,7 @@ export default function ProductList() {
           <button
             onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
             disabled={currentPage === totalPages}
-            className="h-[36px] flex-1 rounded-md border border-border px-3 text-sm text-foreground disabled:opacity-40 sm:w-[120px] sm:flex-none"
+            className="h-[40px] flex-1 rounded-lg border border-border px-3 text-sm text-foreground disabled:opacity-40 sm:w-[120px] sm:flex-none"
           >
             <span className="hidden sm:inline">Siguiente</span>
             <span className="sm:hidden">Sig.</span> →

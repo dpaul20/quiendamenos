@@ -12,7 +12,7 @@ export function ResultsHeader() {
     <div className="flex items-center justify-between gap-4">
       <span
         data-testid="results-count"
-        className="text-xs font-medium text-foreground sm:text-sm"
+        className="font-display text-xs font-medium text-foreground sm:text-sm"
       >
         {count} resultado{count === 1 ? "" : "s"}
       </span>

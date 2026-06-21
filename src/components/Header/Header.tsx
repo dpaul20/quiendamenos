@@ -4,32 +4,40 @@ import { ModeToggle } from "@/components/DarkMode";
 
 export function Header() {
   return (
-    <header className="w-full bg-background shadow-[0_1px_4px_0_rgba(0,0,0,0.05)] shrink-0">
+    <header className="w-full shrink-0 bg-card shadow-[0_1px_4px_0_rgba(0,0,0,0.05)]">
       {/* Mobile header */}
-      <div className="flex sm:hidden h-14 items-center justify-between px-4">
-        <div className="flex items-center justify-center size-[39.6px] shrink-0">
-          <div className="rotate-45">
-            <div className="size-7 overflow-hidden">
-              <Image src="/logo.png" alt="Logo" width={28} height={28} className="object-contain" />
-            </div>
+      <div className="flex h-14 items-center justify-between px-4 sm:hidden">
+        <div className="flex items-center gap-2">
+          <div className="flex size-7 shrink-0 items-center justify-center">
+            <Image
+              src="/logo.png"
+              alt="Logo"
+              width={28}
+              height={28}
+              className="rotate-[30deg] object-contain"
+            />
           </div>
+          <span className="text-[15px] font-semibold text-foreground">
+            Quién Da Menos
+          </span>
         </div>
-        <span className="text-base font-bold text-foreground">Scraping</span>
-        <div className="size-7 shrink-0" />
+        <ModeToggle />
       </div>
 
       {/* Desktop header */}
-      <div className="hidden sm:flex h-14 items-center justify-between px-6">
+      <div className="hidden h-14 items-center justify-between px-6 sm:flex">
         <div className="flex items-center gap-2.5">
-          <div className="flex items-center justify-center size-[56.57px] shrink-0">
-            <div className="rotate-45">
-              <div className="size-10 overflow-hidden">
-                <Image src="/logo.png" alt="Logo" width={40} height={40} className="object-contain" />
-              </div>
-            </div>
+          <div className="flex size-9 shrink-0 items-center justify-center">
+            <Image
+              src="/logo.png"
+              alt="Logo"
+              width={36}
+              height={36}
+              className="rotate-[30deg] object-contain"
+            />
           </div>
           <span className="text-xl font-semibold leading-7 text-foreground">
-            Scraping Electronica
+            Quién Da Menos
           </span>
         </div>
         <div className="flex items-center gap-2">

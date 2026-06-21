@@ -1,23 +1,23 @@
 import type { Metadata } from "next";
-import localFont from "next/font/local";
+import { Geist, Inter } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/ThemeProvider";
 
-const geistSans = localFont({
-  src: "./fonts/GeistVF.woff",
+const geistSans = Geist({
+  subsets: ["latin"],
   variable: "--font-geist-sans",
-  weight: "100 900",
 });
-const geistMono = localFont({
-  src: "./fonts/GeistMonoVF.woff",
-  variable: "--font-geist-mono",
-  weight: "100 900",
+const inter = Inter({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-inter",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "Scraping de Tiendas de Electrónica",
+  title: "Quién Da Menos — Comparador de precios",
   description:
-    "Comparador de precios y especificaciones de productos electrónicos",
+    "Buscá una vez y comparamos precios en Frávega, Cetrogar, Musimundo, Megatone y más al mismo tiempo.",
 };
 
 export default function RootLayout({
@@ -27,9 +27,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es" suppressHydrationWarning>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+      <body className={`${geistSans.variable} ${inter.variable} antialiased`}>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"

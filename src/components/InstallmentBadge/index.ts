@@ -1,0 +1,1 @@
+export { InstallmentBadge } from "./InstallmentBadge";

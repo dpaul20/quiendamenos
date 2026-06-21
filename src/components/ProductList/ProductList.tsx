@@ -1,6 +1,5 @@
 "use client";
 import Image from "next/image";
-import Link from "next/link";
 import { imageLoader } from "@/features/price-search/image-loader";
 import { useProductsStore } from "@/store/productsStore";
 import { loadingMessages } from "@/features/price-search/loading-messages";
@@ -8,10 +7,12 @@ import { useEffect, useState } from "react";
 import { useShallow } from "zustand/react/shallow";
 import { EmptyState } from "@/components/EmptyState";
 import { ErrorAlert } from "@/components/ErrorAlert";
-import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
 import { fetchTrendMap } from "@/features/price-history/trend";
+import { PriceTrend } from "@/components/PriceTrend";
+import { InstallmentBadge } from "@/components/InstallmentBadge";
+import { ProductDetail } from "@/components/ProductDetail";
 import type { TrendMap } from "@/features/price-history/types";
+import type { Product } from "@/types/product.d";
 
 const ITEMS_PER_PAGE = 12;
 
@@ -46,6 +47,7 @@ export default function ProductList() {
   const [currentPage, setCurrentPage] = useState(1);
   const [prevProductsRef, setPrevProductsRef] = useState(products);
   const [trendMap, setTrendMap] = useState<TrendMap>({});
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
   if (prevProductsRef !== products) {
     setPrevProductsRef(products);
@@ -102,6 +104,8 @@ export default function ProductList() {
 
   if (visible.length === 0) return null;
 
+  const globalTrend = trendMap["__global__"];
+
   return (
     <div className="flex flex-col gap-4">
       <ErrorAlert />
@@ -110,12 +114,11 @@ export default function ProductList() {
         {paginatedProducts.map((product) => {
           if (!product.price || !product.name || !product.url) return null;
           return (
-            <Link
+            <div
               key={product.url}
-              href={product.url}
-              target="_blank"
               data-testid="product-card"
-              className="flex flex-col overflow-hidden rounded-xl border border-border bg-card transition-all duration-150 hover:-translate-y-[3px] hover:border-transparent hover:shadow-pop"
+              onClick={() => setSelectedProduct(product)}
+              className="flex cursor-pointer flex-col overflow-hidden rounded-xl border border-border bg-card transition-all duration-150 hover:-translate-y-[3px] hover:border-transparent hover:shadow-pop"
             >
               <div className="relative h-[140px] w-full overflow-hidden bg-surface">
                 <Image
@@ -147,36 +150,24 @@ export default function ProductList() {
                     currency: "ARS",
                   })}
                 </p>
-                {trendMap["__global__"] && (
-                  <Badge
-                    variant="outline"
-                    className={cn(
-                      "w-fit text-xs font-medium",
-                      trendMap["__global__"].direction === "down"
-                        ? "border-green-200 bg-green-500/10 text-green-700 dark:border-green-800 dark:bg-green-500/10 dark:text-green-400"
-                        : "border-red-200 bg-red-500/10 text-red-700 dark:border-red-900 dark:bg-red-500/10 dark:text-red-400",
-                    )}
-                  >
-                    {trendMap["__global__"].direction === "down" ? "↓" : "↑"}{" "}
-                    {trendMap["__global__"].delta}% vs ayer
-                  </Badge>
+                {globalTrend && (
+                  <PriceTrend
+                    direction={globalTrend.direction}
+                    delta={globalTrend.delta}
+                    label="vs ayer"
+                  />
                 )}
                 <div className="h-px bg-border" />
                 <div className="flex flex-wrap items-start gap-[6px]">
                   <span className="font-display text-xs font-semibold uppercase tracking-[0.02em] text-muted-foreground">
                     {product.brand}
                   </span>
-                  {product.installment ? (
-                    <span
-                      data-testid="product-installment"
-                      className="rounded-md bg-orange-500 px-2 py-[3px] text-xs font-medium text-white"
-                    >
-                      {product.installment} CSI
-                    </span>
-                  ) : null}
+                  {product.installment != null && (
+                    <InstallmentBadge installment={product.installment} />
+                  )}
                 </div>
               </div>
-            </Link>
+            </div>
           );
         })}
       </div>
@@ -240,6 +231,14 @@ export default function ProductList() {
           </button>
         </div>
       )}
+
+      <ProductDetail
+        product={selectedProduct}
+        open={selectedProduct !== null}
+        onClose={() => setSelectedProduct(null)}
+        currentQuery={currentQuery}
+        trendMap={trendMap}
+      />
     </div>
   );
 }

@@ -49,3 +49,4 @@ blob-report/
 
 # Claude Code — local personal settings (no commitear)
 .claude/settings.local.json
+.playwright-mcp/

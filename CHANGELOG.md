@@ -1,5 +1,24 @@
 # Changelog
 
+## [0.3.0](https://github.com/dpaul20/quiendamenos/compare/quiendamenos-v0.2.0...quiendamenos-v0.3.0) (2026-06-22)
+
+
+### ✨ Features
+
+* **ui:** add ProductDetail sheet with cross-store comparison and price history ([621dc23](https://github.com/dpaul20/quiendamenos/commit/621dc23afb748ab19a66aa0a263b4baf447c674f))
+* **ui:** align components to Quién Da Menos design system ([4708e6d](https://github.com/dpaul20/quiendamenos/commit/4708e6dc8689e4805c288c448380f09ded909746))
+* **ui:** align components to Quién Da Menos design system ([d222fd2](https://github.com/dpaul20/quiendamenos/commit/d222fd204765564143cce42763763cafbdf343c2))
+* **ui:** close DS gaps — CategoryChips, Disclaimer gate, ProductDetailPanel, MissionModal ([19c93e0](https://github.com/dpaul20/quiendamenos/commit/19c93e0e539d685584daca3da3467a6ce1209ad9))
+* **ui:** implement DS gaps — CategoryChips, Disclaimer gate, ProductDetailPanel, MissionModal fix ([4b05bf6](https://github.com/dpaul20/quiendamenos/commit/4b05bf64f0035ec48b548ba5e4846ff633228d33))
+* **ui:** ProductDetail sheet with cross-store comparison and price history ([05df175](https://github.com/dpaul20/quiendamenos/commit/05df1752ab952e6a67f8994680a59b812e63f9b1))
+
+
+### 🐛 Bug Fixes
+
+* **tests:** correct TypeScript cast pattern and named import for CategoryChips ([945054a](https://github.com/dpaul20/quiendamenos/commit/945054a519c51bff95ce972074ad2aaeabddc306))
+* **ui:** CSS double-wrap, className space bug, missing tests for CompareTable and PriceHistoryChart ([b032e23](https://github.com/dpaul20/quiendamenos/commit/b032e236ab8201b236ab0fdd17a20042dbfa5e6a))
+* **ui:** resolve CSS double-wrap, className space bug, add missing tests ([feab41c](https://github.com/dpaul20/quiendamenos/commit/feab41c7c94ca394d6d75a80ff6f478a78bd3057))
+
 ## [0.2.0](https://github.com/dpaul20/quiendamenos/compare/quiendamenos-v0.1.0...quiendamenos-v0.2.0) (2026-04-26)
 
 

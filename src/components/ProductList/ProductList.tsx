@@ -10,9 +10,7 @@ import { ErrorAlert } from "@/components/ErrorAlert";
 import { fetchTrendMap } from "@/features/price-history/trend";
 import { PriceTrend } from "@/components/PriceTrend";
 import { InstallmentBadge } from "@/components/InstallmentBadge";
-import { ProductDetail } from "@/components/ProductDetail";
 import type { TrendMap } from "@/features/price-history/types";
-import type { Product } from "@/types/product.d";
 
 const ITEMS_PER_PAGE = 12;
 
@@ -46,8 +44,8 @@ export default function ProductList() {
   const [loadingMessage, setLoadingMessage] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [prevProductsRef, setPrevProductsRef] = useState(products);
+  const setSelectedProduct = useProductsStore((s) => s.setSelectedProduct);
   const [trendMap, setTrendMap] = useState<TrendMap>({});
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
   if (prevProductsRef !== products) {
     setPrevProductsRef(products);
@@ -231,14 +229,6 @@ export default function ProductList() {
           </button>
         </div>
       )}
-
-      <ProductDetail
-        product={selectedProduct}
-        open={selectedProduct !== null}
-        onClose={() => setSelectedProduct(null)}
-        currentQuery={currentQuery}
-        trendMap={trendMap}
-      />
     </div>
   );
 }

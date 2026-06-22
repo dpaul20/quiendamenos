@@ -1,9 +1,12 @@
 "use client";
 import { useState } from "react";
+import { useProductsStore } from "@/store/productsStore";
 
 export default function Disclaimer() {
   const [visible, setVisible] = useState(true);
+  const productSearched = useProductsStore((s) => s.productSearched);
 
+  if (productSearched === "") return null;
   if (!visible) return null;
 
   return (

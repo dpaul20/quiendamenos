@@ -13,6 +13,9 @@ import { fetchPriceHistory } from "@/features/price-history/history";
 import { useFollowedProduct } from "@/features/price-follow/useFollowedProduct";
 import { useProductsStore } from "@/store/productsStore";
 import { imageLoader } from "@/features/price-search/image-loader";
+import { PriceAlertDialog } from "@/components/PriceAlertDialog/PriceAlertDialog";
+import { getStoredEmail, setStoredEmail } from "@/features/price-alerts/email";
+import { subscribeAlert } from "@/features/price-alerts/alertApi";
 import type { Product } from "@/types/product.d";
 import type {
   PriceHistoryEntry,
@@ -40,6 +43,59 @@ export function ProductDetailPanel({
   const allProducts = useProductsStore((s) => s.products);
   const [priceHistory, setPriceHistory] = useState<PriceHistoryEntry[]>([]);
   const { isFollowed, toggle } = useFollowedProduct(product.url);
+
+  const [alertOpen, setAlertOpen] = useState(false);
+  const [alertError, setAlertError] = useState<string | undefined>();
+  const [alertLoading, setAlertLoading] = useState(false);
+
+  const storedEmail =
+    typeof window !== "undefined"
+      ? getStoredEmail(localStorage as unknown as Record<string, string>)
+      : null;
+
+  const handleFollowClick = () => {
+    if (isFollowed) {
+      // Unfollowing — just toggle, no API call
+      toggle();
+      return;
+    }
+    // Following — toggle first for instant feedback
+    toggle();
+    const email = storedEmail;
+    if (email) {
+      // Fire and forget — silently handle error
+      subscribeAlert(email, {
+        url: product.url ?? "",
+        name: product.name ?? "",
+        price: product.price ?? 0,
+      }).catch(() => {});
+    } else {
+      setAlertOpen(true);
+    }
+  };
+
+  const handleAlertSubmit = async (email: string) => {
+    setAlertLoading(true);
+    setAlertError(undefined);
+    try {
+      await subscribeAlert(email, {
+        url: product.url ?? "",
+        name: product.name ?? "",
+        price: product.price ?? 0,
+      });
+      if (typeof window !== "undefined") {
+        setStoredEmail(
+          localStorage as unknown as Record<string, string>,
+          email,
+        );
+      }
+      setAlertOpen(false);
+    } catch {
+      setAlertError("No pudimos registrar tu email. Intentá de nuevo.");
+    } finally {
+      setAlertLoading(false);
+    }
+  };
 
   useEffect(() => {
     if (!currentQuery) return;
@@ -161,7 +217,7 @@ export function ProductDetailPanel({
             <Button
               variant={isFollowed ? "secondary" : "outline"}
               className="rounded-xl px-4 py-3"
-              onClick={toggle}
+              onClick={handleFollowClick}
             >
               {isFollowed ? "✓ Siguiendo" : "♡ Seguir precio"}
             </Button>
@@ -200,6 +256,16 @@ export function ProductDetailPanel({
           )}
         </div>
       </div>
+
+      <PriceAlertDialog
+        open={alertOpen}
+        onOpenChange={setAlertOpen}
+        defaultEmail={storedEmail ?? undefined}
+        onSubmit={handleAlertSubmit}
+        productName={product.name}
+        error={alertError}
+        loading={alertLoading}
+      />
     </div>
   );
 }

@@ -6,7 +6,7 @@ import { FilterPanel } from "@/components/FilterPanel";
 import SearchRow from "@/components/SearchRow";
 import { Header } from "@/components/Header";
 import { ResultsHeader } from "@/components/ResultsHeader";
-import CategoryChips from "@/components/CategoryChips";
+import { CategoryChips } from "@/components/CategoryChips";
 import { ResultsOrchestrator } from "@/components/ResultsOrchestrator/ResultsOrchestrator";
 
 export default async function Home() {

@@ -35,7 +35,6 @@ const MOCK_PRODUCT = {
   from: "Fravega",
   brand: "Apple",
   image: "",
-  installment: null,
 };
 
 describe("ResultsOrchestrator", () => {

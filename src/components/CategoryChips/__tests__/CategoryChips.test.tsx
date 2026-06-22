@@ -14,8 +14,8 @@ jest.mock("zustand/react/shallow", () => ({
 }));
 
 import { useProductsStore, selectPhase } from "@/store/productsStore";
-const mockUseStore = useProductsStore as jest.Mock;
-const mockSelectPhase = selectPhase as jest.Mock;
+const mockUseStore = useProductsStore as unknown as jest.Mock;
+const mockSelectPhase = selectPhase as unknown as jest.Mock;
 
 import CategoryChips from "../CategoryChips";
 

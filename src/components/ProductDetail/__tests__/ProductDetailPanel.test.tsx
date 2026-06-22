@@ -77,7 +77,7 @@ jest.mock("@/features/price-search/match", () => ({
 }));
 
 import { useProductsStore } from "@/store/productsStore";
-const mockUseStore = useProductsStore as jest.Mock;
+const mockUseStore = useProductsStore as unknown as jest.Mock;
 
 import { ProductDetailPanel } from "../ProductDetailPanel";
 

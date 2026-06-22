@@ -27,5 +27,24 @@ export function getSelectors(page: Page) {
     filterPanelToggle: page.getByRole("button", { name: /filtros/i }),
     activeFiltersCount: page.getByTestId("active-filters-count"),
     clearFiltersButton: page.getByRole("button", { name: /limpiar/i }),
+
+    // ProductDetailPanel selectors
+    backButton: page.getByRole("button", { name: /Volver a resultados/i }),
+    detailPanel: page.getByText("Volver a resultados").first(),
+    goToStoreLink: page.getByRole("link", { name: /Ir a/i }).first(),
+    followButton: page.getByRole("button", {
+      name: /Seguir precio|Siguiendo/i,
+    }),
+
+    // CategoryChips selectors
+    categoryChip: (label: string) =>
+      page.getByRole("button", { name: label, exact: true }),
+    categoryChips: page.getByRole("button", {
+      name: /Celulares|Tablets|TVs|Auriculares|Notebooks|Consolas|Heladeras|Lavadoras/i,
+    }),
+
+    // Disclaimer selectors
+    disclaimerHeading: page.getByText("¿Cómo funciona?"),
+    disclaimerDismiss: page.getByRole("button", { name: /Cerrar aviso/i }),
   };
 }

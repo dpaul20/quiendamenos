@@ -44,9 +44,11 @@ test.describe("SPEC-42: flujo completo desktop", () => {
     await sel.paginationNext.click();
     await expect(sel.productCards).toHaveCount(3);
 
-    // 6. Click a product card (should open external link)
-    const firstCard = sel.productCards.first();
-    await expect(firstCard).toBeVisible();
+    // 6. Click a product card → opens inline detail panel
+    await sel.productCards.first().click();
+    await expect(
+      page.getByRole("button", { name: /Volver a resultados/i }),
+    ).toBeVisible();
   });
 });
 

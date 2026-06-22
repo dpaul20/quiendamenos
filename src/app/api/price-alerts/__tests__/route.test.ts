@@ -107,7 +107,7 @@ describe("POST /api/price-alerts", () => {
     expect(res.status).toBe(400);
   });
 
-  it("returns 400 when alert limit (10) is reached", async () => {
+  it("returns 429 when alert limit (10) is reached", async () => {
     const supabase = {
       from: jest.fn().mockReturnValue({
         select: jest.fn().mockReturnThis(),

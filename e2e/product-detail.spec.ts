@@ -95,6 +95,15 @@ test.describe("ProductDetail inline panel", () => {
   test('"Seguir precio" toggle switches label between followed and unfollowed states', async ({
     page,
   }) => {
+    // Pre-seed stored email so follow doesn't open the PriceAlertDialog
+    // (Radix Dialog marks background aria-hidden, hiding the toggled button)
+    await page.evaluate(() => {
+      localStorage.setItem("qdm:alert-email", "test@example.com");
+    });
+    await page.route("**/api/price-alerts**", (route) => {
+      route.fulfill({ status: 200, body: JSON.stringify({ ok: true }) });
+    });
+
     const sel = getSelectors(page);
 
     await sel.productCards.first().click();

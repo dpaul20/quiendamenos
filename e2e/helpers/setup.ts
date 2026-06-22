@@ -14,7 +14,7 @@ export async function mockScrapeApi(
     route.fulfill({
       status: 200,
       contentType: "application/json",
-      body: JSON.stringify({ products }),
+      body: JSON.stringify(products),
     });
   });
 }

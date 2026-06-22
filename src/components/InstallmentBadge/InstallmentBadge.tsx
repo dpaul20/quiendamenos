@@ -8,6 +8,7 @@ export function InstallmentBadge({ installment }: InstallmentBadgeProps) {
   return (
     <Badge
       variant="outline"
+      data-testid="product-installment"
       className="border-transparent bg-[var(--installment)] px-2 py-[3px] font-display text-xs font-medium text-white"
     >
       {installment} CSI

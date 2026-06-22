@@ -13,7 +13,12 @@ import type { Product } from "@/types/product.d";
 test.describe("SPEC-42: flujo completo desktop", () => {
   test("buscar → filtrar → sort → paginar → click producto", async ({
     page,
+    isMobile,
   }) => {
+    test.skip(
+      isMobile,
+      "Store filter buttons on mobile require the filter dialog — covered by mobile.spec.ts",
+    );
     const products: Product[] = [
       ...buildProducts(8, { from: StoreNamesEnum.FRAVEGA, brand: "Samsung" }),
       ...buildProducts(7, { from: StoreNamesEnum.CETROGAR, brand: "Apple" }),

@@ -9,6 +9,8 @@ import {
 import { getSelectors } from "./helpers/selectors";
 import type { Product } from "@/types/product.d";
 
+test.use({ viewport: { width: 375, height: 667 } });
+
 test.describe("SPEC-39: Dialog de filtros abre en 375px", () => {
   test("el botón Filtros abre el Dialog en viewport mobile", async ({
     page,

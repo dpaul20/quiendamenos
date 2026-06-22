@@ -22,6 +22,12 @@ export function setFollowedUrls(
   storage[FOLLOW_KEY] = JSON.stringify(urls);
 }
 
+export function computeToggle(current: string[], url: string): string[] {
+  return current.includes(url)
+    ? current.filter((u) => u !== url)
+    : [...current, url];
+}
+
 function subscribe(callback: () => void): () => void {
   if (typeof window === "undefined") return () => {};
   window.addEventListener("storage", callback);
@@ -46,10 +52,7 @@ export function useFollowedProduct(url: string | undefined): {
   const toggle = () => {
     if (typeof window === "undefined" || !url) return;
     const storage = localStorage as unknown as Record<string, string>;
-    const urls = getFollowedUrls(storage);
-    const next = urls.includes(url)
-      ? urls.filter((u) => u !== url)
-      : [...urls, url];
+    const next = computeToggle(getFollowedUrls(storage), url);
     setFollowedUrls(storage, next);
     window.dispatchEvent(new StorageEvent("storage", { key: FOLLOW_KEY }));
   };

@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.4.0](https://github.com/dpaul20/quiendamenos/compare/quiendamenos-v0.3.0...quiendamenos-v0.4.0) (2026-06-22)
+
+
+### ✨ Features
+
+* **backend:** add price-alerts API, Supabase repository, HMAC token, and email helper ([580e1b5](https://github.com/dpaul20/quiendamenos/commit/580e1b558a3aff63163bc6ed5f90046fc6c90330))
+* **backend:** price-alerts API, Supabase repository, HMAC token, and email helper ([cac3615](https://github.com/dpaul20/quiendamenos/commit/cac36156df15df4df60875f9f56ac1aaf35269e1))
+* **ui:** add PriceAlertDialog, ProductDetailPanel wiring, and daily price-check cron ([ab8c1d7](https://github.com/dpaul20/quiendamenos/commit/ab8c1d74b61d2fb04ac5d91189dd8dce2c0066c2))
+* **ui:** PriceAlertDialog, ProductDetailPanel wiring, and daily price-check cron ([21f1161](https://github.com/dpaul20/quiendamenos/commit/21f1161e765c2565969d5c527d51651733bcc19e))
+
+
+### 🐛 Bug Fixes
+
+* export ProductDetailPanel from barrel and add computeToggle with full toggle tests ([b6b6e76](https://github.com/dpaul20/quiendamenos/commit/b6b6e7601c2e99a2e2e4a668116be191cb7f6a04))
+* export ProductDetailPanel from barrel and add computeToggle with full toggle tests ([0293187](https://github.com/dpaul20/quiendamenos/commit/02931871a436eede655b1a50045640d109cff015))
+
 ## [0.3.0](https://github.com/dpaul20/quiendamenos/compare/quiendamenos-v0.2.0...quiendamenos-v0.3.0) (2026-06-22)
 
 

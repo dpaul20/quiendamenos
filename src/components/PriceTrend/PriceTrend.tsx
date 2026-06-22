@@ -17,8 +17,8 @@ export function PriceTrend({ direction, delta, label }: PriceTrendProps) {
         className={cn(
           "border-transparent px-2 py-[3px] text-xs font-medium",
           isDown
-            ? "bg-[hsl(var(--price-down-bg))] text-[hsl(var(--price-down))]"
-            : "bg-[hsl(var(--price-up-bg))] text-[hsl(var(--price-up))]",
+            ? "bg-[var(--price-down-bg)] text-[var(--price-down)]"
+            : "bg-[var(--price-up-bg)] text-[var(--price-up)]",
         )}
       >
         {isDown ? "↓" : "↑"} {delta}%

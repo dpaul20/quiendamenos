@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import type { CompareOffer } from "@/features/price-search/match";
 
 interface CompareTableProps {
@@ -38,36 +39,49 @@ export function CompareTable({ offers, onGoToStore }: CompareTableProps) {
       {sorted.map((offer, i) => {
         const isBest = i === 0;
         const rowStyle = isBest
-          ? { background: "hsl(var(--price-down-bg))" }
+          ? { background: "var(--price-down-bg)" }
           : undefined;
+        const outOfStock = offer.stock === false;
 
         return (
           <div key={offer.url} className="contents">
             <span
-              className={`flex items-center gap-1 px-3 py-2 text-sm${offer.stock === false ? "opacity-50" : ""}`}
+              className={cn(
+                "flex items-center gap-1 px-3 py-2 text-sm",
+                outOfStock && "opacity-50",
+              )}
               style={rowStyle}
             >
               {offer.store}
             </span>
             <span
-              className={`flex items-center px-3 py-2 text-sm font-medium${offer.stock === false ? "opacity-50" : ""}`}
+              className={cn(
+                "flex items-center px-3 py-2 text-sm font-medium",
+                outOfStock && "opacity-50",
+              )}
               style={rowStyle}
             >
               {isBest && (
-                <span className="mr-1 text-[10px] font-semibold uppercase text-[hsl(var(--price-down))]">
+                <span className="mr-1 text-[10px] font-semibold uppercase text-[var(--price-down)]">
                   MEJOR PRECIO
                 </span>
               )}
               {fmtARS(offer.price)}
             </span>
             <span
-              className={`flex items-center px-3 py-2 text-sm${offer.stock === false ? "opacity-50" : ""}`}
+              className={cn(
+                "flex items-center px-3 py-2 text-sm",
+                outOfStock && "opacity-50",
+              )}
               style={rowStyle}
             >
               {offer.installment != null ? `${offer.installment} CSI` : "—"}
             </span>
             <span
-              className={`flex items-center px-3 py-2${offer.stock === false ? "opacity-50" : ""}`}
+              className={cn(
+                "flex items-center px-3 py-2",
+                outOfStock && "opacity-50",
+              )}
               style={rowStyle}
             >
               <Button

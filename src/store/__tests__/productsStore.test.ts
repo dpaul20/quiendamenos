@@ -1,4 +1,5 @@
 import { useProductsStore } from "../productsStore";
+import { selectPhase } from "../productsStore";
 import { StoreNamesEnum } from "@/enums/stores.enum";
 import { ALL } from "@/features/price-search/constants";
 
@@ -9,8 +10,19 @@ jest.mock("@/features/price-search/api", () => ({
 import { getProduct } from "@/features/price-search/api";
 const mockGetProduct = getProduct as jest.Mock;
 
-const product = (name: string, brand: string, price: number, from: StoreNamesEnum) => ({
-  name, brand, price, from, image: "", url: "", installment: 0,
+const product = (
+  name: string,
+  brand: string,
+  price: number,
+  from: StoreNamesEnum,
+) => ({
+  name,
+  brand,
+  price,
+  from,
+  image: "",
+  url: "",
+  installment: 0,
 });
 
 beforeEach(() => {
@@ -23,6 +35,7 @@ beforeEach(() => {
     stores: [],
     isLoading: false,
     error: null,
+    selectedProduct: null,
   });
   jest.clearAllMocks();
 });
@@ -62,13 +75,17 @@ describe("useProductsStore", () => {
 
   it("toggleStore agrega una tienda a selectedStores", () => {
     useProductsStore.getState().toggleStore(StoreNamesEnum.FRAVEGA);
-    expect(useProductsStore.getState().selectedStores).toContain(StoreNamesEnum.FRAVEGA);
+    expect(useProductsStore.getState().selectedStores).toContain(
+      StoreNamesEnum.FRAVEGA,
+    );
   });
 
   it("toggleStore quita una tienda ya seleccionada", () => {
     useProductsStore.setState({ selectedStores: [StoreNamesEnum.FRAVEGA] });
     useProductsStore.getState().toggleStore(StoreNamesEnum.FRAVEGA);
-    expect(useProductsStore.getState().selectedStores).not.toContain(StoreNamesEnum.FRAVEGA);
+    expect(useProductsStore.getState().selectedStores).not.toContain(
+      StoreNamesEnum.FRAVEGA,
+    );
   });
 
   it("toggleStore puede seleccionar múltiples tiendas", () => {
@@ -140,7 +157,9 @@ describe("useProductsStore — estado de error", () => {
 
     await useProductsStore.getState().getProducts("tv");
 
-    expect(useProductsStore.getState().error).toBe("No se pudo conectar. Verificá tu conexión e intentá de nuevo.");
+    expect(useProductsStore.getState().error).toBe(
+      "No se pudo conectar. Verificá tu conexión e intentá de nuevo.",
+    );
     expect(useProductsStore.getState().isLoading).toBe(false);
   });
 
@@ -151,5 +170,71 @@ describe("useProductsStore — estado de error", () => {
 
     expect(useProductsStore.getState().error).not.toBeNull();
     expect(useProductsStore.getState().isLoading).toBe(false);
+  });
+});
+
+describe("useProductsStore — selectedProduct", () => {
+  it("selectedProduct initializes as null", () => {
+    expect(useProductsStore.getState().selectedProduct).toBeNull();
+  });
+
+  it("setSelectedProduct updates the store with the given product", () => {
+    const p = {
+      name: "TV",
+      brand: "LG",
+      price: 100,
+      from: StoreNamesEnum.FRAVEGA,
+      image: "",
+      url: "http://x",
+      installment: 0,
+    };
+    useProductsStore.getState().setSelectedProduct(p);
+    expect(useProductsStore.getState().selectedProduct).toBe(p);
+  });
+
+  it("setSelectedProduct(null) clears selectedProduct", () => {
+    const p = {
+      name: "TV",
+      brand: "LG",
+      price: 100,
+      from: StoreNamesEnum.FRAVEGA,
+      image: "",
+      url: "http://x",
+      installment: 0,
+    };
+    useProductsStore.setState({ selectedProduct: p });
+    useProductsStore.getState().setSelectedProduct(null);
+    expect(useProductsStore.getState().selectedProduct).toBeNull();
+  });
+});
+
+describe("selectPhase", () => {
+  it("returns 'landing' when productSearched is empty, products empty, not loading", () => {
+    const state = useProductsStore.getState();
+    expect(selectPhase(state)).toBe("landing");
+  });
+
+  it("returns 'results' when productSearched is non-empty", () => {
+    useProductsStore.setState({ productSearched: "celular" });
+    expect(selectPhase(useProductsStore.getState())).toBe("results");
+  });
+
+  it("returns 'results' when products array is non-empty", () => {
+    const p = {
+      name: "TV",
+      brand: "LG",
+      price: 100,
+      from: StoreNamesEnum.FRAVEGA,
+      image: "",
+      url: "",
+      installment: 0,
+    };
+    useProductsStore.setState({ products: [p] });
+    expect(selectPhase(useProductsStore.getState())).toBe("results");
+  });
+
+  it("returns 'results' when isLoading is true", () => {
+    useProductsStore.setState({ isLoading: true });
+    expect(selectPhase(useProductsStore.getState())).toBe("results");
   });
 });

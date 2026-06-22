@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.4.1](https://github.com/dpaul20/quiendamenos/compare/quiendamenos-v0.4.0...quiendamenos-v0.4.1) (2026-06-22)
+
+
+### 🐛 Bug Fixes
+
+* **tests:** rename rate-limit test to reflect correct 429 status code ([25a2cdb](https://github.com/dpaul20/quiendamenos/commit/25a2cdbc5bbb32678fd56ffd6f478693d41fabbc))
+* **tests:** rename rate-limit test to reflect correct 429 status code ([3f1db3d](https://github.com/dpaul20/quiendamenos/commit/3f1db3d6df1a38f03bb34b5171f6a1901f293fdd))
+
 ## [0.4.0](https://github.com/dpaul20/quiendamenos/compare/quiendamenos-v0.3.0...quiendamenos-v0.4.0) (2026-06-22)
 
 

@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.4.2](https://github.com/dpaul20/quiendamenos/compare/quiendamenos-v0.4.1...quiendamenos-v0.4.2) (2026-06-27)
+
+
+### 🐛 Bug Fixes
+
+* **e2e:** resolve 11 Playwright failures across 6 root causes ([76f72aa](https://github.com/dpaul20/quiendamenos/commit/76f72aa5b3741a1f505bef706dcb40860bb14395))
+* **e2e:** resolve 11 Playwright failures across 6 root causes ([39abdc5](https://github.com/dpaul20/quiendamenos/commit/39abdc5f2d2a1873f42c8ca5bfccaef7f0a52ec9))
+
 ## [0.4.1](https://github.com/dpaul20/quiendamenos/compare/quiendamenos-v0.4.0...quiendamenos-v0.4.1) (2026-06-22)
 
 

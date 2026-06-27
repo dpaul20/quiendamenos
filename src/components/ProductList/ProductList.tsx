@@ -96,7 +96,7 @@ export default function ProductList() {
     return <ErrorAlert />;
   }
 
-  if (visible.length === 0 && products.length > 0) {
+  if (visible.length === 0 && (products.length > 0 || !!currentQuery)) {
     return <EmptyState />;
   }
 

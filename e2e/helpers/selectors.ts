@@ -8,7 +8,9 @@ export function getSelectors(page: Page) {
     skeletonCards: page.getByTestId("skeleton-card"),
     resultsCount: page.getByTestId("results-count"),
     emptyState: page.getByText("Sin resultados"),
-    errorAlert: page.getByRole("alert"),
+    errorAlert: page.locator(
+      '[role="alert"]:not([id="__next-route-announcer__"])',
+    ),
     storeFilterButton: (store: string) =>
       page.getByRole("button", { name: store, exact: true }),
     brandFilterTrigger: page.getByLabel("Seleccionar marca"),
@@ -23,7 +25,7 @@ export function getSelectors(page: Page) {
     paginationPrev: page.getByRole("button", { name: /anterior|ant/i }),
     paginationNext: page.getByRole("button", { name: /siguiente|sig/i }),
     paginationPage: (n: number) =>
-      page.getByRole("button", { name: String(n) }),
+      page.getByRole("button", { name: String(n), exact: true }),
     filterPanelToggle: page.getByRole("button", { name: /filtros/i }),
     activeFiltersCount: page.getByTestId("active-filters-count"),
     clearFiltersButton: page.getByRole("button", { name: /limpiar/i }),

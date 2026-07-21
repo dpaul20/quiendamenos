@@ -42,23 +42,56 @@ function extraerMarcasDesdeNextData(html: string): Map<string, string> {
   return marcasPorId;
 }
 
-function buildFravegaUrl(query: string): string {
-  const target = `https://www.fravega.com/l/?keyword=${encodeURIComponent(query)}`;
-  const apiKey = process.env.SCRAPER_API_KEY;
-  if (!apiKey) return target;
+const REQUEST_HEADERS = {
+  "User-Agent":
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+  Referer: "https://www.fravega.com/",
+};
+
+function buildDirectUrl(query: string): string {
+  return `https://www.fravega.com/l/?keyword=${encodeURIComponent(query)}`;
+}
+
+function buildProxyUrl(target: string, apiKey: string): string {
   return `https://api.scraperapi.com?api_key=${apiKey}&url=${encodeURIComponent(target)}`;
 }
 
-export async function scrapeFravega(query: string): Promise<Product[]> {
-  const url = buildFravegaUrl(query);
+/**
+ * Pide el HTML directo y sólo cae al proxy si el request directo falla.
+ *
+ * Antes se iba siempre por ScraperAPI cuando había key configurada, lo que
+ * costaba ~23s y terminaba en timeout. El request directo responde en ~2s.
+ * El proxy queda como red de contención para cuando Fravega bloquea la IP de
+ * salida — el motivo por el que se lo agregó.
+ */
+async function fetchFravegaHtml(query: string): Promise<string> {
+  const target = buildDirectUrl(query);
+
   try {
-    const { data } = await httpClient.get<string>(url, {
-      headers: {
-        "User-Agent":
-          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
-        Referer: "https://www.fravega.com/",
-      },
+    const { data } = await httpClient.get<string>(target, {
+      headers: REQUEST_HEADERS,
     });
+    return data;
+  } catch (directError) {
+    const apiKey = process.env.SCRAPER_API_KEY;
+    if (!apiKey) throw directError;
+
+    console.warn(
+      "[fravega] Request directo falló, reintentando vía proxy:",
+      toLogSafeError(directError),
+    );
+
+    const { data } = await httpClient.get<string>(
+      buildProxyUrl(target, apiKey),
+      { headers: REQUEST_HEADERS },
+    );
+    return data;
+  }
+}
+
+export async function scrapeFravega(query: string): Promise<Product[]> {
+  try {
+    const data = await fetchFravegaHtml(query);
     const $ = load(data);
     const marcasPorId = extraerMarcasDesdeNextData(data);
 

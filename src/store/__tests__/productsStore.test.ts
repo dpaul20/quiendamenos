@@ -2,6 +2,7 @@ import { useProductsStore } from "../productsStore";
 import { selectPhase } from "../productsStore";
 import { StoreNamesEnum } from "@/enums/stores.enum";
 import { ALL } from "@/features/price-search/constants";
+import { ScrapeApiError } from "@/features/price-search/errors";
 
 jest.mock("@/features/price-search/api", () => ({
   getProduct: jest.fn(),
@@ -170,6 +171,47 @@ describe("useProductsStore — estado de error", () => {
 
     expect(useProductsStore.getState().error).not.toBeNull();
     expect(useProductsStore.getState().isLoading).toBe(false);
+  });
+
+  it("getProducts muestra el motivo real de la API en vez de culpar a la conexión", async () => {
+    mockGetProduct.mockRejectedValue(
+      new ScrapeApiError(
+        "La búsqueda no es válida. Revisá los términos e intentá de nuevo.",
+        400,
+      ),
+    );
+
+    await useProductsStore.getState().getProducts('samsung 65"');
+
+    expect(useProductsStore.getState().error).toBe(
+      "La búsqueda no es válida. Revisá los términos e intentá de nuevo.",
+    );
+    expect(useProductsStore.getState().isLoading).toBe(false);
+  });
+
+  it("getProducts propaga el mensaje de rate limiting de la API", async () => {
+    mockGetProduct.mockRejectedValue(
+      new ScrapeApiError(
+        "Demasiadas búsquedas seguidas. Esperá un momento e intentá de nuevo.",
+        429,
+      ),
+    );
+
+    await useProductsStore.getState().getProducts("tv");
+
+    expect(useProductsStore.getState().error).toBe(
+      "Demasiadas búsquedas seguidas. Esperá un momento e intentá de nuevo.",
+    );
+  });
+
+  it("getProducts reserva el mensaje de conexión para fallos de red reales", async () => {
+    mockGetProduct.mockRejectedValue(new TypeError("Failed to fetch"));
+
+    await useProductsStore.getState().getProducts("tv");
+
+    expect(useProductsStore.getState().error).toBe(
+      "No se pudo conectar. Verificá tu conexión e intentá de nuevo.",
+    );
   });
 });
 

@@ -1,12 +1,19 @@
 import { Product } from "@/types/product";
+import { ScrapeApiError, userMessageForStatus } from "./errors";
 
 export async function getProduct(productName: string) {
-  const response = await fetch(`/api/scrape?query=${productName}`, {
-    method: "GET",
-  });
+  const response = await fetch(
+    `/api/scrape?query=${encodeURIComponent(productName)}`,
+    {
+      method: "GET",
+    },
+  );
 
   if (!response.ok) {
-    throw new Error("Failed to fetch scrape");
+    throw new ScrapeApiError(
+      userMessageForStatus(response.status),
+      response.status,
+    );
   }
 
   const results = await response.json();

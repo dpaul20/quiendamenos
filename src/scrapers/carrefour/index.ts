@@ -146,6 +146,8 @@ export async function scrapeCarrefour(query: string): Promise<Product[]> {
       "Error fetching products from Carrefour:",
       toLogSafeError(error),
     );
-    return [];
+    // Se relanza para que backoff pueda reintentar y el router caiga al caché
+    // por tienda. Devolver [] hacía pasar el fallo por "sin resultados".
+    throw error;
   }
 }

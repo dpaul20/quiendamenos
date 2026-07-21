@@ -96,7 +96,9 @@ export function createVtexScraper(
         `[${storeName}] Error al obtener productos:`,
         toLogSafeError(error),
       );
-      return [];
+      // Se relanza para que backoff pueda reintentar y el router caiga al caché
+      // por tienda. Devolver [] hacía pasar el fallo por "sin resultados".
+      throw error;
     }
   };
 }

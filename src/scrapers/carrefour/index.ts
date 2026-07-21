@@ -10,6 +10,7 @@ import {
 } from "@/platform/vtex/helpers";
 import { httpClient } from "@/platform/http";
 import { sanitizeUrl } from "@/platform/url";
+import { toLogSafeError } from "@/platform/errors";
 
 const USER_AGENT =
   "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36";
@@ -51,9 +52,9 @@ function extractFromApolloCache(html: string): Product[] {
 
       let imageUrl = "";
       for (let i = 0; i < 3; i++) {
-        const item = cache[
-          `${key}.items({"filter":"ALL_AVAILABLE"}).${i}`
-        ] as { images?: Array<{ id?: string }> } | undefined;
+        const item = cache[`${key}.items({"filter":"ALL_AVAILABLE"}).${i}`] as
+          | { images?: Array<{ id?: string }> }
+          | undefined;
         if (!item) break;
         const imgRef = item.images?.[0]?.id;
         if (imgRef) {
@@ -88,7 +89,12 @@ const formatProductCarrefour = (product: vtexProduct): Product => {
   const sellers = product.items?.[0]?.sellers ?? [];
   const defaultSeller = sellers.find((s) => s.sellerDefault);
   const installments = defaultSeller?.commertialOffer?.Installments ?? [];
-  return formatVtexProduct(product, StoreNamesEnum.CARREFOUR, DOMAIN, installments);
+  return formatVtexProduct(
+    product,
+    StoreNamesEnum.CARREFOUR,
+    DOMAIN,
+    installments,
+  );
 };
 
 export async function scrapeCarrefour(query: string): Promise<Product[]> {
@@ -109,12 +115,15 @@ export async function scrapeCarrefour(query: string): Promise<Product[]> {
     if (data?.redirect) {
       try {
         const redirect: string = data.redirect;
-        const resolvedUrl = redirect.startsWith('/')
+        const resolvedUrl = redirect.startsWith("/")
           ? `https://www.carrefour.com.ar${redirect}`
           : redirect;
         sanitizeUrl(resolvedUrl);
-        if (new URL(resolvedUrl).origin !== 'https://www.carrefour.com.ar') {
-          console.warn('[carrefour] Redirect origin mismatch, skipping:', resolvedUrl);
+        if (new URL(resolvedUrl).origin !== "https://www.carrefour.com.ar") {
+          console.warn(
+            "[carrefour] Redirect origin mismatch, skipping:",
+            resolvedUrl,
+          );
           return [];
         }
         const { data: html } = await httpClient.get<string>(resolvedUrl, {
@@ -126,14 +135,17 @@ export async function scrapeCarrefour(query: string): Promise<Product[]> {
         });
         return extractFromApolloCache(html);
       } catch {
-        console.warn('[carrefour] Redirect blocked:', data.redirect);
+        console.warn("[carrefour] Redirect blocked:", data.redirect);
         return [];
       }
     }
 
     return [];
   } catch (error) {
-    console.error("Error fetching products from Carrefour:", error);
+    console.error(
+      "Error fetching products from Carrefour:",
+      toLogSafeError(error),
+    );
     return [];
   }
 }

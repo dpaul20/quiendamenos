@@ -4,13 +4,13 @@ Comparador de precios de electrónica para tiendas argentinas. Scrapea en parale
 
 ## Tiendas soportadas
 
-| Tienda | Método |
-|--------|--------|
-| Frávega | VTEX IS |
-| Cetrogar | VTEX IS |
-| Naldo | VTEX IS |
-| OnCity | VTEX IS |
-| Carrefour | VTEX IS |
+| Tienda       | Método     |
+| ------------ | ---------- |
+| Frávega      | VTEX IS    |
+| Cetrogar     | VTEX IS    |
+| Naldo        | VTEX IS    |
+| OnCity       | VTEX IS    |
+| Carrefour    | VTEX IS    |
 | MercadoLibre | API propia |
 
 ---
@@ -100,13 +100,13 @@ GET /api/scrape?query=iphone
 
 ### Capas principales
 
-| Capa | Ruta | Responsabilidad |
-|------|------|-----------------|
-| Middleware | `src/proxy.ts` | Rate limiting (10 req/min/IP), API key auth, security headers |
-| Infraestructura | `src/platform/` | Cache Redis, backoff exponencial, clasificación de errores, queue |
-| Dominio | `src/features/price-search/` | Orquestación de scrapers, estado cliente (Zustand) |
-| Scrapers | `src/scrapers/` | Un folder por tienda |
-| UI | `src/components/` | React + shadcn/ui + Storybook |
+| Capa            | Ruta                         | Responsabilidad                                                   |
+| --------------- | ---------------------------- | ----------------------------------------------------------------- |
+| Middleware      | `src/proxy.ts`               | Rate limiting (10 req/min/IP), API key auth, security headers     |
+| Infraestructura | `src/platform/`              | Cache Redis, backoff exponencial, clasificación de errores, queue |
+| Dominio         | `src/features/price-search/` | Orquestación de scrapers, estado cliente (Zustand)                |
+| Scrapers        | `src/scrapers/`              | Un folder por tienda                                              |
+| UI              | `src/components/`            | React + shadcn/ui + Storybook                                     |
 
 ### Caché Redis (dos niveles)
 
@@ -125,21 +125,25 @@ Las tiendas con VTEX Intelligent Search usan el factory:
 
 ```typescript
 import { createVtexScraper } from "@/platform/vtex/helpers";
-export const scrapeNombre = createVtexScraper("https://www.tienda.com.ar", StoreNamesEnum.NOMBRE);
+export const scrapeNombre = createVtexScraper(
+  "https://www.tienda.com.ar",
+  StoreNamesEnum.NOMBRE,
+);
 ```
 
 ---
 
 ## Variables de entorno
 
-| Variable | Entorno | Descripción |
-|----------|---------|-------------|
-| `REDIS_URL` | Local + Prod | Host de Redis (`127.0.0.1` local) |
-| `REDIS_PORT` | Local + Prod | Puerto de Redis (`6379` local) |
-| `REDIS_PASSWORD` | Solo prod | Omitir en local |
-| `API_SECRET_KEY` | Solo prod | Se requiere el header `x-api-key` en prod; en dev se omite |
-| `RESEND_API_KEY` | Solo prod | API key de [Resend](https://resend.com) para alertas por email |
-| `ALERT_EMAIL` | Solo prod | Email destino de las alertas de scrapers caídos |
+| Variable          | Entorno      | Descripción                                                                                                                                    |
+| ----------------- | ------------ | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| `REDIS_URL`       | Local + Prod | Host de Redis (`127.0.0.1` local)                                                                                                              |
+| `REDIS_PORT`      | Local + Prod | Puerto de Redis (`6379` local)                                                                                                                 |
+| `REDIS_PASSWORD`  | Solo prod    | Omitir en local                                                                                                                                |
+| `API_SECRET_KEY`  | Solo prod    | Se requiere el header `x-api-key` en prod; en dev se omite                                                                                     |
+| `RESEND_API_KEY`  | Solo prod    | API key de [Resend](https://resend.com) para alertas por email                                                                                 |
+| `ALERT_EMAIL`     | Solo prod    | Email destino de las alertas de scrapers caídos                                                                                                |
+| `SCRAPER_API_KEY` | Opcional     | API key de [ScraperAPI](https://www.scraperapi.com), usada como proxy para Fravega. Sin ella, Fravega se consulta directo y puede devolver 403 |
 
 > `CRON_SECRET` y `VERCEL_PROJECT_PRODUCTION_URL` los genera Vercel automáticamente.
 
@@ -161,10 +165,10 @@ Vercel Cron (*/10 * * * *)
 
 ### Endpoints de health
 
-| Endpoint | Descripción | Auth |
-|----------|-------------|------|
-| `GET /api/health` | Estado de cada scraper en tiempo real | Pública |
-| `GET /api/health-check` | Cron: evalúa y notifica | `CRON_SECRET` (Vercel automático) |
+| Endpoint                | Descripción                           | Auth                              |
+| ----------------------- | ------------------------------------- | --------------------------------- |
+| `GET /api/health`       | Estado de cada scraper en tiempo real | Pública                           |
+| `GET /api/health-check` | Cron: evalúa y notifica               | `CRON_SECRET` (Vercel automático) |
 
 Ejemplo de respuesta de `/api/health`:
 
@@ -172,8 +176,13 @@ Ejemplo de respuesta de `/api/health`:
 {
   "status": "degraded",
   "stores": {
-    "fravega":  { "status": "ok",   "latency": 823,  "count": 12 },
-    "cetrogar": { "status": "down", "latency": 8001, "count": 0, "error": "timeout" }
+    "fravega": { "status": "ok", "latency": 823, "count": 12 },
+    "cetrogar": {
+      "status": "down",
+      "latency": 8001,
+      "count": 0,
+      "error": "timeout"
+    }
   },
   "timestamp": "2026-04-20T14:30:00.000Z"
 }
@@ -185,10 +194,10 @@ Ejemplo de respuesta de `/api/health`:
 
 **2.** En Vercel → quiendamenos → **Settings → Environment Variables**, agregar:
 
-| Variable | Valor |
-|----------|-------|
+| Variable         | Valor            |
+| ---------------- | ---------------- |
 | `RESEND_API_KEY` | La key de Resend |
-| `ALERT_EMAIL` | Tu email |
+| `ALERT_EMAIL`    | Tu email         |
 
 **3.** Hacer deploy — el cron se activa automáticamente al leer `vercel.json`.
 
@@ -196,9 +205,9 @@ Ejemplo de respuesta de `/api/health`:
 
 ## Tests
 
-| Framework | Qué testea | Config |
-|-----------|------------|--------|
-| Jest + ts-jest | `platform/` y `scrapers/` | `jest.config.js` |
+| Framework           | Qué testea                           | Config             |
+| ------------------- | ------------------------------------ | ------------------ |
+| Jest + ts-jest      | `platform/` y `scrapers/`            | `jest.config.js`   |
 | Vitest + Playwright | Storybook component tests + coverage | `vitest.config.ts` |
 
 ---

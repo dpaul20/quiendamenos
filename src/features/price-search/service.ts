@@ -3,6 +3,7 @@ import { scrapers } from "@/scrapers";
 import { getAllStores } from "@/scrapers/registry";
 import { scrapeWithFallback } from "./router";
 import { cacheKey, setStoreCacheNX } from "@/platform/cache";
+import { toLogSafeError } from "@/platform/errors";
 import { batchInsertSnapshots } from "@/features/price-history/insert";
 
 export async function scrapeWebsite(query: string): Promise<Product[]> {
@@ -53,7 +54,7 @@ export async function scrapeWebsite(query: string): Promise<Product[]> {
 
     return allProducts;
   } catch (error) {
-    console.error("Error scraping website:", error);
+    console.error("Error scraping website:", toLogSafeError(error));
     return [];
   }
 }

@@ -105,6 +105,8 @@ export async function scrapeFravega(query: string): Promise<Product[]> {
       "Error fetching products from Fravega:",
       toLogSafeError(error),
     );
-    return [];
+    // Se relanza para que backoff pueda reintentar y el router caiga al caché
+    // por tienda. Devolver [] hacía pasar el fallo por "sin resultados".
+    throw error;
   }
 }

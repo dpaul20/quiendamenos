@@ -135,17 +135,31 @@ export const scrapeNombre = createVtexScraper(
 
 ## Variables de entorno
 
-| Variable          | Entorno      | Descripción                                                                                                                                    |
-| ----------------- | ------------ | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-| `REDIS_URL`       | Local + Prod | Host de Redis (`127.0.0.1` local)                                                                                                              |
-| `REDIS_PORT`      | Local + Prod | Puerto de Redis (`6379` local)                                                                                                                 |
-| `REDIS_PASSWORD`  | Solo prod    | Omitir en local                                                                                                                                |
-| `API_SECRET_KEY`  | Solo prod    | Se requiere el header `x-api-key` en prod; en dev se omite                                                                                     |
-| `RESEND_API_KEY`  | Solo prod    | API key de [Resend](https://resend.com) para alertas por email                                                                                 |
-| `ALERT_EMAIL`     | Solo prod    | Email destino de las alertas de scrapers caídos                                                                                                |
-| `SCRAPER_API_KEY` | Opcional     | API key de [ScraperAPI](https://www.scraperapi.com), usada como proxy para Fravega. Sin ella, Fravega se consulta directo y puede devolver 403 |
+| Variable             | Entorno      | Descripción                                                                                                                                    |
+| -------------------- | ------------ | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| `REDIS_URL`          | Local + Prod | Host de Redis (`127.0.0.1` local)                                                                                                              |
+| `REDIS_PORT`         | Local + Prod | Puerto de Redis (`6379` local)                                                                                                                 |
+| `REDIS_PASSWORD`     | Solo prod    | Omitir en local                                                                                                                                |
+| `API_SECRET_KEY`     | Solo prod    | Se requiere el header `x-api-key` en prod; en dev se omite                                                                                     |
+| `RESEND_API_KEY`     | Solo prod    | API key de [Resend](https://resend.com) para alertas por email                                                                                 |
+| `ALERT_EMAIL`        | Solo prod    | Email destino de las alertas de scrapers caídos                                                                                                |
+| `SCRAPER_API_KEY`    | Opcional     | API key de [ScraperAPI](https://www.scraperapi.com), usada como proxy para Fravega. Sin ella, Fravega se consulta directo y puede devolver 403 |
+| `MELI_CLIENT_ID`     | Local + Prod | App ID de MercadoLibre. Sin él, la tienda devuelve 403                                                                                         |
+| `MELI_CLIENT_SECRET` | Local + Prod | Secret de la app de MercadoLibre                                                                                                               |
 
 > `CRON_SECRET` y `VERCEL_PROJECT_PRODUCTION_URL` los genera Vercel automáticamente.
+
+### Credenciales de MercadoLibre
+
+La API de búsqueda de MercadoLibre dejó de aceptar requests anónimos: responde
+`403 {"error":"forbidden"}` sin header `Authorization`.
+
+1. Crear una aplicación en [developers.mercadolibre.com.ar](https://developers.mercadolibre.com.ar/devcenter)
+2. Copiar el **App ID** a `MELI_CLIENT_ID` y la **Secret Key** a `MELI_CLIENT_SECRET`
+
+No hace falta configurar redirect URI ni autorizar usuarios: se usa el grant
+`client_credentials`, que sólo da acceso a datos públicos. El token dura 6h y
+`src/platform/meli/token.ts` lo renueva y lo cachea solo.
 
 ---
 

@@ -8,11 +8,36 @@ import {
   ErrorType,
   isRetriable,
   getRetryDelay,
-} from '@/platform/errors';
+} from "@/platform/errors";
 
-describe('Categorizador de Errores', () => {
-  describe('categorizeHttpError', () => {
-    it('debería categorizar 429 como RATE_LIMITED', () => {
+describe("Categorizador de Errores", () => {
+  describe("errores que se declaran no reintentables", () => {
+    it("respeta retriable=false y corta los reintentos", () => {
+      const error = Object.assign(new Error("faltan credenciales"), {
+        retriable: false,
+      });
+
+      const result = categorizeError(error);
+
+      expect(result.retriable).toBe(false);
+      expect(result.message).toContain("faltan credenciales");
+    });
+
+    it("no altera los errores que no declaran el flag", () => {
+      expect(categorizeError(new Error("fallo genérico")).retriable).toBe(true);
+    });
+
+    it("no trata retriable=true como señal de corte", () => {
+      const error = Object.assign(new Error("fallo transitorio"), {
+        retriable: true,
+      });
+
+      expect(categorizeError(error).retriable).toBe(true);
+    });
+  });
+
+  describe("categorizeHttpError", () => {
+    it("debería categorizar 429 como RATE_LIMITED", () => {
       const error = categorizeHttpError(429);
 
       expect(error.type).toBe(ErrorType.RATE_LIMITED);
@@ -20,7 +45,7 @@ describe('Categorizador de Errores', () => {
       expect(error.statusCode).toBe(429);
     });
 
-    it('debería categorizar 403 como BLOCKING', () => {
+    it("debería categorizar 403 como BLOCKING", () => {
       const error = categorizeHttpError(403);
 
       expect(error.type).toBe(ErrorType.BLOCKING);
@@ -28,7 +53,7 @@ describe('Categorizador de Errores', () => {
       expect(error.statusCode).toBe(403);
     });
 
-    it('debería categorizar 404 como NOT_FOUND', () => {
+    it("debería categorizar 404 como NOT_FOUND", () => {
       const error = categorizeHttpError(404);
 
       expect(error.type).toBe(ErrorType.NOT_FOUND);
@@ -36,7 +61,7 @@ describe('Categorizador de Errores', () => {
       expect(error.statusCode).toBe(404);
     });
 
-    it('debería categorizar errores 5xx como SERVER_ERROR', () => {
+    it("debería categorizar errores 5xx como SERVER_ERROR", () => {
       [500, 502, 503, 504].forEach((code) => {
         const error = categorizeHttpError(code);
         expect(error.type).toBe(ErrorType.SERVER_ERROR);
@@ -45,13 +70,13 @@ describe('Categorizador de Errores', () => {
       });
     });
 
-    it('debería respetar el header Retry-After', () => {
-      const error = categorizeHttpError(429, '60');
+    it("debería respetar el header Retry-After", () => {
+      const error = categorizeHttpError(429, "60");
 
       expect(error.retryDelay).toBe(60);
     });
 
-    it('debería categorizar códigos desconocidos como UNKNOWN', () => {
+    it("debería categorizar códigos desconocidos como UNKNOWN", () => {
       const error = categorizeHttpError(418); // Soy una tetera
 
       expect(error.type).toBe(ErrorType.UNKNOWN);
@@ -59,50 +84,50 @@ describe('Categorizador de Errores', () => {
     });
   });
 
-  describe('categorizeError', () => {
-    it('debería detectar ECONNREFUSED', () => {
-      const error = new Error('ECONNREFUSED');
+  describe("categorizeError", () => {
+    it("debería detectar ECONNREFUSED", () => {
+      const error = new Error("ECONNREFUSED");
       const categorized = categorizeError(error);
 
       expect(categorized.type).toBe(ErrorType.NETWORK_ERROR);
       expect(categorized.retriable).toBe(true);
     });
 
-    it('debería detectar errores de timeout', () => {
-      const error = new Error('Request timeout');
+    it("debería detectar errores de timeout", () => {
+      const error = new Error("Request timeout");
       const categorized = categorizeError(error);
 
       expect(categorized.type).toBe(ErrorType.TIMEOUT);
       expect(categorized.retriable).toBe(true);
     });
 
-    it('debería detectar ENOTFOUND (DNS)', () => {
-      const error = new Error('getaddrinfo ENOTFOUND example.com');
+    it("debería detectar ENOTFOUND (DNS)", () => {
+      const error = new Error("getaddrinfo ENOTFOUND example.com");
       const categorized = categorizeError(error);
 
       expect(categorized.type).toBe(ErrorType.NETWORK_ERROR);
       expect(categorized.retriable).toBe(true);
     });
 
-    it('debería detectar ECONNRESET', () => {
-      const error = new Error('ECONNRESET');
+    it("debería detectar ECONNRESET", () => {
+      const error = new Error("ECONNRESET");
       const categorized = categorizeError(error);
 
       expect(categorized.type).toBe(ErrorType.NETWORK_ERROR);
       expect(categorized.retriable).toBe(true);
     });
 
-    it('debería detectar que se requiere JavaScript', () => {
-      const error = new Error('Content requires JavaScript rendering');
+    it("debería detectar que se requiere JavaScript", () => {
+      const error = new Error("Content requires JavaScript rendering");
       const categorized = categorizeError(error);
 
       expect(categorized.type).toBe(ErrorType.JAVASCRIPT_REQUIRED);
       expect(categorized.retriable).toBe(true);
     });
 
-    it('debería detectar contenido HTML pequeño como que requiere JavaScript', () => {
-      const smallHtml = '<html></html>';
-      const error = new Error('Some error');
+    it("debería detectar contenido HTML pequeño como que requiere JavaScript", () => {
+      const smallHtml = "<html></html>";
+      const error = new Error("Some error");
       const categorized = categorizeError(error, smallHtml);
 
       // Podrá ser marcado como retriable aunque el error original es desconocido
@@ -110,33 +135,33 @@ describe('Categorizador de Errores', () => {
       expect(categorized.retriable).toBe(true);
     });
 
-    it('debería manejar null/undefined', () => {
+    it("debería manejar null/undefined", () => {
       const categorized = categorizeError(null);
 
       expect(categorized.type).toBe(ErrorType.UNKNOWN);
       expect(categorized.retriable).toBe(false);
     });
 
-    it('debería manejar errores de string', () => {
-      const categorized1 = categorizeError('timeout occurred');
+    it("debería manejar errores de string", () => {
+      const categorized1 = categorizeError("timeout occurred");
       expect(categorized1.type).toBe(ErrorType.TIMEOUT);
       expect(categorized1.retriable).toBe(true);
 
-      const categorized2 = categorizeError('network connection failed');
+      const categorized2 = categorizeError("network connection failed");
       expect(categorized2.type).toBe(ErrorType.NETWORK_ERROR);
       expect(categorized2.retriable).toBe(true);
     });
 
-    it('debería marcar errores desconocidos como retriable por defecto', () => {
-      const error = new Error('Some weird error');
+    it("debería marcar errores desconocidos como retriable por defecto", () => {
+      const error = new Error("Some weird error");
       const categorized = categorizeError(error);
 
       expect(categorized.retriable).toBe(true);
     });
   });
 
-  describe('isRetriable', () => {
-    it('debería devolver true para tipos de error recuperables', () => {
+  describe("isRetriable", () => {
+    it("debería devolver true para tipos de error recuperables", () => {
       const retriableTypes = [
         ErrorType.RATE_LIMITED,
         ErrorType.BLOCKING,
@@ -151,7 +176,7 @@ describe('Categorizador de Errores', () => {
       });
     });
 
-    it('debería devolver false para tipos de error no recuperables', () => {
+    it("debería devolver false para tipos de error no recuperables", () => {
       const nonRetriableTypes = [ErrorType.NOT_FOUND, ErrorType.UNKNOWN];
 
       nonRetriableTypes.forEach((type) => {
@@ -160,11 +185,11 @@ describe('Categorizador de Errores', () => {
     });
   });
 
-  describe('getRetryDelay', () => {
-    it('debería usar el delay proporcionado por el servidor si está disponible', () => {
+  describe("getRetryDelay", () => {
+    it("debería usar el delay proporcionado por el servidor si está disponible", () => {
       const error = {
         type: ErrorType.RATE_LIMITED,
-        message: 'Rate limited',
+        message: "Rate limited",
         retriable: true,
         retryDelay: 30, // 30 segundos del header Retry-After
       };
@@ -173,7 +198,7 @@ describe('Categorizador de Errores', () => {
       expect(delay).toBe(30000); // Convertir a milisegundos
     });
 
-    it('debería usar delay por defecto según el tipo de error', () => {
+    it("debería usar delay por defecto según el tipo de error", () => {
       const testCases = [
         [ErrorType.RATE_LIMITED, 5000],
         [ErrorType.BLOCKING, 10000],
@@ -185,7 +210,7 @@ describe('Categorizador de Errores', () => {
       testCases.forEach(([type, expectedDelay]) => {
         const error = {
           type: type as ErrorType,
-          message: 'Test error',
+          message: "Test error",
           retriable: true,
         };
 
@@ -194,10 +219,10 @@ describe('Categorizador de Errores', () => {
       });
     });
 
-    it('debería devolver undefined para tipos desconocidos sin delay del servidor', () => {
+    it("debería devolver undefined para tipos desconocidos sin delay del servidor", () => {
       const error = {
         type: ErrorType.UNKNOWN,
-        message: 'Unknown',
+        message: "Unknown",
         retriable: false,
       };
 

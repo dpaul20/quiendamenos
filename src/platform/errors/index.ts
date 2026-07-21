@@ -114,6 +114,15 @@ export function categorizeError(
   htmlContent?: string,
 ): CategorizedError {
   if (!error) return categorizarNulo();
+  // Un error puede declararse no reintentable (ej. configuración faltante).
+  // Reintentar eso sólo multiplica el ruido: nunca va a tener éxito.
+  if (esNoReintentableExplicito(error)) {
+    return {
+      type: ErrorType.UNKNOWN,
+      message: error instanceof Error ? error.message : String(error),
+      retriable: false,
+    };
+  }
   if (error instanceof Error) return categorizarInstanciaError(error);
   if (typeof error === "string") return categorizarErrorString(error);
   if (htmlContent) return categorizarHtml(htmlContent);
@@ -124,6 +133,15 @@ export function categorizeError(
     retriable: false,
     details: { originalError: String(error) },
   };
+}
+
+/** Detecta el opt-out explícito `retriable: false` en el objeto de error. */
+function esNoReintentableExplicito(error: unknown): boolean {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    (error as { retriable?: unknown }).retriable === false
+  );
 }
 
 function categorizarNulo(): CategorizedError {

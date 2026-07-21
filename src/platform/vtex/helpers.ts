@@ -3,6 +3,7 @@ import { vtexProduct } from "@/types/vtex-product";
 import { Product } from "@/types/product";
 import { StoreNamesEnum } from "@/enums/stores.enum";
 import { httpClient } from "@/platform/http";
+import { toLogSafeError } from "@/platform/errors";
 
 export type VtexInstallment =
   vtexProduct["items"][number]["sellers"][number]["commertialOffer"]["Installments"][number];
@@ -45,9 +46,7 @@ export const NON_ELECTRONICS_PATTERN =
 
 export function isElectronicsProduct(product: vtexProduct): boolean {
   if (!product.categories?.length) return true;
-  return !product.categories.some((cat) =>
-    NON_ELECTRONICS_PATTERN.test(cat),
-  );
+  return !product.categories.some((cat) => NON_ELECTRONICS_PATTERN.test(cat));
 }
 
 /**
@@ -93,10 +92,11 @@ export function createVtexScraper(
         .filter(isElectronicsProduct)
         .map((p: vtexProduct) => formatVtexProduct(p, storeName, domain));
     } catch (error) {
-      console.error(`[${storeName}] Error al obtener productos:`, error);
+      console.error(
+        `[${storeName}] Error al obtener productos:`,
+        toLogSafeError(error),
+      );
       return [];
     }
   };
 }
-
-

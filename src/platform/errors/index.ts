@@ -1,6 +1,6 @@
 /**
  * Categorizador de Errores
- * 
+ *
  * Categoriza automáticamente errores para determinar la estrategia de reintentos.
  * Tipos: JAVASCRIPT_REQUIRED, RATE_LIMITED, BLOCKING, NETWORK_ERROR, UNKNOWN
  */
@@ -9,14 +9,14 @@
  * Enumeración de tipos de error
  */
 export enum ErrorType {
-  JAVASCRIPT_REQUIRED = 'javascript_required',
-  RATE_LIMITED = 'rate_limited',
-  BLOCKING = 'blocking',
-  NETWORK_ERROR = 'network_error',
-  NOT_FOUND = 'not_found',
-  SERVER_ERROR = 'server_error',
-  TIMEOUT = 'timeout',
-  UNKNOWN = 'unknown',
+  JAVASCRIPT_REQUIRED = "javascript_required",
+  RATE_LIMITED = "rate_limited",
+  BLOCKING = "blocking",
+  NETWORK_ERROR = "network_error",
+  NOT_FOUND = "not_found",
+  SERVER_ERROR = "server_error",
+  TIMEOUT = "timeout",
+  UNKNOWN = "unknown",
 }
 
 /**
@@ -33,14 +33,14 @@ export interface CategorizedError {
 
 /**
  * Categoriza error HTTP por código de estado
- * 
+ *
  * @param statusCode Código de estado HTTP
  * @param retryAfter Valor opcional del header Retry-After (en segundos)
  * @returns Error categorizado
  */
 export function categorizeHttpError(
   statusCode: number,
-  retryAfter?: string
+  retryAfter?: string,
 ): CategorizedError {
   const retryDelay = retryAfter ? Number.parseInt(retryAfter, 10) : undefined;
 
@@ -50,7 +50,7 @@ export function categorizeHttpError(
       return {
         type: ErrorType.RATE_LIMITED,
         statusCode,
-        message: 'Demasiadas solicitudes (429) - Rate limited',
+        message: "Demasiadas solicitudes (429) - Rate limited",
         retriable: true,
         retryDelay,
       };
@@ -60,7 +60,7 @@ export function categorizeHttpError(
       return {
         type: ErrorType.BLOCKING,
         statusCode,
-        message: 'Prohibido (403) - La IP podría estar bloqueada',
+        message: "Prohibido (403) - La IP podría estar bloqueada",
         retriable: true,
         retryDelay,
       };
@@ -70,7 +70,7 @@ export function categorizeHttpError(
       return {
         type: ErrorType.NOT_FOUND,
         statusCode,
-        message: 'No encontrado (404) - El recurso no existe',
+        message: "No encontrado (404) - El recurso no existe",
         retriable: false,
       };
 
@@ -99,23 +99,23 @@ export function categorizeHttpError(
 
 /**
  * Categoriza error genérico
- * 
+ *
  * Detecta patrones de error comunes:
  * - Errores de red (ECONNREFUSED, ETIMEDOUT, ENOTFOUND)
  * - Errores de timeout
  * - Renderización de JavaScript requerida (contenido HTML pequeño)
- * 
+ *
  * @param error Objeto de error
  * @param htmlContent Contenido HTML opcional para verificar tamaño
  * @returns Error categorizado
  */
 export function categorizeError(
   error: unknown,
-  htmlContent?: string
+  htmlContent?: string,
 ): CategorizedError {
   if (!error) return categorizarNulo();
   if (error instanceof Error) return categorizarInstanciaError(error);
-  if (typeof error === 'string') return categorizarErrorString(error);
+  if (typeof error === "string") return categorizarErrorString(error);
   if (htmlContent) return categorizarHtml(htmlContent);
 
   return {
@@ -129,7 +129,7 @@ export function categorizeError(
 function categorizarNulo(): CategorizedError {
   return {
     type: ErrorType.UNKNOWN,
-    message: 'Error desconocido (null/undefined)',
+    message: "Error desconocido (null/undefined)",
     retriable: false,
   };
 }
@@ -137,46 +137,53 @@ function categorizarNulo(): CategorizedError {
 function categorizarInstanciaError(error: Error): CategorizedError {
   const message = error.message.toLowerCase();
 
-  if (message.includes('econnrefused') || message.includes('connect econnrefused')) {
+  if (
+    message.includes("econnrefused") ||
+    message.includes("connect econnrefused")
+  ) {
     return {
       type: ErrorType.NETWORK_ERROR,
-      message: 'Conexión rechazada - El servidor podría estar caído',
+      message: "Conexión rechazada - El servidor podría estar caído",
       retriable: true,
       details: { originalError: error.message },
     };
   }
 
-  if (message.includes('etimedout') || message.includes('timeout') || message.includes('timed out')) {
+  if (
+    message.includes("etimedout") ||
+    message.includes("timeout") ||
+    message.includes("timed out")
+  ) {
     return {
       type: ErrorType.TIMEOUT,
-      message: 'Timeout de solicitud - El servidor no está respondiendo',
+      message: "Timeout de solicitud - El servidor no está respondiendo",
       retriable: true,
       details: { originalError: error.message },
     };
   }
 
-  if (message.includes('enotfound') || message.includes('getaddrinfo')) {
+  if (message.includes("enotfound") || message.includes("getaddrinfo")) {
     return {
       type: ErrorType.NETWORK_ERROR,
-      message: 'Error de búsqueda DNS - Dominio no encontrado',
+      message: "Error de búsqueda DNS - Dominio no encontrado",
       retriable: true,
       details: { originalError: error.message },
     };
   }
 
-  if (message.includes('econnreset')) {
+  if (message.includes("econnreset")) {
     return {
       type: ErrorType.NETWORK_ERROR,
-      message: 'Conexión reiniciada - El servidor cerró la conexión',
+      message: "Conexión reiniciada - El servidor cerró la conexión",
       retriable: true,
       details: { originalError: error.message },
     };
   }
 
-  if (message.includes('javascript') || message.includes('content too small')) {
+  if (message.includes("javascript") || message.includes("content too small")) {
     return {
       type: ErrorType.JAVASCRIPT_REQUIRED,
-      message: 'El contenido requiere renderización de JavaScript',
+      message: "El contenido requiere renderización de JavaScript",
       retriable: true,
       details: { originalError: error.message },
     };
@@ -194,10 +201,10 @@ function categorizarInstanciaError(error: Error): CategorizedError {
 function categorizarErrorString(error: string): CategorizedError {
   const lower = error.toLowerCase();
 
-  if (lower.includes('timeout')) {
+  if (lower.includes("timeout")) {
     return { type: ErrorType.TIMEOUT, message: error, retriable: true };
   }
-  if (lower.includes('connection') || lower.includes('network')) {
+  if (lower.includes("connection") || lower.includes("network")) {
     return { type: ErrorType.NETWORK_ERROR, message: error, retriable: true };
   }
   return { type: ErrorType.UNKNOWN, message: error, retriable: false };
@@ -206,14 +213,14 @@ function categorizarErrorString(error: string): CategorizedError {
 function categorizarHtml(htmlContent: string): CategorizedError {
   const esJsRequerido =
     htmlContent.length < 1000 &&
-    (htmlContent.includes('javascript') ||
-      htmlContent.includes('enable javascript') ||
-      htmlContent.includes('script is required'));
+    (htmlContent.includes("javascript") ||
+      htmlContent.includes("enable javascript") ||
+      htmlContent.includes("script is required"));
 
   if (esJsRequerido) {
     return {
       type: ErrorType.JAVASCRIPT_REQUIRED,
-      message: 'Contenido requiere JavaScript - HTML muy pequeño',
+      message: "Contenido requiere JavaScript - HTML muy pequeño",
       retriable: true,
       details: { contentLength: htmlContent.length },
     };
@@ -221,14 +228,14 @@ function categorizarHtml(htmlContent: string): CategorizedError {
 
   return {
     type: ErrorType.UNKNOWN,
-    message: 'Error desconocido en contenido HTML',
+    message: "Error desconocido en contenido HTML",
     retriable: false,
   };
 }
 
 /**
  * Verifica si un error es recuperable basado en el tipo
- * 
+ *
  * @param errorType Tipo de error
  * @returns Si el error debería reintentarse
  */
@@ -245,10 +252,10 @@ export function isRetriable(errorType: ErrorType): boolean {
 
 /**
  * Obtiene el delay de reintentos para el tipo de error
- * 
+ *
  * Algunos errores tienen delays recomendados de servidores (header Retry-After).
  * Esta función proporciona defaults sensatos.
- * 
+ *
  * @param error Error categorizado
  * @returns Delay en milisegundos (o undefined si no hay delay especificado por servidor)
  */
@@ -274,6 +281,8 @@ export function getRetryDelay(error: CategorizedError): number | undefined {
   }
 }
 
+export { redactSecrets, toLogSafeError, REDACTED } from "./log-safe";
+
 export interface PublicError {
   error: string;
   stack?: string;
@@ -282,6 +291,7 @@ export interface PublicError {
 export function redactError(error: unknown, env?: string): PublicError {
   const isProd = (env ?? process.env.NODE_ENV) === "production";
   if (isProd) return { error: "Internal Server Error" };
-  if (error instanceof Error) return { error: error.message, stack: error.stack };
+  if (error instanceof Error)
+    return { error: error.message, stack: error.stack };
   return { error: String(error ?? "Unknown error") };
 }

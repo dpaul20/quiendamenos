@@ -2,6 +2,7 @@ import { capitalize } from "@/lib/capitalize";
 import { Product } from "@/types/product";
 import { StoreNamesEnum } from "@/enums/stores.enum";
 import { httpClient } from "@/platform/http";
+import { toLogSafeError } from "@/platform/errors";
 
 interface MeliAttribute {
   id: string;
@@ -38,7 +39,10 @@ export async function scrapeMercadoLibre(query: string): Promise<Product[]> {
       };
     });
   } catch (error) {
-    console.error("Error fetching products from MercadoLibre:", error);
+    console.error(
+      "Error fetching products from MercadoLibre:",
+      toLogSafeError(error),
+    );
     return [];
   }
 }

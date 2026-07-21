@@ -3,7 +3,7 @@ import { getQueryCache, setQueryCache, cacheKey } from "@/platform/cache";
 import { scrapeWebsite } from "@/features/price-search/service";
 import { NextRequest, NextResponse } from "next/server";
 import { validateQuery } from "@/platform/query";
-import { redactError } from "@/platform/errors";
+import { redactError, toLogSafeError } from "@/platform/errors";
 
 export async function GET(request: NextRequest) {
   try {
@@ -12,10 +12,7 @@ export async function GET(request: NextRequest) {
     const validation = validateQuery(raw);
 
     if (!validation.valid) {
-      return NextResponse.json(
-        { error: validation.reason },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: validation.reason }, { status: 400 });
     }
 
     const query = validation.value;
@@ -37,7 +34,7 @@ export async function GET(request: NextRequest) {
     await setQueryCache(key, result);
     return NextResponse.json(result);
   } catch (error) {
-    console.error("Error in scrape route:", error);
+    console.error("Error in scrape route:", toLogSafeError(error));
     return NextResponse.json(redactError(error), { status: 500 });
   }
 }

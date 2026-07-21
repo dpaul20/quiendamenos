@@ -3,6 +3,7 @@ import { capitalize } from "@/lib/capitalize";
 import { Product } from "@/types/product";
 import { StoreNamesEnum } from "@/enums/stores.enum";
 import { httpClient } from "@/platform/http";
+import { toLogSafeError } from "@/platform/errors";
 
 interface FravegaNextProduct {
   id?: string;
@@ -22,9 +23,7 @@ interface FravegaNextData {
 }
 
 /** Extrae el mapa id→brand desde el JSON __NEXT_DATA__ embebido por Next.js en el HTML. */
-function extraerMarcasDesdeNextData(
-  html: string,
-): Map<string, string> {
+function extraerMarcasDesdeNextData(html: string): Map<string, string> {
   const marcasPorId = new Map<string, string>();
   try {
     const $ = load(html);
@@ -81,15 +80,11 @@ export async function scrapeFravega(query: string): Promise<Product[]> {
           $(item).find("img[src*='images.fravega.com/f300/']").attr("src") ??
           "https://placehold.co/300x200";
         const relativeUrl =
-          $(item)
-            .find("a[rel='bookmark'][href^='/p/']")
-            .first()
-            .attr("href") ?? "";
+          $(item).find("a[rel='bookmark'][href^='/p/']").first().attr("href") ??
+          "";
         // El id del producto está en la URL: /p/{id}-...
         const productId = relativeUrl.split("/p/")[1]?.split("-")[0] ?? "";
-        const brand = capitalize(
-          marcasPorId.get(productId) ?? "Unknown",
-        );
+        const brand = capitalize(marcasPorId.get(productId) ?? "Unknown");
 
         if (!name) return null;
         return {
@@ -106,7 +101,10 @@ export async function scrapeFravega(query: string): Promise<Product[]> {
 
     return products;
   } catch (error) {
-    console.error("Error fetching products from Fravega:", error);
+    console.error(
+      "Error fetching products from Fravega:",
+      toLogSafeError(error),
+    );
     return [];
   }
 }

@@ -71,6 +71,89 @@ describe("scrapeFravega — error logging", () => {
   });
 });
 
+describe("scrapeFravega — direct first, proxy as fallback", () => {
+  const originalEnv = process.env;
+  let warnSpy: jest.SpyInstance;
+  let errorSpy: jest.SpyInstance;
+
+  const DIRECT_URL = "https://www.fravega.com/l/?keyword=samsung%2065";
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    process.env = { ...originalEnv, SCRAPER_API_KEY: API_KEY };
+    warnSpy = jest.spyOn(console, "warn").mockImplementation(() => {});
+    errorSpy = jest.spyOn(console, "error").mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    process.env = originalEnv;
+    warnSpy.mockRestore();
+    errorSpy.mockRestore();
+  });
+
+  it("hits Fravega directly first, without the proxy", async () => {
+    mockGet.mockResolvedValue({ data: "<html></html>" });
+
+    await scrapeFravega("samsung 65");
+
+    expect(mockGet).toHaveBeenCalledTimes(1);
+    expect(mockGet).toHaveBeenCalledWith(DIRECT_URL, expect.any(Object));
+  });
+
+  it("never calls the proxy when the direct request succeeds", async () => {
+    mockGet.mockResolvedValue({ data: "<html></html>" });
+
+    await scrapeFravega("samsung 65");
+
+    const urls = mockGet.mock.calls.map((call) => call[0] as string);
+    expect(urls.some((url) => url.includes("scraperapi"))).toBe(false);
+  });
+
+  it("falls back to the proxy when the direct request fails", async () => {
+    mockGet
+      .mockRejectedValueOnce(new Error("Request failed with status code 403"))
+      .mockResolvedValueOnce({ data: "<html></html>" });
+
+    await scrapeFravega("samsung 65");
+
+    expect(mockGet).toHaveBeenCalledTimes(2);
+    const proxyUrl = mockGet.mock.calls[1][0] as string;
+    expect(proxyUrl).toContain("api.scraperapi.com");
+    expect(proxyUrl).toContain(encodeURIComponent(DIRECT_URL));
+  });
+
+  it("does not leak the key when logging the direct failure", async () => {
+    mockGet
+      .mockRejectedValueOnce(new Error("Request failed with status code 403"))
+      .mockResolvedValueOnce({ data: "<html></html>" });
+
+    await scrapeFravega("samsung 65");
+
+    const logged = warnSpy.mock.calls.flat().join(" ");
+    expect(logged).not.toContain(API_KEY);
+  });
+
+  it("rethrows the direct failure when no proxy key is configured", async () => {
+    process.env = { ...originalEnv };
+    delete process.env.SCRAPER_API_KEY;
+    mockGet.mockRejectedValue(new Error("Request failed with status code 403"));
+
+    await expect(scrapeFravega("samsung 65")).rejects.toThrow(
+      "Request failed with status code 403",
+    );
+    expect(mockGet).toHaveBeenCalledTimes(1);
+  });
+
+  it("rethrows when both the direct request and the proxy fail", async () => {
+    mockGet
+      .mockRejectedValueOnce(new Error("direct 403"))
+      .mockRejectedValueOnce(new Error("proxy timeout"));
+
+    await expect(scrapeFravega("samsung 65")).rejects.toThrow("proxy timeout");
+    expect(mockGet).toHaveBeenCalledTimes(2);
+  });
+});
+
 describe("scrapeFravega — failure vs. no results", () => {
   const originalEnv = process.env;
   let errorSpy: jest.SpyInstance;

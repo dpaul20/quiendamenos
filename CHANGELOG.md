@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.4.3](https://github.com/dpaul20/quiendamenos/compare/quiendamenos-v0.4.2...quiendamenos-v0.4.3) (2026-07-21)
+
+
+### 🐛 Bug Fixes
+
+* **search:** accept inch symbol and surface real API errors ([c9fc22e](https://github.com/dpaul20/quiendamenos/commit/c9fc22e3fd03c8b37e65ab902f6ea018cad1f7bc))
+* **search:** accept inch symbol and surface real API errors ([2a6fbda](https://github.com/dpaul20/quiendamenos/commit/2a6fbda64d4aea7a8a65b438a7a88ef134e3fc63))
+
 ## [0.4.2](https://github.com/dpaul20/quiendamenos/compare/quiendamenos-v0.4.1...quiendamenos-v0.4.2) (2026-06-27)
 
 

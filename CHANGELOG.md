@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.4.4](https://github.com/dpaul20/quiendamenos/compare/quiendamenos-v0.4.3...quiendamenos-v0.4.4) (2026-07-21)
+
+
+### 🐛 Bug Fixes
+
+* **logs:** redact secrets from error logs instead of dumping raw errors ([d468402](https://github.com/dpaul20/quiendamenos/commit/d46840246ad190878eee302834e31cf4a0d6f79e))
+* **logs:** redact secrets from error logs instead of dumping raw errors ([4ba9369](https://github.com/dpaul20/quiendamenos/commit/4ba93695d8ace2c1389ffee8a81b5fcd54a2bcea))
+
 ## [0.4.3](https://github.com/dpaul20/quiendamenos/compare/quiendamenos-v0.4.2...quiendamenos-v0.4.3) (2026-07-21)
 
 

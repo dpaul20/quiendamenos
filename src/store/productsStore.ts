@@ -1,5 +1,9 @@
 import { StoreNamesEnum } from "@/enums/stores.enum";
 import { getProduct } from "@/features/price-search/api";
+import {
+  CONNECTION_ERROR_MESSAGE,
+  ScrapeApiError,
+} from "@/features/price-search/errors";
 import { ALL } from "@/features/price-search/constants";
 import { updateUnknownBrands } from "@/features/price-search/unknown-brands";
 import { capitalize } from "@/lib/capitalize";
@@ -85,10 +89,13 @@ export const useProductsStore = create<State>((set, get) => ({
         isLoading: false,
         error: null,
       }));
-    } catch {
+    } catch (error) {
       set({
         isLoading: false,
-        error: "No se pudo conectar. Verificá tu conexión e intentá de nuevo.",
+        error:
+          error instanceof ScrapeApiError
+            ? error.message
+            : CONNECTION_ERROR_MESSAGE,
       });
     }
   },

@@ -32,7 +32,7 @@ Node.js 20.x required (see `.nvmrc`).
 
 ## Architecture
 
-**Electronics price comparison** for Argentine stores. Scrapes 6+ retailers in parallel, caches in Redis, serves via Next.js API.
+**Electronics price comparison** for Argentine stores. Scrapes 5 retailers in parallel, caches in Redis, serves via Next.js API.
 
 ### Request Flow
 
@@ -62,7 +62,7 @@ GET /api/scrape?query=iphone
 - `router.ts` — Per-store fallback: try scraper → store cache → empty array
 - `hooks/` — Zustand store for client-side state (results, filters, pagination)
 
-**`src/scrapers/`** — One folder per store (naldo, oncity, carrefour, fravega, cetrogar, mercadolibre). VTEX stores use `createVtexScraper` factory from `platform/vtex`.
+**`src/scrapers/`** — One folder per store (naldo, oncity, carrefour, fravega, cetrogar, mercadolibre). VTEX stores use `createVtexScraper` factory from `platform/vtex`. A store folder existing does not mean the store runs: `DISABLED_STORES` in `src/scrapers/index.ts` lists scrapers that are kept in the tree but left out of the registry (currently mercadolibre).
 
 **`src/components/`** — React UI with Storybook stories. `ui/` contains shadcn/ui primitives.
 

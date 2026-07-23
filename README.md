@@ -1,17 +1,23 @@
 # quiendamenos
 
-Comparador de precios de electrónica para tiendas argentinas. Scrapea en paralelo Frávega, Cetrogar, Naldo, Carrefour, OnCity y MercadoLibre, cachea en Redis y sirve los resultados vía Next.js.
+Comparador de precios de electrónica para tiendas argentinas. Scrapea en paralelo Frávega, Cetrogar, Naldo, Carrefour y OnCity, cachea en Redis y sirve los resultados vía Next.js.
 
 ## Tiendas soportadas
 
-| Tienda       | Método     |
-| ------------ | ---------- |
-| Frávega      | VTEX IS    |
-| Cetrogar     | VTEX IS    |
-| Naldo        | VTEX IS    |
-| OnCity       | VTEX IS    |
-| Carrefour    | VTEX IS    |
-| MercadoLibre | API propia |
+| Tienda       | Método     | Estado        |
+| ------------ | ---------- | ------------- |
+| Frávega      | VTEX IS    | Activa        |
+| Cetrogar     | VTEX IS    | Activa        |
+| Naldo        | VTEX IS    | Activa        |
+| OnCity       | VTEX IS    | Activa        |
+| Carrefour    | VTEX IS    | Activa        |
+| MercadoLibre | API propia | Deshabilitada |
+
+MercadoLibre está deshabilitada en `src/scrapers/index.ts` (`DISABLED_STORES`). Sus dos
+vías de acceso están cerradas: la API oficial responde `403 PA_UNAUTHORIZED_RESULT_FROM_POLICIES`
+aun con un token OAuth válido, y el listado HTML está detrás de un challenge de proof-of-work.
+Reactivarla requiere los proxies premium de ScraperAPI. El scraper y el módulo de token OAuth
+se conservan para poder volver a habilitarla sin reescribirlos.
 
 ---
 
@@ -135,15 +141,17 @@ export const scrapeNombre = createVtexScraper(
 
 ## Variables de entorno
 
-| Variable          | Entorno      | Descripción                                                                                                                                    |
-| ----------------- | ------------ | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-| `REDIS_URL`       | Local + Prod | Host de Redis (`127.0.0.1` local)                                                                                                              |
-| `REDIS_PORT`      | Local + Prod | Puerto de Redis (`6379` local)                                                                                                                 |
-| `REDIS_PASSWORD`  | Solo prod    | Omitir en local                                                                                                                                |
-| `API_SECRET_KEY`  | Solo prod    | Se requiere el header `x-api-key` en prod; en dev se omite                                                                                     |
-| `RESEND_API_KEY`  | Solo prod    | API key de [Resend](https://resend.com) para alertas por email                                                                                 |
-| `ALERT_EMAIL`     | Solo prod    | Email destino de las alertas de scrapers caídos                                                                                                |
-| `SCRAPER_API_KEY` | Opcional     | API key de [ScraperAPI](https://www.scraperapi.com), usada como proxy para Fravega. Sin ella, Fravega se consulta directo y puede devolver 403 |
+| Variable             | Entorno      | Descripción                                                                                                                                    |
+| -------------------- | ------------ | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| `REDIS_URL`          | Local + Prod | Host de Redis (`127.0.0.1` local)                                                                                                              |
+| `REDIS_PORT`         | Local + Prod | Puerto de Redis (`6379` local)                                                                                                                 |
+| `REDIS_PASSWORD`     | Solo prod    | Omitir en local                                                                                                                                |
+| `API_SECRET_KEY`     | Solo prod    | Se requiere el header `x-api-key` en prod; en dev se omite                                                                                     |
+| `RESEND_API_KEY`     | Solo prod    | API key de [Resend](https://resend.com) para alertas por email                                                                                 |
+| `ALERT_EMAIL`        | Solo prod    | Email destino de las alertas de scrapers caídos                                                                                                |
+| `SCRAPER_API_KEY`    | Opcional     | API key de [ScraperAPI](https://www.scraperapi.com), usada como proxy para Fravega. Sin ella, Fravega se consulta directo y puede devolver 403 |
+| `MELI_CLIENT_ID`     | Sin uso      | Credencial OAuth de MercadoLibre. Sin efecto mientras la tienda esté en `DISABLED_STORES`                                                      |
+| `MELI_CLIENT_SECRET` | Sin uso      | Ídem                                                                                                                                           |
 
 > `CRON_SECRET` y `VERCEL_PROJECT_PRODUCTION_URL` los genera Vercel automáticamente.
 

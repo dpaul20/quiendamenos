@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 
 type StoreStatus = {
-  status: "ok" | "slow" | "down";
+  status: "ok" | "slow" | "empty" | "down";
   latency: number;
   count: number;
   error?: string;
@@ -23,8 +23,17 @@ async function notifyEmail(payload: HealthPayload): Promise<void> {
 
   const rows = Object.entries(payload.stores)
     .map(([name, s]) => {
-      const icon = s.status === "ok" ? "✅" : s.status === "slow" ? "⚠️" : "❌";
-      const detail = s.error ? ` — ${s.error}` : ` (${s.latency}ms, ${s.count} resultados)`;
+      const icon =
+        s.status === "ok"
+          ? "✅"
+          : s.status === "slow"
+            ? "⚠️"
+            : s.status === "empty"
+              ? "📭"
+              : "❌";
+      const detail = s.error
+        ? ` — ${s.error}`
+        : ` (${s.latency}ms, ${s.count} resultados)`;
       return `<tr>
         <td style="padding:6px 12px">${icon} ${name}</td>
         <td style="padding:6px 12px">${s.status}${detail}</td>

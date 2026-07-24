@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.4.5](https://github.com/dpaul20/quiendamenos/compare/quiendamenos-v0.4.4...quiendamenos-v0.4.5) (2026-07-24)
+
+
+### 🐛 Bug Fixes
+
+* **health:** treat empty scraper results as a broken store ([5217f73](https://github.com/dpaul20/quiendamenos/commit/5217f73987cb17e5f3bee3c745962161e7b85f03))
+* **health:** treat empty scraper results as a broken store ([acf28e1](https://github.com/dpaul20/quiendamenos/commit/acf28e127e3720ab7e5e9e066419d0516c5a0114))
+
 ## [0.4.4](https://github.com/dpaul20/quiendamenos/compare/quiendamenos-v0.4.3...quiendamenos-v0.4.4) (2026-07-21)
 
 
